@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GoTours CRM 360 – מהדורה מקצועית</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #f4f7fa; --card: #ffffff; --line: #d7e1eb; --text: #132133;
+      --muted: #5e6f84; --brand: #0f567f; --brand-2: #1f89aa;
+      --ok: #1f8a53; --warn: #b57814; --danger: #c33434;
+      --chip: #edf5fc; --shadow: 0 12px 30px rgba(11,39,64,0.09); --nataly: #25d366;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; padding:16px; min-height:100vh; color:var(--text); font-family:"Assistant","Segoe UI",Arial,sans-serif; background:radial-gradient(circle at top right,#e7f4ff 0%,#f5f8fc 45%,#eff3f8 100%); }
+    .auth-wrap { min-height:calc(100vh - 32px); display:grid; place-items:center; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:14px; }
+    .auth { width:min(460px,100%); padding:22px; }
+    h1,h2,h3,h4 { margin:0; }
+    h1 { color:var(--brand); font-size:30px; margin-bottom:8px; }
+    .muted { color:var(--muted); }
+    .grid { display:grid; gap:10px; }
+    label { font-size:13px; font-weight:700; color:var(--muted); display:block; margin-bottom:4px; }
+    input,select,textarea,button { width:100%; font:inherit; border-radius:10px; border:1px solid var(--line); padding:10px 11px; background:#fff; color:var(--text); outline:none; }
+    textarea { min-height:84px; resize:vertical; }
+    input:focus,select:focus,textarea:focus { border-color:#7ba9cd; box-shadow:0 0 0 3px rgba(21,123,192,0.13); }
+    button { cursor:pointer; font-weight:700; transition:0.15s ease; }
+    button:hover { transform:translateY(-1px); }
+    .btn-primary { background:var(--brand); color:#fff; border:none; }
+    .btn-soft { background:#f2f7fc; color:var(--brand); border:1px solid #d4e5f5; }
+    .btn-ok { background:var(--ok); color:#fff; border:none; }
+    .btn-danger { background:var(--danger); color:#fff; border:none; }
+    .btn-wa { background:#25d366; color:#fff; border:none; }
+    .btn-warn { background:var(--warn); color:#fff; border:none; }
+    .btn-purple { background:#7c3aed; color:#fff; border:none; }
+    .shell { max-width:1480px; margin:0 auto; display:grid; gap:12px; }
+    .header { background:linear-gradient(125deg,#0f567f,#1777ab 58%,#1fa3bb); color:#fff; border-radius:20px; box-shadow:var(--shadow); padding:18px; }
+    .header-row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .tabs { display:flex; gap:8px; flex-wrap:wrap; }
+    .tabs button { width:auto; padding:9px 13px; background:#fff; border:1px solid var(--line); }
+    .tabs button.active { background:var(--brand); border-color:transparent; color:#fff; }
+    .kpis { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; }
+    .kpi { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; }
+    .kpi strong { display:block; font-size:24px; color:var(--brand); }
+    .layout-2 { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:12px; }
+    .layout-3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .list { display:grid; gap:8px; }
+    .item { border:1px solid var(--line); border-radius:12px; background:#fff; padding:10px; }
+    .item-head { display:flex; align-items:start; justify-content:space-between; gap:8px; margin-bottom:6px; }
+    .chips { display:flex; gap:6px; flex-wrap:wrap; }
+    .chip { background:var(--chip); border:1px solid #d7e8f6; color:#2f5575; border-radius:999px; padding:4px 9px; font-size:12px; font-weight:700; }
+    .chip.active-chip { background:var(--brand); color:#fff; border-color:var(--brand); }
+    .badge { font-size:12px; border-radius:999px; padding:4px 8px; font-weight:800; }
+    .b-ok { background:#dcf4e7; color:#196841; }
+    .b-warn { background:#fff2dd; color:#95600f; }
+    .b-danger { background:#ffe7e7; color:#9e1f1f; }
+    .b-purple { background:#ede9fe; color:#5b21b6; }
+    .row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .row > * { flex:1; min-width:120px; }
+    .section-title { color:var(--brand); font-size:21px; margin-bottom:10px; font-weight:800; }
+    .sub-title { color:var(--muted); font-size:13px; margin-bottom:10px; }
+    .empty { border:1px dashed #c9d8e8; border-radius:12px; background:#fff; color:var(--muted); text-align:center; padding:22px; }
+    .small { font-size:13px; }
+    .meter { margin-top:4px; height:8px; background:#e6edf5; border-radius:999px; overflow:hidden; }
+    .meter > span { display:block; height:100%; background:linear-gradient(90deg,#1675a7,#27a2be); }
+    .priority { border-inline-start:4px solid #bf7c15; background:#fffaf1; }
+    .priority-high { border-inline-start:4px solid #ba3030; background:#fff3f3; }
+    .top-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .meta-pill { background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.28); border-radius:999px; padding:4px 10px; font-size:12px; font-weight:700; }
+    .dashboard-flow { display:grid; gap:12px; }
+    .module-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+    .module { border:1px solid var(--line); border-radius:12px; background:#f8fbff; padding:10px; font-weight:700; color:var(--text); display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .module .count { color:#fff; background:linear-gradient(120deg,#0f567f,#1f89aa); border-radius:999px; min-width:24px; text-align:center; font-size:12px; padding:2px 7px; }
+    .kpi-note { font-size:12px; color:var(--muted); }
+    .kpi-trend-up { color:#1d8f5a; font-weight:800; }
+    .site-live { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+    .site-card { border:1px solid var(--line); border-radius:12px; background:#fff; padding:10px; }
+    .site-card h4 { font-size:15px; color:var(--brand); margin-bottom:6px; }
+    .activity-feed { display:grid; gap:8px; }
+    .feed-row { border:1px solid var(--line); border-radius:12px; background:#fff; padding:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .feed-row strong { color:var(--brand); }
+    .quick-actions { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+    .goal-list { display:grid; gap:9px; }
+    .goal { border:1px solid var(--line); background:#fff; border-radius:12px; padding:10px; }
+    .goal-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:4px; }
+    .history-block { margin-top:8px; border-top:1px dashed var(--line); padding-top:8px; }
+    .history-title { font-size:12px; font-weight:800; color:var(--muted); margin-bottom:6px; }
+    .history-entry { border:1px solid #dfe9f3; border-radius:10px; background:#f8fbff; padding:8px; margin-bottom:6px; }
+    .history-entry:last-child { margin-bottom:0; }
+    .site-section { margin-bottom:10px; }
+    /* AI FAB */
+    .ai-fab { position:fixed; left:18px; bottom:18px; width:58px; height:58px; border-radius:50%; border:0; background:linear-gradient(135deg,#0b6b95,#24a3bf); color:#fff; font-size:26px; box-shadow:0 14px 28px rgba(8,54,79,0.32); z-index:30; }
+    .ai-panel { position:fixed; left:18px; bottom:84px; width:min(420px,calc(100vw - 36px)); max-height:70vh; overflow:auto; z-index:31; }
+    .ai-log { display:grid; gap:6px; margin-bottom:8px; max-height:290px; overflow:auto; }
+    .ai-msg { border-radius:10px; padding:8px 10px; font-size:13px; border:1px solid #dfe9f3; background:#f5faff; white-space:pre-wrap; }
+    .ai-msg.assistant { background:#eaf7ff; }
+    .ai-msg.user { background:#f2f2ff; }
+    /* NATALY BOT */
+    .nataly-fab { position:fixed; right:18px; bottom:18px; width:62px; height:62px; border-radius:50%; border:0; background:linear-gradient(135deg,#128c7e,#25d366); color:#fff; font-size:28px; box-shadow:0 14px 28px rgba(18,140,126,0.4); z-index:30; cursor:pointer; }
+    .nataly-panel { position:fixed; right:18px; bottom:90px; width:min(380px,calc(100vw - 36px)); max-height:75vh; overflow:auto; z-index:31; background:#fff; border-radius:18px; border:1px solid #d7e1eb; box-shadow:0 20px 50px rgba(0,0,0,0.15); }
+    .nataly-header { background:linear-gradient(135deg,#128c7e,#25d366); color:#fff; padding:14px 16px; border-radius:18px 18px 0 0; display:flex; align-items:center; justify-content:space-between; }
+    .nataly-chat { padding:12px; display:grid; gap:8px; max-height:320px; overflow-y:auto; }
+    .nataly-msg { border-radius:12px; padding:9px 12px; font-size:13px; max-width:90%; }
+    .nataly-msg.bot { background:#e8f5e9; color:#1b5e20; align-self:flex-start; }
+    .nataly-msg.user { background:#dcf8c6; color:#1b5e20; align-self:flex-end; }
+    .nataly-input-row { padding:10px 12px; border-top:1px solid var(--line); display:flex; gap:8px; }
+    .nataly-input-row input { flex:1; min-width:0; }
+    .nataly-input-row button { width:auto; flex:0; }
+    /* KANBAN */
+    .kanban-board { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; min-height:300px; }
+    .kanban-col { min-width:190px; flex:1; background:#f0f6fc; border-radius:14px; padding:10px; }
+    .kanban-col-title { font-weight:800; color:var(--brand); margin-bottom:8px; font-size:13px; text-align:center; padding:6px; background:#fff; border-radius:8px; border:1px solid var(--line); }
+    .kanban-col-count { font-size:11px; color:var(--muted); }
+    .kanban-card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:9px; margin-bottom:7px; cursor:grab; font-size:13px; transition:0.15s; }
+    .kanban-card:hover { border-color:var(--brand); box-shadow:0 4px 12px rgba(15,86,127,0.12); }
+    .kanban-card.dragging { opacity:0.4; transform:rotate(2deg); }
+    .kanban-col.drag-over { background:#ddeef9; border:2px dashed var(--brand); }
+    .kanban-add { background:transparent; border:1px dashed var(--line); color:var(--muted); font-size:12px; padding:6px; margin-top:4px; }
+    .kanban-add:hover { background:#f0f6fc; border-color:var(--brand); color:var(--brand); }
+    /* AUTOCOMPLETE */
+    .autocomplete-wrap { position:relative; }
+    .autocomplete-list { position:absolute; top:100%; right:0; left:0; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow); z-index:50; max-height:220px; overflow-y:auto; }
+    .autocomplete-item { padding:9px 12px; cursor:pointer; font-size:13px; border-bottom:1px solid #eef3f8; }
+    .autocomplete-item:hover { background:#f0f7ff; }
+    .autocomplete-item .ac-sub { font-size:11px; color:var(--muted); }
+    /* CALENDAR */
+    .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+    .cal-day { border:1px solid var(--line); border-radius:8px; padding:6px; min-height:72px; background:#fff; font-size:12px; }
+    .cal-day.today { border-color:var(--brand); background:#edf5fc; }
+    .cal-day.has-event { border-color:var(--ok); }
+    .cal-event { background:var(--brand); color:#fff; border-radius:4px; padding:2px 5px; font-size:10px; margin-top:2px; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .cal-event.birthday { background:#e91e8c; }
+    .cal-event.trip { background:var(--ok); }
+    .cal-event.task-high { background:var(--danger); }
+    /* TASKS */
+    .task-item { border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px; display:flex; align-items:center; gap:10px; }
+    .task-item.overdue { border-color:var(--danger); background:#fff5f5; }
+    .task-item.done { opacity:0.55; text-decoration:line-through; }
+    /* FOLDER TABS */
+    .folder-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+    .folder-tab { padding:7px 14px; border-radius:999px; border:1px solid var(--line); background:#f2f7fc; color:var(--brand); font-weight:700; font-size:13px; cursor:pointer; transition:0.15s; }
+    .folder-tab.active { background:var(--brand); color:#fff; border-color:var(--brand); }
+    /* CURRENCY TABLE */
+    .currency-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .currency-table th { background:var(--brand); color:#fff; padding:8px 10px; text-align:right; }
+    .currency-table td { padding:7px 10px; border-bottom:1px solid var(--line); }
+    .currency-table tr:hover td { background:#f0f7ff; }
+    /* ROUTE PLAN */
+    .route-day { border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px; margin-bottom:8px; }
+    .route-day-title { font-weight:800; color:var(--brand); margin-bottom:6px; }
+    /* IMPORT SMART */
+    .import-zone { border:2px dashed var(--line); border-radius:12px; padding:20px; text-align:center; background:#f8fbff; cursor:pointer; transition:0.2s; }
+    .import-zone:hover { border-color:var(--brand); background:#edf5fc; }
+    /* SMART FOLDER */
+    .smart-folder { border:1px solid var(--line); border-radius:12px; background:#fff; padding:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .smart-folder .folder-icon { font-size:28px; }
+    .smart-folder .folder-info { flex:1; }
+    .smart-folder .folder-count { font-size:22px; font-weight:800; color:var(--brand); }
+    @media (max-width:1120px) {
+      .kpis { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .layout-2,.layout-3 { grid-template-columns:1fr; }
+      .module-grid,.site-live,.quick-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width:640px) {
+      .kpis { grid-template-columns:1fr 1fr; }
+      .module-grid,.site-live,.quick-actions { grid-template-columns:1fr; }
+      .feed-row,.goal-head { flex-direction:column; align-items:flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    // ===== קבועים =====
+    const LOGIN_USER = "איציק";
+    const LOGIN_PASS = "1234";
+    const STORAGE_KEY = "travel_crm_360_v3";
+    const API_URL = "/.netlify/functions/crm-data";
+
+    const SEGMENTS = ["מיטיבי לכת","אוהבי לכת","דתיים","משפחות","גיל שלישי","VIP"];
+    const TRIP_CATEGORIES = ["טבע","עירוני","תרבות","משפחתי","אקסטרים","יוקרה"];
+    const LEVELS = ["קל","בינוני","מיטיבי לכת"];
+    const LEAD_STATUSES = ["חדש","בטיפול","הצעה נשלחה","ממתין לאישור","נסגר","אבוד"];
+    const LEAD_SOURCES = ["אתר","פייסבוק","אינסטגרם","וואטסאפ","טלפון","סוכן שותף","גוגל","המלצה","אחר"];
+    const SUPPLIER_TYPES = ["מלון","הסעות","מדריך","ביטוח","מסעדה","אטרקציה","טיסות","ספינה","פעילות","ויזה","צלם"];
+    const COMPANY_OPTIONS = ["tiyoolim.com","GoTours","שטח הפקות"];
+    const ORG_FIELDS = ["הייטק","תעשייה","חינוך","בריאות","פיננסים","תיירות","מגזר ציבורי","אחר"];
+    const ISRAEL_CITIES = [
+      "אילת","אשדוד","אשקלון","באר שבע","בית שמש","בת ים","גבעתיים","הרצליה","חדרה","חולון",
+      "חיפה","טבריה","ירושלים","כפר סבא","לוד","מודיעין","נהריה","נס ציונה","נתניה","עכו",
+      "פתח תקווה","צפת","ראשון לציון","רחובות","רמת גן","רעננה","תל אביב","ים המלח","מצפה שלם","אריאל"
+    ];
+    const WEATHER_QUICK_TOPICS = ["מזג אוויר עכשיו","תחזית שבועית","סיכוי גשם","מהירות רוח","לחות","מדד UV","איכות אוויר"];
+    const ROUTE_STYLES = ["רגוע","מאוזן","אינטנסיבי"];
+    const FX_BASE_OPTIONS = ["ILS","USD","EUR","GBP","AED","JPY"];
+
+    // קטלוג מדינות מורחב - 45+ מדינות בכל היבשות
+    const COUNTRY_TRAVEL_CATALOG = [
+      // אירופה
+      { country:"ישראל", city:"ירושלים", currency:"ILS", continent:"מזה\"ת", highlights:["העיר העתיקה","שוק מחנה יהודה","מוזיאון ישראל","מצדה","ים המלח","עכו","כנרת"] },
+      { country:"איטליה", city:"רומא", currency:"EUR", continent:"אירופה", highlights:["הקולוסיאום","הוותיקן","פיאצה נאבונה","מזרקת טרווי","פירנצה","ונציה","מילאנו","אמאלפי"] },
+      { country:"צרפת", city:"פריז", currency:"EUR", continent:"אירופה", highlights:["מגדל אייפל","הלובר","מונמרטר","שער הניצחון","ורסאי","ניס","ליון","בורדו"] },
+      { country:"ספרד", city:"מדריד", currency:"EUR", continent:"אירופה", highlights:["מוזיאון פראדו","פארק רטירו","ברצלונה","גאודי","סגרדה פמיליה","סביליה","גרנדה","ולנסיה"] },
+      { country:"יוון", city:"אתונה", currency:"EUR", continent:"אירופה", highlights:["האקרופוליס","פלאקה","סנטוריני","מיקונוס","רודוס","קרפתוס","קרפתוס","קורפו"] },
+      { country:"גרמניה", city:"ברלין", currency:"EUR", continent:"אירופה", highlights:["שער ברנדנבורג","אי המוזיאונים","חומת ברלין","מינכן","בוואריה","הרי האלפים","קלן","המבורג"] },
+      { country:"פורטוגל", city:"ליסבון", currency:"EUR", continent:"אירופה", highlights:["בלם","אלפמה","שוק ריביירה","סינטרה","פורטו","אלגרב","מדיירה","אזורים"] },
+      { country:"הולנד", city:"אמסטרדם", currency:"EUR", continent:"אירופה", highlights:["רייקסמוזיאום","תעלות העיר","בית אנה פרנק","זאנסה סכנס","קיוקנהוף","האג","רוטרדם"] },
+      { country:"בריטניה", city:"לונדון", currency:"GBP", continent:"אירופה", highlights:["הביג בן","ארמון בקינגהאם","קמדן מרקט","מוזיאון הטבע","ווינדזור","אדינבורו","לייק דיסטריקט"] },
+      { country:"שוויץ", city:"ציריך", currency:"CHF", continent:"אירופה", highlights:["אגם ציריך","העיר העתיקה","מפלי הריין","לוצרן","הר טיטליס","אינטרלאקן","ז'נבה","בזל"] },
+      { country:"אוסטריה", city:"וינה", currency:"EUR", continent:"אירופה", highlights:["ארמון שנברון","בית האופרה","קתדרלת סטפן","זלצבורג","הר הוחקניג","גראץ","אינסברוק"] },
+      { country:"צ'כיה", city:"פראג", currency:"CZK", continent:"אירופה", highlights:["גשר קארל","כיכר העיר העתיקה","מצודת פראג","הרובע היהודי","צ'סקי קרומלוב","ברנו"] },
+      { country:"הונגריה", city:"בודפשט", currency:"HUF", continent:"אירופה", highlights:["בניין הפרלמנט","מרחצאות סצ'ני","מצודת הדייגים","נהר הדנובה","סנטאנדרה","אגר"] },
+      { country:"פולין", city:"ורשה", currency:"PLN", continent:"אירופה", highlights:["העיר העתיקה","ארמון התרבות","מוזיאון פולין","קרקוב","מכרות המלח","גדנסק","ורוצלב"] },
+      { country:"קרואטיה", city:"זאגרב", currency:"EUR", continent:"אירופה", highlights:["העיר העליונה","אגמי פליטביצה","ספליט","דוברובניק","חופי הים האדריאטי","הוואר"] },
+      { country:"טורקיה", city:"איסטנבול", currency:"TRY", continent:"אירופה/אסיה", highlights:["איה סופיה","המסגד הכחול","הבזאר הגדול","שיט בבוספורוס","קפדוקיה","אנטליה","בודרום"] },
+      { country:"יוון - סנטוריני", city:"פירה", currency:"EUR", continent:"אירופה", highlights:["שקיעת השמש באויה","חוף קמארי","מוזיאון פרהיסטורי","אקרוטירי","יין סנטוריני"] },
+      { country:"איטליה - טוסקנה", city:"פירנצה", currency:"EUR", continent:"אירופה", highlights:["גלריה אופיצי","גשר וקיו","כנסיית סנטה מריה","כרמי טוסקנה","סיינה","סן ג'ימיניאנו"] },
+      // מזרח אירופה וקווקז
+      { country:"גאורגיה", city:"טביליסי", currency:"GEL", continent:"קווקז", highlights:["העיר העתיקה","מצודת נריקלה","קזבגי","קווקז","יקבי קאחתי","מצ'טה","בתומי"] },
+      { country:"ארמניה", city:"ירוואן", currency:"AMD", continent:"קווקז", highlights:["כיכר הרפובליקה","מנזר גגארד","אגם סוואן","הר ארארט","נורוואנק","גגארד","חור ויראפ"] },
+      { country:"אזרבייג'ן", city:"באקו", currency:"AZN", continent:"קווקז", highlights:["העיר העתיקה","מגדל הבתולה","אש הנצח","גובוסטן","שקי","לנקראן"] },
+      { country:"אוקראינה", city:"קייב", currency:"UAH", continent:"אירופה", highlights:["מנזר פצ'רסק","כיכר מיידן","שוק בסרבסקה","לביב","אודסה","צ'רנוביל"] },
+      // מזרח תיכון
+      { country:"איחוד האמירויות", city:"דובאי", currency:"AED", continent:"מזה\"ת", highlights:["בורג' ח'ליפה","מרינה דובאי","מדבר הספארי","מוזיאון העתיד","אבו דאבי","שארג'ה"] },
+      { country:"ירדן", city:"עמאן", currency:"JOD", continent:"מזה\"ת", highlights:["פטרה","ואדי רום","ים המלח","ג'רש","עקבה","מדבר ואדי רום"] },
+      { country:"מצרים", city:"קהיר", currency:"EGP", continent:"אפריקה", highlights:["הפירמידות בגיזה","המוזיאון המצרי","שוק חאן אל חלילי","שיט בנילוס","אלכסנדריה","לוקסור","אסואן"] },
+      { country:"מרוקו", city:"מרקש", currency:"MAD", continent:"אפריקה", highlights:["כיכר ג'מע אל פנה","מדינה מרקש","גני מז'ורל","הרי האטלס","אסווירה","פס","שפשאון"] },
+      // אפריקה
+      { country:"דרום אפריקה", city:"קייפטאון", currency:"ZAR", continent:"אפריקה", highlights:["הר השולחן","רובע בו-קאפ","קייפ פוינט","רובן איילנד","סטלנבוש","גן עדן"] },
+      { country:"קניה", city:"ניירובי", currency:"KES", continent:"אפריקה", highlights:["שמורת ניירובי","מרכז הג'ירפות","מסאי מארה","אגם נאקורו","חוף מומבסה","אמבוסלי"] },
+      { country:"טנזניה", city:"דאר א-סלאם", currency:"TZS", continent:"אפריקה", highlights:["קיליקמנג'רו","סרנגטי","נגורונגורו","זנזיבר","טאראנגירה","לייק מניארה"] },
+      // אסיה
+      { country:"הודו", city:"דלהי", currency:"INR", continent:"אסיה", highlights:["המצודה האדומה","קוטב מינאר","שער הודו","אגרא וטאג' מהאל","ג'איפור","ג'ודפור","מומבאי","קרלה"] },
+      { country:"תאילנד", city:"בנגקוק", currency:"THB", continent:"אסיה", highlights:["ארמון המלך","שוק צ'טוצ'אק","נהר צ'או פראיה","איוטהאיה","צ'יאנג מאי","פוקט","קו סמוי"] },
+      { country:"סינגפור", city:"סינגפור", currency:"SGD", continent:"אסיה", highlights:["מרינה ביי","גנים ליד המפרץ","סנטוסה","צ'יינהטאון","גן החיות הלילי","ליטל אינדיה"] },
+      { country:"יפן", city:"טוקיו", currency:"JPY", continent:"אסיה", highlights:["שיבויה","אסאקוסה","שינג'וקו","הר פוג'י","קיוטו","אוסקה","נארה","הירושימה"] },
+      { country:"סין", city:"בייג'ינג", currency:"CNY", continent:"אסיה", highlights:["העיר האסורה","החומה הסינית","כיכר טיאנאנמן","ארמון הקיץ","שיאן","שנגחאי"] },
+      { country:"וייטנאם", city:"האנוי", currency:"VND", continent:"אסיה", highlights:["מפרץ הלונג","האנוי העתיקה","הוי אן","הו צ'י מין","מו נה","ניה טרנג"] },
+      { country:"בלי", city:"דנפסאר", currency:"IDR", continent:"אסיה", highlights:["אובוד","מקדש טנה לוט","שדות האורז","חוף קוטה","מקדש בסאקיה","אולוואטו"] },
+      { country:"נפאל", city:"קטמנדו", currency:"NPR", continent:"אסיה", highlights:["טרק אוורסט","פסגת אנאפורנה","בודהנאת","פשופטינאת","פוקהרה","לומביני"] },
+      // אוקיאניה
+      { country:"אוסטרליה", city:"סידני", currency:"AUD", continent:"אוקיאניה", highlights:["בית האופרה","בונדי ביץ'","נמל דרלינג","הרים כחולים","מלבורן","קיירנס","גרייט בריאר ריף"] },
+      { country:"ניו זילנד", city:"אוקלנד", currency:"NZD", continent:"אוקיאניה", highlights:["סקיי טאוור","רוטורואה","קוויןסטאון","מילפורד סאונד","הובייט","פיורדלנד"] },
+      // אמריקה
+      { country:"ארה\"ב", city:"ניו יורק", currency:"USD", continent:"אמריקה", highlights:["טיימס סקוור","סנטרל פארק","מוזיאון המטרופוליטן","ברוקלין","וושינגטון","לאס וגאס","לוס אנג'לס"] },
+      { country:"קנדה", city:"טורונטו", currency:"CAD", continent:"אמריקה", highlights:["מגדל סי.אן","ניאגרה פולס","שוק סנט לורנס","מונטריאול","באנף","ונקובר","קוויבק"] },
+      { country:"מקסיקו", city:"מקסיקו סיטי", currency:"MXN", continent:"אמריקה", highlights:["זוקאלו","מוזיאון פרידה קאלו","טאוטיהואקאן","פואבלה","קנקון","טולום","אוחאקה"] },
+      { country:"ברזיל", city:"ריו דה ז'ניירו", currency:"BRL", continent:"אמריקה", highlights:["הר הסוכר","פסל ישו","קופקבנה","יער טיז'וקה","איגואסו","סאו פאולו","מנאוס"] },
+      { country:"ארגנטינה", city:"בואנוס איירס", currency:"ARS", continent:"אמריקה", highlights:["לה בוקה","פוארטו מדרו","תיאטרון קולון","ברילוצ'ה","מפלי איגואסו","פטגוניה"] },
+      { country:"פרו", city:"לימה", currency:"PEN", continent:"אמריקה", highlights:["מאצ'ו פיצ'ו","קוסקו","אגם טיטיקאקה","מסלול האינקה","נאסקה","ארקיפה"] },
+      { country:"קולומביה", city:"בוגוטה", currency:"COP", continent:"אמריקה", highlights:["מדיין","קרטחנה","קפה קולומביאני","ספה","ריו קלארו","סנטה מרטה"] },
+      // סקנדינביה
+      { country:"איסלנד", city:"רייקיאוויק", currency:"ISK", continent:"אירופה", highlights:["אורות הצפון","גייזר","גולדן סירקל","חוף שחור","כחול לגון","הר הקרח"] },
+      { country:"נורווגיה", city:"אוסלו", currency:"NOK", continent:"אירופה", highlights:["פיורדים","ברגן","גיירנגר","אורות הצפון","מוזיאון ויקינגים","לופוטן"] },
+      { country:"שבדיה", city:"שטוקהולם", currency:"SEK", continent:"אירופה", highlights:["גמלסטן","מוזיאון וסה","אבא מוזיאון","ארכיפלג","גוטנבורג","מלמה"] },
+      { country:"דנמרק", city:"קופנהגן", currency:"DKK", continent:"אירופה", highlights:["בית האופרה","טיבולי","ריסמילן","ארוס","לגולנד","כרוגנבורג"] },
+      { country:"פינלנד", city:"הלסינקי", currency:"EUR", continent:"אירופה", highlights:["לפלנד","סנטה קלאוס","אורות הצפון","כנסיית הסלע","ספה","רובניימי"] }
+    ];
+
+    // כל קודי המטבע בעולם
+    const ALL_CURRENCIES = {
+      "ILS":"שקל ישראלי","USD":"דולר אמריקאי","EUR":"יורו","GBP":"לירה שטרלינג",
+      "JPY":"ין יפני","AUD":"דולר אוסטרלי","CAD":"דולר קנדי","CHF":"פרנק שוויצרי",
+      "CNY":"יואן סיני","SEK":"כתר שוודי","NOK":"כתר נורווגי","DKK":"כתר דני",
+      "NZD":"דולר ניו זילנדי","SGD":"דולר סינגפורי","HKD":"דולר הונג קונגי",
+      "KRW":"וון קוריאני","TRY":"לירה טורקית","INR":"רופי הודי","BRL":"ריאל ברזילאי",
+      "ZAR":"ראנד דרום אפריקאי","MXN":"פסו מקסיקני","AED":"דירהם אמירויות",
+      "SAR":"ריאל סעודי","QAR":"ריאל קטרי","KWD":"דינר כוויתי","BHD":"דינר בחרייני",
+      "JOD":"דינר ירדני","EGP":"לירה מצרית","MAD":"דירהם מרוקאי","GEL":"לארי גאורגי",
+      "AMD":"דראם ארמני","AZN":"מנאט אזרבייג'ני","UAH":"הריבניה אוקראינית",
+      "PLN":"זלוטי פולני","HUF":"פורינט הונגרי","CZK":"קורונה צ'כית","RON":"לאו רומני",
+      "HRK":"קונה קרואטית","THB":"באט תאילנדי","VND":"דונג וייטנמי",
+      "IDR":"רופיה אינדונזית","MYR":"רינגיט מלזי","PHP":"פסו פיליפיני",
+      "TWD":"דולר טייוואני","PKR":"רופי פקיסטני","BDT":"טאקה בנגלדשי",
+      "LKR":"רופי סרי לנקאי","NPR":"רופי נפאלי","KES":"שילינג קנייתי",
+      "TZS":"שילינג טנזני","NGN":"נאירה ניגרית","ISK":"קרונה איסלנדית",
+      "ARS":"פסו ארגנטינאי","CLP":"פסו צ'יליאני","COP":"פסו קולומביאני",
+      "PEN":"סול פרואני","RUB":"רובל רוסי","TND":"דינר תוניסאי"
+    };
+
+    // ===== UTILITY FUNCTIONS =====
+    function uid() { return Date.now() + Math.floor(Math.random()*99999); }
+    function isoNow() { return new Date().toISOString(); }
+    function escapeHtml(s) {
+      if (s==null) return "";
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    }
+    function parseNumber(v) { const n=Number(v); return Number.isFinite(n)?n:""; }
+    function parseBoolean(v) { if(typeof v==="boolean") return v; const s=String(v||"").toLowerCase(); return s==="true"||s==="1"||s==="כן"||s==="yes"; }
+    function parseSegments(v) { if(Array.isArray(v)) return v.filter(s=>SEGMENTS.includes(s)); if(!v) return []; return String(v).split(/[,;|]/).map(s=>s.trim()).filter(s=>SEGMENTS.includes(s)); }
+    function normalizePhone(v) { if(!v) return ""; return String(v).replace(/\D/g,"").replace(/^972/,"0"); }
+    function phoneForWa(p) { const d=normalizePhone(p); if(!d) return ""; return d.startsWith("0")?"972"+d.slice(1):d; }
+    function fmtDateShort(v) { if(!v) return ""; try { return new Date(v).toLocaleDateString("he-IL"); } catch { return String(v); } }
+    function normalizeBirthday(v) { if(!v) return ""; const s=String(v).trim(); const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return m[0]; const m2=s.match(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})$/); if(m2) { const y=m2[3].length===2?"20"+m2[3]:m2[3]; return y+"-"+m2[2].padStart(2,"0")+"-"+m2[1].padStart(2,"0"); } return ""; }
+    function birthMonthDay(v) { const n=normalizeBirthday(v); return n?n.slice(5):""; }
+    function isBirthdayToday(v) { const md=birthMonthDay(v); if(!md) return false; const now=new Date(); return md===String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0"); }
+    function countryTravelByName(name) { return COUNTRY_TRAVEL_CATALOG.find(x=>x.country===name)||COUNTRY_TRAVEL_CATALOG[0]; }
+    function weatherCodeText(code) {
+      const n=Number(code);
+      if(n===0) return "שמיים בהירים"; if(n<=3) return "מעונן חלקית"; if(n<=9) return "ערפל";
+      if(n<=19) return "גשם קל"; if(n<=29) return "סופה"; if(n<=39) return "שלג";
+      if(n<=49) return "ערפל"; if(n<=59) return "טפטוף"; if(n<=69) return "גשם";
+      if(n<=79) return "שלג"; if(n<=99) return "סופת רעמים"; return "לא ידוע";
+    }
+    function formatCurrencyAmount(val,currency) {
+      if(val==null||val==="") return "—";
+      const num=Number(val); if(!Number.isFinite(num)) return "—";
+      const symbols={ILS:"₪",USD:"$",EUR:"€",GBP:"£",JPY:"¥",AUD:"A$",CAD:"C$"};
+      const sym=symbols[currency]||(currency+" ");
+      return sym+num.toLocaleString("he-IL",{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+    function getWeatherCitiesByScope() { return ISRAEL_CITIES; }
+    function messageTraveler(id) { const t=travelerById(id); if(!t) return; const wa=phoneForWa(t.whatsapp||t.phone); if(wa) window.open("https://wa.me/"+wa,"_blank"); }
+    function callTraveler(id) { const t=travelerById(id); if(!t) return; if(t.phone) window.location.href="tel:"+t.phone; }
+    function openWeather(city) { window.open("https://www.google.com/search?q=מזג+אוויר+"+encodeURIComponent(city),"_blank"); }
+
+    // ===== STATE =====
+    const seed = {
+      isAuthenticated:false, authError:"", loading:true, syncError:"", syncOkAt:"",
+      tab:"dashboard", search:"", activeFolder:"all",
+      travelerImportMsg:"", leadImportMsg:"", contactImportMsg:"", hrImportMsg:"", orgImportMsg:"",
+      mergeUrl:"", selectedBroadcastIds:[], broadcastCriteria:[], broadcastAudience:"all",
+      contactCompanyFilter:"all", hrCompanyFilter:"all", contactImportCompany:"tiyoolim.com",
+      aiCompanyScope:"all", weatherCompanyScope:"all", weatherCity:"", weatherTopic:WEATHER_QUICK_TOPICS[0],
+      globalCountry:COUNTRY_TRAVEL_CATALOG[0].country, globalWeatherData:null, globalWeatherError:"", globalWeatherLoading:false,
+      currencyBase:"ILS", currencyAmount:100, currencyRatesDate:"", currencyRows:[],
+      routeCountry:COUNTRY_TRAVEL_CATALOG[0].country, routeDays:5, routeStyle:ROUTE_STYLES[1], routePlan:"",
+      integrationsStatus:null, integrationsLoading:false, integrationsError:"",
+      birthdayIncludeDiscount:true, birthdayDiscountPercent:5, birthdayCouponCode:"BIRTHDAY5",
+      birthdayMessageTemplate:"יום הולדת שמח {{firstName}}! 🎉\nמאחלים לך שנה מלאה בחוויות וטיולים בלתי נשכחים.\n{{discountLine}}",
+      birthdayAutomationEnabled:true, birthdayAutomationChannel:"whatsapp",
+      birthdayAutomationTimezone:"Asia/Jerusalem", birthdayAutomationWebhookUrl:"",
+      birthdayAutoStatusLoading:false, birthdayAutoStatusError:"", birthdayAutoStatus:null, birthdayAutoDispatchLoading:false,
+      natalyOpen:false, natalyHistory:[], natalyInput:"", natalyLoading:false,
+      calendarMonth:new Date().getMonth(), calendarYear:new Date().getFullYear(),
+      tasks:[
+        {id:uid(),title:"מעקב אחרי ליד עידו ברק – איטליה",dueDate:new Date(Date.now()+86400000).toISOString().slice(0,10),assignedTo:"איציק",done:false,priority:"גבוהה",relatedType:"lead"},
+        {id:uid()+1,title:"שליחת הצעת מחיר לקבוצה דתית – גאורגיה",dueDate:new Date(Date.now()+2*86400000).toISOString().slice(0,10),assignedTo:"איציק",done:false,priority:"בינונית",relatedType:"lead"},
+        {id:uid()+2,title:"אישור ספק הסעות SkyRoad לפסח",dueDate:new Date(Date.now()-86400000).toISOString().slice(0,10),assignedTo:"איציק",done:false,priority:"גבוהה",relatedType:"supplier"}
+      ],
+      taskForm:{id:null,title:"",dueDate:"",assignedTo:"איציק",priority:"בינונית",relatedType:"כללי",done:false},
+      autocompleteField:"", autocompleteQuery:"", autocompleteResults:[],
+      travelerForm:{id:null,fullName:"",phone:"",whatsapp:"",email:"",birthday:"",age:"",city:"",budgetMin:"",budgetMax:"",preferredCategory:"טבע",walkingLevel:"בינוני",religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,preferredSeason:"",notes:"",segments:[],currentTripId:null,active:true,lastConversation:null},
+      leadForm:{id:null,fullName:"",phone:"",email:"",source:"אתר",status:"חדש",destinationInterest:"",budget:"",travelersCount:"",notes:"",assignedTo:"",createdAt:""},
+      tripForm:{id:null,title:"",destination:"",category:"טבע",difficulty:"בינוני",price:"",durationDays:"",season:"",religiousFriendly:false,kashrutAvailable:false,shabbatOptions:false,notes:"",capacity:20,enrolled:0},
+      agencyForm:{id:null,name:"",city:"",managerName:"",phone:"",email:"",specialization:"",active:true,notes:""},
+      supplierForm:{id:null,name:"",type:"מלון",city:"",contactName:"",phone:"",email:"",rating:"",terms:"",notes:"",active:true,taxId:"",paymentTerms:""},
+      contactForm:{id:null,fullName:"",role:"",phone:"",email:"",company:"tiyoolim.com",organization:"",orgField:"אחר",domain:"",groupName:"",notes:"",active:true},
+      hrForm:{id:null,fullName:"",role:"מנהלת גיוס",phone:"",email:"",site:"GoTours",groupName:"",team:"תפעול",employeesCount:"",skills:"",needs:"",active:true,notes:"",correspondenceHistory:[]},
+      conversationForm:{travelerId:"",channel:"ווטסאפ",summary:"",nextStep:""},
+      hrConversationForm:{hrManagerId:"",channel:"מייל",summary:"",nextStep:""},
+      aiWidgetOpen:false, aiPrompt:"", aiLoading:false, aiError:"",
+      aiHistory:[{role:"assistant",text:"שלום! GoAI זמין לענות בעברית על שאלות עבור tiyoolim.com, GoTours ושטח הפקות."}],
+      agencies:[
+        {id:uid(),name:"גלובל טריפס תל אביב",city:"תל אביב",managerName:"שרון עמית",phone:"035551122",email:"office@globaltrips.co.il",specialization:"יוקרה וטיולי תרבות",active:true,notes:"שותפה אסטרטגית לקבוצות פרימיום"},
+        {id:uid()+1,name:"דרך עולם חיפה",city:"חיפה",managerName:"עופר לוין",phone:"048881133",email:"sales@derech-olam.co.il",specialization:"טבע ומשפחות",active:true,notes:"חזקה בצפון ובקבוצות משפחתיות"},
+        {id:uid()+2,name:"אופק ירושלים",city:"ירושלים",managerName:"נעמי הדר",phone:"026661144",email:"info@ofektravel.co.il",specialization:"טיולים לדתיים ושומרי שבת",active:true,notes:"כולל מערך כשרות ושבת רחב"}
+      ],
+      contacts:[
+        {id:uid()+12,fullName:"נועה לוי",role:"אחראית רווחה",phone:"0528884411",email:"noa@alphahr.co.il",company:"tiyoolim.com",organization:"AlphaHR",orgField:"הייטק",domain:"גיבושים וימי כיף",groupName:"AlphaHR - רווחה",notes:"מתאמת ימי כיף ל-120 עובדים",active:true}
+      ],
+      leads:[
+        {id:uid()+3,fullName:"עידו ברק",phone:"0503322441",email:"ido@example.com",source:"אתר",status:"חדש",destinationInterest:"איטליה",budget:6500,travelersCount:2,notes:"מחפש טיול זוגי יוקרתי",assignedTo:"",createdAt:isoNow()},
+        {id:uid()+4,fullName:"אביגיל כהן",phone:"0547733110",email:"avigail@example.com",source:"וואטסאפ",status:"בטיפול",destinationInterest:"גאורגיה",budget:4200,travelersCount:6,notes:"קבוצה דתית",assignedTo:"",createdAt:isoNow()},
+        {id:uid()+13,fullName:"דניאל לוי",phone:"0521234567",email:"daniel@example.com",source:"פייסבוק",status:"הצעה נשלחה",destinationInterest:"יפן",budget:12000,travelersCount:2,notes:"זוג בחופשת כבוד",assignedTo:"",createdAt:isoNow()},
+        {id:uid()+14,fullName:"שרה מזרחי",phone:"0541112233",email:"sara@example.com",source:"אינסטגרם",status:"חדש",destinationInterest:"איסלנד",budget:8000,travelersCount:4,notes:"משפחה עם ילדים",assignedTo:"",createdAt:isoNow()},
+        {id:uid()+15,fullName:"משה גולדברג",phone:"0509988776",email:"moshe@example.com",source:"המלצה",status:"ממתין לאישור",destinationInterest:"ארמניה",budget:5500,travelersCount:8,notes:"קבוצת VIP",assignedTo:"",createdAt:isoNow()}
+      ],
+      travelers:[
+        {id:uid()+5,fullName:"רות כהן",phone:"0501234567",whatsapp:"0501234567",email:"rut@example.com",birthday:"1986-03-15",age:38,city:"רעננה",budgetMin:3000,budgetMax:5200,preferredCategory:"טבע",walkingLevel:"מיטיבי לכת",religiousNeeds:true,kashrutRequired:true,shabbatFriendly:true,preferredSeason:"אביב",notes:"מעדיפה קבוצה קטנה ומדריך דובר עברית",segments:["מיטיבי לכת","דתיים"],currentTripId:null,active:true,lastConversation:{at:isoNow(),channel:"טלפון",summary:"מבקשת מסלול טבע עם כשרות מלאה",nextStep:"לשלוח 2 הצעות עד מחר"},conversationHistory:[{at:isoNow(),channel:"טלפון",summary:"מבקשת מסלול טבע עם כשרות מלאה",nextStep:"לשלוח 2 הצעות עד מחר"}]},
+        {id:uid()+16,fullName:"יוסי אברהם",phone:"0529876543",whatsapp:"0529876543",email:"yossi@example.com",birthday:"1975-07-22",age:49,city:"תל אביב",budgetMin:5000,budgetMax:9000,preferredCategory:"יוקרה",walkingLevel:"קל",religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,preferredSeason:"חורף",notes:"VIP, מעדיף מלונות 5 כוכבים",segments:["VIP"],currentTripId:null,active:true,lastConversation:{at:isoNow(),channel:"ווטסאפ",summary:"מתעניין בטיול לדובאי",nextStep:"לשלוח הצעה מפורטת"},conversationHistory:[]},
+        {id:uid()+17,fullName:"מרים שלום",phone:"0531112222",whatsapp:"0531112222",email:"miriam@example.com",birthday:"1958-12-01",age:66,city:"ירושלים",budgetMin:2000,budgetMax:4000,preferredCategory:"תרבות",walkingLevel:"קל",religiousNeeds:true,kashrutRequired:true,shabbatFriendly:true,preferredSeason:"קיץ",notes:"גיל שלישי, צריכה עזרה בהתארגנות",segments:["גיל שלישי","דתיים"],currentTripId:null,active:true,lastConversation:null,conversationHistory:[]}
+      ],
+      trips:[
+        {id:uid()+6,title:"טרק הרי האלפים",destination:"שווייץ",category:"טבע",difficulty:"מיטיבי לכת",price:4900,durationDays:7,season:"קיץ",religiousFriendly:true,kashrutAvailable:true,shabbatOptions:true,notes:"לינה בכפרי הרים",capacity:20,enrolled:14},
+        {id:uid()+7,title:"ערים קלאסיות באירופה",destination:"איטליה",category:"תרבות",difficulty:"קל",price:3100,durationDays:5,season:"אביב",religiousFriendly:false,kashrutAvailable:false,shabbatOptions:false,notes:"סיורי מוזיאונים וקולינריה",capacity:30,enrolled:22},
+        {id:uid()+18,title:"ים המלח ומסע בנגב",destination:"ישראל",category:"טבע",difficulty:"בינוני",price:1200,durationDays:2,season:"חורף",religiousFriendly:true,kashrutAvailable:true,shabbatOptions:false,notes:"טיול ישראלי מרגש",capacity:25,enrolled:18}
+      ],
+      suppliers:[
+        {id:uid()+8,name:"SkyRoad Transfers",type:"הסעות",city:"תל אביב",contactName:"אילן מזרחי",phone:"0529112233",email:"ops@skyroad.co.il",rating:4.7,terms:"תשלום שוטף+30",notes:"זמין 24/7",active:true,taxId:"514123456",paymentTerms:"שוטף+30"},
+        {id:uid()+9,name:"Kosher Stay Group",type:"מלון",city:"ירושלים",contactName:"טליה כהן",phone:"0509911882",email:"partner@kosherstay.com",rating:4.9,terms:"הנחת סוכן 14%",notes:"מתאים לקבוצות דתיות",active:true,taxId:"523456789",paymentTerms:"שוטף+60"},
+        {id:uid()+19,name:"אל-על",type:"טיסות",city:"תל אביב",contactName:"מחלקת סוכנים",phone:"037611111",email:"agents@elal.co.il",rating:4.5,terms:"הנחת סוכן 8%",notes:"קו ישיר לכל יעדי אירופה",active:true,taxId:"512345678",paymentTerms:"שוטף+45"}
+      ],
+      hrManagers:[
+        {id:uid()+10,fullName:"ליאת פרץ",role:"מנהלת גיוס",phone:"0504123499",email:"liat.hr@example.com",site:"שטח הפקות",groupName:"שטח הפקות - כוח אדם",team:"כוח אדם",employeesCount:42,skills:"גיוס מדריכים, הדרכה",needs:"דרושים 6 מדריכי שטח לחגים",active:true,notes:"אחראית קליטת מדריכים עונתיים",correspondenceHistory:[{at:isoNow(),channel:"מייל",summary:"עדכנה שחסר צוות מדריכים לתקופת פסח",nextStep:"להעביר קורות חיים עד יום חמישי"}]},
+        {id:uid()+11,fullName:"שירלי דגן",role:"מנהלת משאבי אנוש",phone:"0521238882",email:"shirly.hr@example.com",site:"GoTours",groupName:"GoTours - הנהלה",team:"משרד ראשי",employeesCount:63,skills:"חוזים, שכר, רווחה",needs:"נדרש נוהל קליטה חדש לעובדי תפעול",active:true,notes:"ניהול כוח אדם שוטף",correspondenceHistory:[{at:isoNow(),channel:"טלפון",summary:"ביקשה סיכום עומס כוח אדם לרבעון הקרוב",nextStep:"להעביר דוח מצבת עובדים"}]}
+      ]
+    };
+
+    const S = structuredClone(seed);
+
+    // ===== STATE MANAGEMENT =====
+    function setState(patch, doSave=true) {
+      Object.assign(S, patch);
+      render();
+      if (doSave) saveLocal();
+    }
+    function saveLocal() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch(_) {}
+    }
+    function loadFallback() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) { const d = JSON.parse(raw); Object.assign(S, d); }
+      } catch(_) {}
+      S.loading = false;
+    }
+    function normalizeStateShape() {
+      if (!Array.isArray(S.tasks)) S.tasks = seed.tasks;
+      if (!S.taskForm) S.taskForm = structuredClone(seed.taskForm);
+      if (!Array.isArray(S.travelers)) S.travelers = seed.travelers;
+      if (!Array.isArray(S.leads)) S.leads = seed.leads;
+      if (!Array.isArray(S.suppliers)) S.suppliers = seed.suppliers;
+      if (!Array.isArray(S.trips)) S.trips = seed.trips;
+      if (!Array.isArray(S.agencies)) S.agencies = seed.agencies;
+      if (!Array.isArray(S.contacts)) S.contacts = seed.contacts;
+      if (!Array.isArray(S.hrManagers)) S.hrManagers = seed.hrManagers;
+      if (!Array.isArray(S.natalyHistory)) S.natalyHistory = [];
+      if (!Array.isArray(S.aiHistory)) S.aiHistory = seed.aiHistory;
+      if (S.calendarMonth == null) S.calendarMonth = new Date().getMonth();
+      if (!S.calendarYear) S.calendarYear = new Date().getFullYear();
+      if (!S.travelerForm) S.travelerForm = structuredClone(seed.travelerForm);
+      if (!S.leadForm) S.leadForm = structuredClone(seed.leadForm);
+      if (!S.supplierForm) S.supplierForm = structuredClone(seed.supplierForm);
+      if (!S.tripForm) S.tripForm = structuredClone(seed.tripForm);
+      if (!S.agencyForm) S.agencyForm = structuredClone(seed.agencyForm);
+      if (!S.contactForm) S.contactForm = structuredClone(seed.contactForm);
+      if (!S.hrForm) S.hrForm = structuredClone(seed.hrForm);
+      if (!S.conversationForm) S.conversationForm = structuredClone(seed.conversationForm);
+      if (!S.hrConversationForm) S.hrConversationForm = structuredClone(seed.hrConversationForm);
+    }
+    function renderSyncMeta() {
+      const el = document.getElementById("sync_meta");
+      if (!el) return;
+      if (S.syncError) el.innerHTML = '<span style="color:#ffb3b3">⚠ ' + escapeHtml(S.syncError) + '</span>';
+      else if (S.syncOkAt) el.innerHTML = '<span style="opacity:0.7">☁️ נשמר: ' + escapeHtml(S.syncOkAt) + '</span>';
+    }
+
+    // ===== AUTH =====
+    function login() {
+      const u = String(S.loginUser||"").trim();
+      const p = String(S.loginPass||"").trim();
+      if (u === LOGIN_USER && p === LOGIN_PASS) {
+        setState({ isAuthenticated:true, authError:"", loginUser:"", loginPass:"" });
+      } else {
+        setState({ authError:"שם משתמש או סיסמה שגויים" }, false);
+      }
+    }
+    function logout() { setState({ isAuthenticated:false }); }
+
+    // ===== CRUD TRAVELERS =====
+    function travelerById(id) { return S.travelers.find(t=>t.id==id)||null; }
+    function tripById(id) { return S.trips.find(t=>t.id==id)||null; }
+    function resetTravelerForm() { S.travelerForm = structuredClone(seed.travelerForm); }
+    function editTraveler(id) { const t=travelerById(id); if(!t) return; S.travelerForm=structuredClone(t); S.tab="travelers"; render(); }
+    function deleteTraveler(id) { if(!confirm("למחוק מטייל?")) return; S.travelers=S.travelers.filter(t=>t.id!=id); setState({travelers:S.travelers}); }
+    function saveTraveler() {
+      const f=S.travelerForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
+      if (f.id) { const i=S.travelers.findIndex(t=>t.id==f.id); if(i>=0) S.travelers[i]={...S.travelers[i],...f}; }
+      else { S.travelers.unshift({...structuredClone(seed.travelerForm),...f,id:uid(),conversationHistory:[],active:true}); }
+      resetTravelerForm(); setState({travelers:S.travelers});
+    }
+    function toggleSegment(seg) {
+      const segs=[...(S.travelerForm.segments||[])];
+      const i=segs.indexOf(seg); if(i>=0) segs.splice(i,1); else segs.push(seg);
+      S.travelerForm.segments=segs; render();
+    }
+    function travelerBirthdayRows() {
+      const today=new Date(); const todayMD=String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+      return S.travelers.filter(t=>birthMonthDay(t.birthday)).map(t=>{
+        const md=birthMonthDay(t.birthday);
+        const isToday=md===todayMD;
+        const parts=md.split("-"); const month=parseInt(parts[0]); const day=parseInt(parts[1]);
+        const thisYear=today.getFullYear(); let next=new Date(thisYear,month-1,day);
+        if(next<today) next=new Date(thisYear+1,month-1,day);
+        const daysUntil=Math.ceil((next-today)/86400000);
+        return {...t,birthdayMonthDay:md,isToday,daysUntil};
+      }).sort((a,b)=>a.daysUntil-b.daysUntil);
+    }
+
+    // ===== CRUD LEADS =====
+    function leadById(id) { return S.leads.find(l=>l.id==id)||null; }
+    function resetLeadForm() { S.leadForm=structuredClone(seed.leadForm); }
+    function editLead(id) { const l=leadById(id); if(!l) return; S.leadForm=structuredClone(l); S.tab="leads"; render(); }
+    function deleteLead(id) { if(!confirm("למחוק ליד?")) return; S.leads=S.leads.filter(l=>l.id!=id); setState({leads:S.leads}); }
+    function saveLead() {
+      const f=S.leadForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
+      if (f.id) { const i=S.leads.findIndex(l=>l.id==f.id); if(i>=0) S.leads[i]={...S.leads[i],...f}; }
+      else { S.leads.unshift({...structuredClone(seed.leadForm),...f,id:uid(),createdAt:isoNow()}); }
+      resetLeadForm(); setState({leads:S.leads});
+    }
+    function updateLeadStatus(id, status) {
+      const i=S.leads.findIndex(l=>l.id==id); if(i<0) return;
+      S.leads[i].status=status; setState({leads:S.leads});
+    }
+    function moveLeadToStage(leadId, newStatus) { updateLeadStatus(leadId, newStatus); }
+
+    // ===== CRUD SUPPLIERS =====
+    function supplierById(id) { return S.suppliers.find(s=>s.id==id)||null; }
+    function resetSupplierForm() { S.supplierForm=structuredClone(seed.supplierForm); }
+    function editSupplier(id) { const s=supplierById(id); if(!s) return; S.supplierForm=structuredClone(s); S.tab="suppliers"; render(); }
+    function deleteSupplier(id) { if(!confirm("למחוק ספק?")) return; S.suppliers=S.suppliers.filter(s=>s.id!=id); setState({suppliers:S.suppliers}); }
+    function saveSupplier() {
+      const f=S.supplierForm; if(!f.name) return alert("שם ספק חובה");
+      if (f.id) { const i=S.suppliers.findIndex(s=>s.id==f.id); if(i>=0) S.suppliers[i]={...S.suppliers[i],...f}; }
+      else { S.suppliers.unshift({...structuredClone(seed.supplierForm),...f,id:uid(),active:true}); }
+      resetSupplierForm(); setState({suppliers:S.suppliers});
+    }
+
+    // ===== CRUD TRIPS =====
+    function resetTripForm() { S.tripForm=structuredClone(seed.tripForm); }
+    function editTrip(id) { const t=S.trips.find(x=>x.id==id); if(!t) return; S.tripForm=structuredClone(t); S.tab="trips"; render(); }
+    function deleteTrip(id) { if(!confirm("למחוק טיול?")) return; S.trips=S.trips.filter(t=>t.id!=id); setState({trips:S.trips}); }
+    function saveTrip() {
+      const f=S.tripForm; if(!f.title||!f.destination) return alert("כותרת ויעד חובה");
+      if (f.id) { const i=S.trips.findIndex(t=>t.id==f.id); if(i>=0) S.trips[i]={...S.trips[i],...f}; }
+      else { S.trips.unshift({...structuredClone(seed.tripForm),...f,id:uid()}); }
+      resetTripForm(); setState({trips:S.trips});
+    }
+
+    // ===== CRUD TASKS =====
+    function resetTaskForm() { S.taskForm=structuredClone(seed.taskForm); }
+    function editTask(id) { const t=S.tasks.find(x=>x.id==id); if(!t) return; S.taskForm=structuredClone(t); render(); }
+    function deleteTask(id) { if(!confirm("למחוק משימה?")) return; S.tasks=S.tasks.filter(t=>t.id!=id); setState({tasks:S.tasks}); }
+    function saveTask() {
+      const f=S.taskForm; if(!f.title) return alert("כותרת חובה");
+      if (f.id) { const i=S.tasks.findIndex(t=>t.id==f.id); if(i>=0) S.tasks[i]={...S.tasks[i],...f}; }
+      else { S.tasks.unshift({...structuredClone(seed.taskForm),...f,id:uid()}); }
+      resetTaskForm(); setState({tasks:S.tasks});
+    }
+    function toggleTaskDone(id) {
+      const i=S.tasks.findIndex(t=>t.id==id); if(i<0) return;
+      S.tasks[i].done=!S.tasks[i].done; setState({tasks:S.tasks});
+    }
+
+    // ===== CRUD AGENCIES =====
+    function resetAgencyForm() { S.agencyForm=structuredClone(seed.agencyForm); }
+    function editAgency(id) { const a=S.agencies.find(x=>x.id==id); if(!a) return; S.agencyForm=structuredClone(a); S.tab="agencies"; render(); }
+    function deleteAgency(id) { if(!confirm("למחוק ארגון?")) return; S.agencies=S.agencies.filter(a=>a.id!=id); setState({agencies:S.agencies}); }
+    function saveAgency() {
+      const f=S.agencyForm; if(!f.name) return alert("שם חובה");
+      if (f.id) { const i=S.agencies.findIndex(a=>a.id==f.id); if(i>=0) S.agencies[i]={...S.agencies[i],...f}; }
+      else { S.agencies.unshift({...structuredClone(seed.agencyForm),...f,id:uid(),active:true}); }
+      resetAgencyForm(); setState({agencies:S.agencies});
+    }
+
+    // ===== CRUD CONTACTS =====
+    function resetContactForm() { S.contactForm=structuredClone(seed.contactForm); }
+    function editContact(id) { const c=S.contacts.find(x=>x.id==id); if(!c) return; S.contactForm=structuredClone(c); S.tab="contacts"; render(); }
+    function deleteContact(id) { if(!confirm("למחוק איש קשר?")) return; S.contacts=S.contacts.filter(c=>c.id!=id); setState({contacts:S.contacts}); }
+    function saveContact() {
+      const f=S.contactForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
+      if (f.id) { const i=S.contacts.findIndex(c=>c.id==f.id); if(i>=0) S.contacts[i]={...S.contacts[i],...f}; }
+      else { S.contacts.unshift({...structuredClone(seed.contactForm),...f,id:uid(),active:true}); }
+      resetContactForm(); setState({contacts:S.contacts});
+    }
+
+    // ===== CRUD HR =====
+    function resetHrForm() { S.hrForm=structuredClone(seed.hrForm); }
+    function editHrManager(id) { const h=S.hrManagers.find(x=>x.id==id); if(!h) return; S.hrForm=structuredClone(h); S.tab="hr"; render(); }
+    function deleteHrManager(id) { if(!confirm("למחוק?")) return; S.hrManagers=S.hrManagers.filter(h=>h.id!=id); setState({hrManagers:S.hrManagers}); }
+    function saveHrManager() {
+      const f=S.hrForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
+      if (f.id) { const i=S.hrManagers.findIndex(h=>h.id==f.id); if(i>=0) S.hrManagers[i]={...S.hrManagers[i],...f}; }
+      else { S.hrManagers.unshift({...structuredClone(seed.hrForm),...f,id:uid(),active:true,correspondenceHistory:[]}); }
+      resetHrForm(); setState({hrManagers:S.hrManagers});
+    }
+
+    // ===== CONVERSATIONS =====
+    function saveConversation() {
+      const f=S.conversationForm; if(!f.travelerId||!f.summary) return alert("מטייל וסיכום חובה");
+      const t=travelerById(f.travelerId); if(!t) return;
+      const entry={at:isoNow(),channel:f.channel,summary:f.summary,nextStep:f.nextStep};
+      if(!Array.isArray(t.conversationHistory)) t.conversationHistory=[];
+      t.conversationHistory.unshift(entry); t.lastConversation=entry;
+      S.conversationForm=structuredClone(seed.conversationForm); setState({travelers:S.travelers});
+    }
+    function saveHrConversation() {
+      const f=S.hrConversationForm; if(!f.hrManagerId||!f.summary) return alert("מנהל/ת ו-סיכום חובה");
+      const h=S.hrManagers.find(x=>x.id==f.hrManagerId); if(!h) return;
+      const entry={at:isoNow(),channel:f.channel,summary:f.summary,nextStep:f.nextStep};
+      if(!Array.isArray(h.correspondenceHistory)) h.correspondenceHistory=[];
+      h.correspondenceHistory.unshift(entry);
+      S.hrConversationForm=structuredClone(seed.hrConversationForm); setState({hrManagers:S.hrManagers});
+    }
+
+    // ===== AUTOCOMPLETE =====
+    function showAutocomplete(field, query, type) {
+      const q=String(query||"").trim().toLowerCase(); if(q.length<2) { clearAutocomplete(); return; }
+      let results=[];
+      if (type==="traveler") {
+        results=S.travelers.filter(t=>(t.fullName||"").toLowerCase().includes(q)||(t.phone||"").includes(q)).slice(0,8).map(t=>({
+          label:t.fullName+" | "+t.phone+(t.city?" | "+t.city:""),
+          data:{id:t.id,fullName:t.fullName,phone:t.phone,whatsapp:t.whatsapp,email:t.email,birthday:t.birthday,city:t.city,segments:t.segments}
+        }));
+      } else if (type==="supplier") {
+        results=S.suppliers.filter(s=>(s.name||"").toLowerCase().includes(q)).slice(0,8).map(s=>({
+          label:s.name+" | "+s.type+(s.city?" | "+s.city:"")+(s.rating?" | ⭐"+s.rating:""),
+          data:{id:s.id,name:s.name,type:s.type,city:s.city,contactName:s.contactName,phone:s.phone,email:s.email,taxId:s.taxId,paymentTerms:s.paymentTerms,rating:s.rating}
+        }));
+      } else if (type==="lead") {
+        results=S.leads.filter(l=>(l.fullName||"").toLowerCase().includes(q)||(l.phone||"").includes(q)).slice(0,8).map(l=>({
+          label:l.fullName+" | "+l.phone+" | "+l.status,
+          data:{id:l.id,fullName:l.fullName,phone:l.phone,email:l.email,source:l.source,status:l.status}
+        }));
+      }
+      S.autocompleteField=field; S.autocompleteResults=results; render();
+    }
+    function clearAutocomplete() { S.autocompleteField=""; S.autocompleteResults=[]; render(); }
+    function applyAutocomplete(idx) {
+      const r=S.autocompleteResults[idx]; if(!r) return;
+      if(S.autocompleteField==="trav_name") Object.assign(S.travelerForm,r.data);
+      else if(S.autocompleteField==="sup_name") Object.assign(S.supplierForm,r.data);
+      else if(S.autocompleteField==="lead_name") Object.assign(S.leadForm,r.data);
+      clearAutocomplete();
+    }
+
+    // ===== KANBAN DRAG & DROP =====
+    let dragLeadId = null;
+    function onKanbanDragStart(e, leadId) { dragLeadId=leadId; e.dataTransfer.effectAllowed="move"; }
+    function onKanbanDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect="move"; }
+    function onKanbanDrop(e, status) { e.preventDefault(); if(dragLeadId!=null) { moveLeadToStage(dragLeadId,status); dragLeadId=null; } }
+
+    // ===== WEATHER & CURRENCY =====
+    async function runWeatherLookup() {
+      const city=S.weatherCity||ISRAEL_CITIES[0];
+      window.open("https://www.google.com/search?q=מזג+אוויר+"+encodeURIComponent(city)+"&hl=he","_blank");
+    }
+    async function refreshGlobalTravelData() {
+      const country=countryTravelByName(S.globalCountry);
+      setState({globalWeatherLoading:true,globalWeatherError:""},false);
+      try {
+        // מזג אוויר - Open-Meteo API (חינמי, ללא מפתח)
+        const geoRes=await fetch("https://geocoding-api.open-meteo.com/v1/search?name="+encodeURIComponent(country.city)+"&count=1&language=he&format=json");
+        const geoData=await geoRes.json();
+        const loc=geoData.results&&geoData.results[0];
+        let weatherData=null;
+        if(loc) {
+          const wRes=await fetch("https://api.open-meteo.com/v1/forecast?latitude="+loc.latitude+"&longitude="+loc.longitude+"&current=temperature_2m,windspeed_10m,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=5");
+          const wData=await wRes.json();
+          weatherData={
+            city:country.city, country:country.country,
+            current:{temperature:wData.current?.temperature_2m,windSpeed:wData.current?.windspeed_10m,weatherCode:wData.current?.weathercode},
+            daily:(wData.daily?.time||[]).map((d,i)=>({date:d,weatherCode:wData.daily.weathercode[i],max:wData.daily.temperature_2m_max[i],min:wData.daily.temperature_2m_min[i],precipitationChance:wData.daily.precipitation_probability_max[i]}))
+          };
+        }
+        // שערי מטבע - Open Exchange Rates (חינמי)
+        const fxRes=await fetch("https://open.er-api.com/v6/latest/"+S.currencyBase);
+        const fxData=await fxRes.json();
+        const rates=fxData.rates||{};
+        const amount=Number(S.currencyAmount)||100;
+        const currencyRows=COUNTRY_TRAVEL_CATALOG.map(c=>({
+          country:c.country, currency:c.currency,
+          value:rates[c.currency]?(amount/rates[S.currencyBase||"ILS"]*rates[c.currency]).toFixed(2):null
+        })).filter(r=>r.value!=null);
+        // הוסף גם כל מטבעות העולם
+        const allRows=Object.entries(ALL_CURRENCIES).map(([code,name])=>({
+          country:name, currency:code,
+          value:rates[code]?(amount*(rates[code]/(rates[S.currencyBase]||1))).toFixed(2):null
+        })).filter(r=>r.value!=null);
+        const mergedRows=[...currencyRows,...allRows.filter(r=>!currencyRows.find(c=>c.currency===r.currency))];
+        setState({globalWeatherLoading:false,globalWeatherData:weatherData,globalWeatherError:"",currencyRows:mergedRows,currencyRatesDate:new Date().toLocaleString("he-IL")});
+      } catch(err) {
+        setState({globalWeatherLoading:false,globalWeatherError:"שגיאה בטעינת נתונים: "+(err?.message||"")});
+      }
+    }
+
+    // ===== ROUTE BUILDER =====
+    function buildRoutePlan() {
+      const country=countryTravelByName(S.routeCountry);
+      const days=parseInt(S.routeDays)||5;
+      const style=S.routeStyle||"מאוזן";
+      const highlights=country.highlights||[];
+      const styleNote=style==="רגוע"?"עם הרבה זמן חופשי ומנוחה":style==="אינטנסיבי"?"עם מקסימום אטרקציות ביום":"בקצב מאוזן ונוח";
+      let plan=`מסלול טיול ל${country.country} – ${days} ימים (${style})\n`;
+      plan+=`מטבע מקומי: ${country.currency} | יבשת: ${country.continent}\n`;
+      plan+=`─────────────────────────────────\n`;
+      for(let d=1;d<=days;d++) {
+        const h1=highlights[(d-1)*2%highlights.length]||"";
+        const h2=highlights[(d-1)*2+1%highlights.length]||"";
+        plan+=`יום ${d}: `;
+        if(d===1) plan+=`הגעה ל${country.city}, צ'ק-אין, טיול ראשוני ב${h1||"מרכז העיר"}\n`;
+        else if(d===days) plan+=`ביקור אחרון ב${h1||"שוק מקומי"}, קניות מזכרות, טיסה חזרה\n`;
+        else plan+=`${h1||"אטרקציה מרכזית"} בבוקר${styleNote.includes("מנוחה")?" + מנוחה אחה\"צ":" + "+( h2||"אטרקציה נוספת")+" אחה\"צ"}\n`;
+      }
+      plan+=`─────────────────────────────────\n`;
+      plan+=`טיפים: ${country.highlights.slice(0,3).join(", ")}\n`;
+      plan+=`סגנון: ${styleNote}`;
+      setState({routePlan:plan});
+    }
+
+    // ===== BROADCAST =====
+    function getBroadcastAudience() {
+      const a=S.broadcastAudience||"all";
+      if(a==="travelers") return S.travelers;
+      if(a==="leads") return S.leads;
+      if(a==="contacts") return S.contacts;
+      if(a==="hr") return S.hrManagers;
+      return [...S.travelers,...S.leads,...S.contacts,...S.hrManagers];
+    }
+    function filterBroadcastByCriteria(rows) {
+      const c=S.broadcastCriteria||[];
+      if(!c.length) return rows;
+      return rows.filter(r=>{
+        if(c.includes("VIP") && !(r.segments||[]).includes("VIP")) return false;
+        if(c.includes("דתיים") && !(r.segments||[]).includes("דתיים") && !r.religiousNeeds) return false;
+        if(c.includes("מיטיבי לכת") && !(r.segments||[]).includes("מיטיבי לכת")) return false;
+        if(c.includes("משפחות") && !(r.segments||[]).includes("משפחות")) return false;
+        if(c.includes("גיל שלישי") && !(r.segments||[]).includes("גיל שלישי")) return false;
+        return true;
+      });
+    }
+    function toggleBroadcastCriteria(seg) {
+      const c=[...(S.broadcastCriteria||[])];
+      const i=c.indexOf(seg); if(i>=0) c.splice(i,1); else c.push(seg);
+      setState({broadcastCriteria:c},false);
+    }
+    function sendBroadcast(msg) {
+      if(!msg) return alert("יש להזין הודעה");
+      const rows=filterBroadcastByCriteria(getBroadcastAudience());
+      const withPhone=rows.filter(r=>r.phone||r.whatsapp);
+      alert("נשלחה הודעה ל-"+withPhone.length+" אנשי קשר (סימולציה).\n\nהודעה:\n"+msg);
+    }
+
+    // ===== BIRTHDAY AUTOMATION =====
+    async function refreshBirthdayAutomationStatus() {
+      try {
+        const res=await fetch("/.netlify/functions/birthday-automation-status");
+        if(res.ok) { const d=await res.json(); setState({birthdayAutoStatus:d},false); }
+      } catch(_) {}
+    }
+    async function dispatchBirthdayMessages() {
+      setState({birthdayAutoDispatchLoading:true},false); render();
+      try {
+        const res=await fetch("/.netlify/functions/birthday-automation-dispatch",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({travelers:S.travelers,template:S.birthdayMessageTemplate,includeDiscount:S.birthdayIncludeDiscount,discountPercent:S.birthdayDiscountPercent,couponCode:S.birthdayCouponCode,channel:S.birthdayAutomationChannel})});
+        const d=await res.json(); alert("נשלחו "+( d.sent||0)+" הודעות יום הולדת!");
+      } catch(_) { alert("שגיאה בשליחת הודעות"); }
+      finally { setState({birthdayAutoDispatchLoading:false}); }
+    }
+
+    // ===== INTEGRATIONS =====
+    async function refreshIntegrationsStatus() {
+      setState({integrationsLoading:true,integrationsError:""},false);
+      try {
+        const res=await fetch("/.netlify/functions/integrations-status");
+        if(res.ok) { const d=await res.json(); setState({integrationsStatus:d,integrationsLoading:false}); }
+        else setState({integrationsLoading:false,integrationsError:"שגיאה בטעינת סטטוס"});
+      } catch(_) { setState({integrationsLoading:false,integrationsError:"לא ניתן להתחבר לשרת"}); }
+    }
+    async function openCardcomStart() {
+      try {
+        const res=await fetch("/.netlify/functions/cardcom-start",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({amount:100,description:"GoTours – תשלום"})});
+        const payload=await res.json();
+        if(!res.ok) throw new Error(payload?.error||"Cardcom error");
+        const url=String(payload?.url||"").trim(); if(!url) throw new Error("URL חסר");
+        window.open(url,"_blank","width=560,height=760");
+      } catch(err) { alert("שגיאה: "+(err?.message||"")); }
+    }
+    async function connectGoogle() {
+      try {
+        const res=await fetch("/.netlify/functions/google-oauth-start");
+        const payload=await res.json();
+        if(!res.ok) throw new Error(payload?.error||"Google OAuth failed");
+        const url=String(payload?.url||"").trim(); if(!url) throw new Error("URL חסר");
+        window.open(url,"_blank","width=560,height=760");
+      } catch(err) { alert("חיבור Google נכשל: "+(err?.message||"")); }
+    }
+    function connectAllSites() { alert("מחבר את כל 3 האתרים... הפונקציה זמינה דרך שרת ה-Netlify."); }
+    function openIntegrationSite(url) { if(url) window.open(url,"_blank"); }
+    function setSiteConnection(id,connected) { alert("עדכון חיבור אתר "+id+" – דרך שרת ה-Netlify."); }
+
+    // ===== IMPORT FROM EXCEL =====
+    function getWorkbookRows(file) {
+      return new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=e=>{ try { const wb=XLSX.read(e.target.result,{type:"array"}); const ws=wb.Sheets[wb.SheetNames[0]]; resolve(XLSX.utils.sheet_to_json(ws,{defval:""})); } catch(err){reject(err);} };
+        reader.onerror=reject; reader.readAsArrayBuffer(file);
+      });
+    }
+    function pick(row,keys) { for(const k of keys){if(row[k]!==undefined&&row[k]!==null&&String(row[k]).trim()!=="") return row[k];} return ""; }
+    async function importTravelersFromExcel(input) {
+      const file=input.files&&input.files[0]; if(!file) return;
+      try {
+        const rows=await getWorkbookRows(file); const created=[];
+        rows.forEach(row=>{
+          const fullName=pick(row,["fullName","name","שם","שם מלא"]); const phone=pick(row,["phone","טלפון","mobile"]);
+          if(!fullName||!phone) return;
+          created.push({id:uid(),fullName:String(fullName).trim(),phone:normalizePhone(phone),whatsapp:normalizePhone(pick(row,["whatsapp","ווטסאפ"])||phone),email:String(pick(row,["email","אימייל"])||"").trim(),birthday:normalizeBirthday(pick(row,["birthday","birthDate","תאריך לידה","יום הולדת"])),age:parseNumber(pick(row,["age","גיל"])),city:String(pick(row,["city","עיר"])||"").trim(),budgetMin:parseNumber(pick(row,["budgetMin","תקציב מינימום"])),budgetMax:parseNumber(pick(row,["budgetMax","תקציב מקסימום"])),preferredCategory:String(pick(row,["preferredCategory","קטגוריה"])||"טבע").trim(),walkingLevel:String(pick(row,["walkingLevel","רמת הליכה"])||"בינוני").trim(),religiousNeeds:parseBoolean(pick(row,["religiousNeeds","דתי"])),kashrutRequired:parseBoolean(pick(row,["kashrutRequired","כשרות"])),shabbatFriendly:parseBoolean(pick(row,["shabbatFriendly","שבת"])),segments:parseSegments(pick(row,["segments","קבוצות"])),notes:String(pick(row,["notes","הערות"])||"").trim(),active:true,conversationHistory:[]});
+        });
+        S.travelers.unshift(...created); setState({travelers:S.travelers,travelerImportMsg:"יובאו "+created.length+" מטיילים"});
+      } catch(_) { alert("שגיאה בייבוא קובץ"); }
+    }
+    async function importLeadsFromExcel(input) {
+      const file=input.files&&input.files[0]; if(!file) return;
+      try {
+        const rows=await getWorkbookRows(file); const created=[];
+        rows.forEach(row=>{
+          const fullName=pick(row,["fullName","name","שם"]); const phone=pick(row,["phone","טלפון"]);
+          if(!fullName||!phone) return;
+          created.push({id:uid(),fullName:String(fullName).trim(),phone:normalizePhone(phone),email:String(pick(row,["email","אימייל"])||"").trim(),source:String(pick(row,["source","מקור"])||"אחר").trim(),status:"חדש",destinationInterest:String(pick(row,["destination","יעד"])||"").trim(),budget:parseNumber(pick(row,["budget","תקציב"])),travelersCount:parseNumber(pick(row,["count","כמות"])),notes:String(pick(row,["notes","הערות"])||"").trim(),assignedTo:"",createdAt:isoNow()});
+        });
+        S.leads.unshift(...created); setState({leads:S.leads,leadImportMsg:"יובאו "+created.length+" לידים"});
+      } catch(_) { alert("שגיאה בייבוא קובץ"); }
+    }
+    async function importContactsFromExcel(input,company) {
+      const file=input.files&&input.files[0]; if(!file) return;
+      try {
+        const rows=await getWorkbookRows(file); const created=[];
+        rows.forEach(row=>{
+          const fullName=pick(row,["fullName","name","שם"]); const phone=pick(row,["phone","טלפון"]);
+          if(!fullName||!phone) return;
+          created.push({id:uid(),fullName:String(fullName).trim(),phone:normalizePhone(phone),email:String(pick(row,["email","אימייל"])||"").trim(),role:String(pick(row,["role","תפקיד"])||"").trim(),company:company||"tiyoolim.com",organization:String(pick(row,["organization","ארגון"])||"").trim(),orgField:"אחר",domain:"",groupName:"",notes:String(pick(row,["notes","הערות"])||"").trim(),active:true});
+        });
+        S.contacts.unshift(...created); setState({contacts:S.contacts,contactImportMsg:"יובאו "+created.length+" אנשי קשר"});
+      } catch(_) { alert("שגיאה בייבוא קובץ"); }
+    }
+    async function importHrFromExcel(input) {
+      const file=input.files&&input.files[0]; if(!file) return;
+      try {
+        const rows=await getWorkbookRows(file); const created=[];
+        rows.forEach(row=>{
+          const fullName=pick(row,["fullName","name","שם"]); if(!fullName) return;
+          created.push({id:uid(),fullName:String(fullName).trim(),role:String(pick(row,["role","תפקיד"])||"מנהלת גיוס").trim(),phone:normalizePhone(pick(row,["phone","טלפון"])),email:String(pick(row,["email","אימייל"])||"").trim(),site:String(pick(row,["site","חברה"])||"GoTours").trim(),groupName:"",team:String(pick(row,["team","צוות"])||"תפעול").trim(),employeesCount:parseNumber(pick(row,["employeesCount","עובדים"])),skills:"",needs:"",active:true,notes:"",correspondenceHistory:[]});
+        });
+        S.hrManagers.unshift(...created); setState({hrManagers:S.hrManagers,hrImportMsg:"יובאו "+created.length+" מנהלות/י כ\"א"});
+      } catch(_) { alert("שגיאה בייבוא קובץ"); }
+    }
+    async function importOrganizationsFromExcel(input) {
+      const file=input.files&&input.files[0]; if(!file) return;
+      try {
+        const rows=await getWorkbookRows(file); const created=[];
+        rows.forEach(row=>{
+          const name=pick(row,["name","שם","ארגון"]); if(!name) return;
+          created.push({id:uid(),name:String(name).trim(),city:String(pick(row,["city","עיר"])||"").trim(),managerName:String(pick(row,["manager","מנהל"])||"").trim(),phone:normalizePhone(pick(row,["phone","טלפון"])),email:String(pick(row,["email","אימייל"])||"").trim(),specialization:String(pick(row,["specialization","התמחות"])||"").trim(),active:true,notes:""});
+        });
+        S.agencies.unshift(...created); setState({agencies:S.agencies,orgImportMsg:"יובאו "+created.length+" ארגונים"});
+      } catch(_) { alert("שגיאה בייבוא קובץ"); }
+    }
+    async function mergeDataFromUrl() {
+      const url=String(S.mergeUrl||"").trim(); if(!url) return alert("יש להזין URL");
+      try {
+        const res=await fetch(url); if(!res.ok) throw new Error("HTTP "+res.status);
+        const data=await res.json(); let merged=0;
+        if(Array.isArray(data.travelers)){data.travelers.forEach(x=>{if(!x||!x.fullName||!x.phone) return; S.travelers.unshift({...structuredClone(seed.travelerForm),...x,id:uid(),fullName:String(x.fullName).trim(),phone:normalizePhone(x.phone),whatsapp:normalizePhone(x.whatsapp||x.phone),birthday:normalizeBirthday(x.birthday),segments:Array.isArray(x.segments)?x.segments:parseSegments(x.segments),conversationHistory:Array.isArray(x.conversationHistory)?x.conversationHistory:[],active:x.active!==false}); merged++; });}
+        if(Array.isArray(data.leads)){data.leads.forEach(x=>{if(!x||!x.fullName||!x.phone) return; S.leads.unshift({...structuredClone(seed.leadForm),...x,id:uid(),fullName:String(x.fullName).trim(),phone:normalizePhone(x.phone),createdAt:x.createdAt||isoNow()}); merged++; });}
+        if(Array.isArray(data.suppliers)){data.suppliers.forEach(x=>{if(!x||!x.name) return; S.suppliers.unshift({...structuredClone(seed.supplierForm),...x,id:uid(),name:String(x.name).trim()}); merged++; });}
+        setState({travelers:S.travelers,leads:S.leads,suppliers:S.suppliers}); alert("מוזגו "+merged+" רשומות");
+      } catch(_) { alert("טעינת URL נכשלה. נדרש URL שמחזיר JSON."); }
+    }
+
+    // ===== REMOTE SAVE/LOAD =====
+    async function loadRemote() {
+      try {
+        const res=await fetch(API_URL+"?action=load");
+        if(!res.ok) return;
+        const d=await res.json();
+        if(d&&d.travelers){Object.assign(S,d); normalizeStateShape(); render();}
+      } catch(_) {}
+    }
+    async function saveRemote() {
+      try {
+        const res=await fetch(API_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"save",data:{travelers:S.travelers,leads:S.leads,suppliers:S.suppliers,trips:S.trips,agencies:S.agencies,contacts:S.contacts,hrManagers:S.hrManagers,tasks:S.tasks}})});
+        if(res.ok){S.syncOkAt=new Date().toLocaleTimeString("he-IL"); renderSyncMeta();}
+      } catch(_) {}
+    }
+
+    // ===== AI WIDGET =====
+    function buildAiContext() {
+      return "[הקשר מערכת]\nמטיילים: "+S.travelers.length+"\nלידים: "+S.leads.length+"\nספקים: "+S.suppliers.length+"\nטיולים: "+S.trips.length+"\n";
+    }
+    function toggleAiWidget() { setState({aiWidgetOpen:!S.aiWidgetOpen},false); }
+    async function sendAiPrompt() {
+      const prompt=String(S.aiPrompt||"").trim(); if(!prompt||S.aiLoading) return;
+      S.aiLoading=true; S.aiError=""; S.aiHistory=[...S.aiHistory,{role:"user",text:prompt}]; S.aiPrompt=""; render();
+      try {
+        const res=await fetch("/.netlify/functions/gemini-chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({prompt:buildAiContext()+"\n\n[בקשת משתמש]\n"+prompt+"\n\nהשב בעברית ברורה.",history:S.aiHistory.slice(-10)})});
+        const payload=await res.json();
+        if(!res.ok) throw new Error(payload?.error||"Gemini error");
+        S.aiHistory=[...S.aiHistory,{role:"assistant",text:String(payload.reply||"").trim()||"לא התקבלה תשובה."}];
+      } catch(err) { S.aiError=err?.message||"שגיאה"; }
+      finally { S.aiLoading=false; render(); }
+    }
+
+    // ===== נטלי BOT =====
+    function toggleNataly() { setState({natalyOpen:!S.natalyOpen},false); }
+    function natalyGreeting(traveler) {
+      if(traveler){const fn=String(traveler.fullName||"").trim().split(/\s+/)[0]||""; return "היי "+fn+"! 😊 כאן נטלי, השותפה הדיגיטלית של איציק טהורי. מה שלומך? איך אני יכולה לעזור לך היום?";}
+      return "שלום! 👋 כאן נטלי, השותפה הדיגיטלית של איציק טהורי מ-GoTours. איך הגעת אלינו? ומה מחפש/ת?";
+    }
+    function natalyBuildContext() {
+      const trips=S.trips.slice(0,6).map(t=>"• "+t.title+" ("+t.destination+") – ₪"+t.price+" ל-"+t.durationDays+" ימים").join("\n");
+      return "אתה נטלי, השותפה האסטרטגית והפנים הדיגיטליות של איציק טהורי, מסתערב ואיש שטח מנוסה מ-GoTours.\n\nכללי מענה:\n1. אם הלקוח קיים – פנה בשם פרטי וחמימות ('היי יוסי, מה שלומך?')\n2. אם חדש – שאל שאלות חבריות לשבירת הקרח ('איך הגעת אלינו?')\n3. דיבור ישיר, בטוח ומקצועי (איציק כמסתערב ואיש שטח)\n4. שלח מידע על טיולים לפי בקשה\n5. תמיד לסיים בשאלה מניעה לפעולה (CTA)\n\nטיולים זמינים:\n"+trips+"\n\nהשב תמיד בעברית, בחמימות ובמקצועיות.";
+    }
+    async function sendNatalyMessage() {
+      const msg=String(S.natalyInput||"").trim(); if(!msg||S.natalyLoading) return;
+      S.natalyHistory=[...S.natalyHistory,{role:"user",text:msg}];
+      S.natalyInput=""; S.natalyLoading=true; render();
+      try {
+        const res=await fetch("/.netlify/functions/gemini-chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({prompt:natalyBuildContext()+"\n\n[הודעת לקוח]: "+msg+"\n\nהשב כנטלי בעברית חמה ומקצועית, וסיים תמיד בשאלה מניעה לפעולה.",history:S.natalyHistory.slice(-8)})});
+        const payload=await res.json();
+        if(!res.ok) throw new Error(payload?.error||"Nataly error");
+        S.natalyHistory=[...S.natalyHistory,{role:"assistant",text:String(payload.reply||"").trim()||"נטלי: לא הצלחתי לקבל תשובה, נסה שוב."}];
+      } catch(err) {
+        const fallbacks=["תודה על הפנייה! 🙏 איציק יחזור אליך בהקדם. בינתיים, לאיזה יעד אתה חולם?","מעניין מאוד! 😊 אנחנו מתמחים בטיולים מותאמים אישית. מה התקציב שלך?","נשמע מצוין! ✈️ יש לנו חבילות מדהימות. כמה אנשים יוצאים לטיול?","אהבתי! 🌍 ספר לי יותר – מה הסגנון שלך? טבע, תרבות, או יוקרה?"];
+        S.natalyHistory=[...S.natalyHistory,{role:"assistant",text:fallbacks[Math.floor(Math.random()*fallbacks.length)]}];
+      }
+      finally { S.natalyLoading=false; render(); }
+    }
+
+    // ===== DASHBOARD DATA =====
+    function dashboardData() {
+      const now=Date.now(); const sevenDaysAgo=now-7*86400000;
+      const today=new Date(); today.setHours(0,0,0,0);
+      const travelers=S.travelers.length;
+      const hotLeads=S.leads.filter(l=>l.createdAt&&new Date(l.createdAt).getTime()>=sevenDaysAgo).length;
+      const leadsToday=S.leads.filter(l=>l.createdAt&&new Date(l.createdAt).getTime()>=today.getTime()).length;
+      const birthdaysToday=travelerBirthdayRows().filter(t=>t.isToday).length;
+      const overdueTasks=S.tasks.filter(t=>!t.done&&t.dueDate&&new Date(t.dueDate)<today).length;
+      const conversion=S.leads.length?Math.round(S.leads.filter(l=>l.status==="נסגר").length/S.leads.length*100):0;
+      const revenue=S.trips.reduce((a,t)=>a+(t.enrolled||0)*(t.price||0),0);
+      return {travelers,hotLeads,leadsToday,birthdaysToday,overdueTasks,conversion,revenue,leads:S.leads.length,suppliers:S.suppliers.length,trips:S.trips.length};
+    }
+
+    // ===== RENDER AUTH =====
+    function renderAuth() {
+      return '<div class="auth-wrap"><div class="card auth">'
+        + '<h1>✈ GoTours CRM 360</h1>'
+        + '<div class="muted" style="margin-bottom:20px">מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div>'
+        + '<div><label>שם משתמש</label><input value="'+escapeHtml(S.loginUser||"")+'" oninput="S.loginUser=this.value" onkeydown="if(event.key===\'Enter\')login()" placeholder="איציק"></div>'
+        + '<div style="margin-top:10px"><label>סיסמה</label><input type="password" value="'+escapeHtml(S.loginPass||"")+'" oninput="S.loginPass=this.value" onkeydown="if(event.key===\'Enter\')login()" placeholder="••••"></div>'
+        + (S.authError?'<div style="color:var(--danger);margin-top:8px;font-size:13px">'+escapeHtml(S.authError)+'</div>':"")
+        + '<button class="btn-primary" style="margin-top:16px" onclick="login()">כניסה למערכת</button>'
+        + '<div class="small muted" style="margin-top:12px;text-align:center">גרסה 3.0 | מהדורה מקצועית</div>'
+        + '</div></div>';
+    }
+
+    // ===== RENDER DASHBOARD =====
+    function renderDashboard() {
+      const d=dashboardData();
+      const bdays=travelerBirthdayRows().slice(0,3);
+      const overdueTasks=S.tasks.filter(t=>!t.done&&t.dueDate&&new Date(t.dueDate)<new Date()).slice(0,3);
+      const upcomingTasks=S.tasks.filter(t=>!t.done&&t.dueDate&&new Date(t.dueDate)>=new Date()).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).slice(0,3);
+      const hotLeads=S.leads.filter(l=>l.status==="חדש"||l.status==="בטיפול").slice(0,3);
+      return '<div class="dashboard-flow">'
+        // KPIs
+        + '<div class="kpis">'
+        + '<div class="kpi"><div class="small muted">מטיילים</div><strong>'+d.travelers+'</strong><div class="kpi-note">פעילים במערכת</div></div>'
+        + '<div class="kpi"><div class="small muted">לידים</div><strong>'+d.leads+'</strong><div class="kpi-note"><span class="kpi-trend-up">+'+d.leadsToday+'</span> היום</div></div>'
+        + '<div class="kpi"><div class="small muted">המרה</div><strong>'+d.conversion+'%</strong><div class="kpi-note">לידים שנסגרו</div></div>'
+        + '<div class="kpi"><div class="small muted">ספקים</div><strong>'+d.suppliers+'</strong><div class="kpi-note">פעילים</div></div>'
+        + '<div class="kpi"><div class="small muted">הכנסות</div><strong>₪'+d.revenue.toLocaleString("he-IL")+'</strong><div class="kpi-note">מטיולים פעילים</div></div>'
+        + '<div class="kpi" style="border-color:'+(d.overdueTasks>0?"var(--danger)":"var(--line)")+'"><div class="small muted">משימות דחופות</div><strong style="color:'+(d.overdueTasks>0?"var(--danger)":"var(--ok)")+'">'+d.overdueTasks+'</strong><div class="kpi-note">באיחור</div></div>'
+        + '</div>'
+        // פעולות מהירות
+        + '<div class="card"><div class="section-title">⚡ פעולות מהירות</div>'
+        + '<div class="quick-actions">'
+        + '<button class="btn-primary" onclick="setState({tab:\'leads\'},false)">🎯 לידים חדשים ('+d.hotLeads+')</button>'
+        + '<button class="btn-ok" onclick="setState({tab:\'travelers\'},false)">👥 הוסף מטייל</button>'
+        + '<button class="btn-warn" onclick="setState({tab:\'calendar\'},false)">📅 לוח שנה ומשימות</button>'
+        + '<button class="btn-soft" onclick="setState({tab:\'weather\'},false)">🌍 מזג אוויר ומטבע</button>'
+        + '</div></div>'
+        // לידים חמים + משימות
+        + '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">🎯 לידים חמים</div>'
+        + (hotLeads.length?'<div class="list">'+hotLeads.map(l=>'<div class="item '+(l.status==="חדש"?"priority-high":"priority")+'">'
+          + '<div class="item-head"><strong>'+escapeHtml(l.fullName)+'</strong><span class="badge '+(l.status==="חדש"?"b-danger":"b-warn")+'">'+escapeHtml(l.status)+'</span></div>'
+          + '<div class="small">'+escapeHtml(l.destinationInterest||"")+(l.budget?' | ₪'+l.budget:'')+(l.source?' | '+l.source:'')+'</div>'
+          + '<div class="row" style="margin-top:6px;gap:4px"><button class="btn-wa" style="width:auto;font-size:12px" onclick="window.open(\'https://wa.me/'+escapeHtml(phoneForWa(l.phone))+'\',\'_blank\')">💬 WA</button>'
+          + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editLead('+l.id+')">✏️ עריכה</button>'
+          + '<button class="btn-ok" style="width:auto;font-size:12px" onclick="updateLeadStatus('+l.id+',\'נסגר\')">✅ נסגר</button>'
+          + '</div></div>').join('')+'</div>'
+          :'<div class="empty">אין לידים חמים כרגע</div>')
+        + '<div style="margin-top:10px"><button class="btn-soft" onclick="setState({tab:\'leads\'},false)">כל הלידים ←</button></div>'
+        + '</div>'
+        + '<div class="card"><div class="section-title">📋 משימות דחופות</div>'
+        + (overdueTasks.length?'<div class="list">'+overdueTasks.map(t=>'<div class="task-item overdue"><input type="checkbox" onchange="toggleTaskDone('+t.id+')" style="width:20px;flex:0"><div style="flex:1"><strong>'+escapeHtml(t.title)+'</strong><div class="small muted">'+escapeHtml(t.dueDate)+'</div></div></div>').join('')+'</div>':"")
+        + (upcomingTasks.length?'<div class="section-title" style="font-size:15px;margin-top:10px">📌 קרובות</div><div class="list">'+upcomingTasks.map(t=>'<div class="task-item"><input type="checkbox" onchange="toggleTaskDone('+t.id+')" style="width:20px;flex:0"><div style="flex:1"><strong>'+escapeHtml(t.title)+'</strong><div class="small muted">'+escapeHtml(t.dueDate)+" | "+escapeHtml(t.assignedTo||"")+'</div></div></div>').join('')+'</div>':"")
+        + ((!overdueTasks.length&&!upcomingTasks.length)?'<div class="empty">אין משימות פתוחות</div>':"")
+        + '<div style="margin-top:10px"><button class="btn-soft" onclick="setState({tab:\'calendar\'},false)">כל המשימות ←</button></div>'
+        + '</div></div>'
+        // ימי הולדת
+        + (bdays.length?'<div class="card"><div class="section-title">🎂 ימי הולדת קרובים</div><div class="list">'
+          + bdays.map(t=>'<div class="item '+(t.isToday?"priority-high":"")+'">'
+            + '<div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><span class="badge '+(t.isToday?"b-danger":"b-ok")+'">'+(t.isToday?"🎉 היום!":"בעוד "+t.daysUntil+" ימים")+'</span></div>'
+            + '<div class="small">'+escapeHtml(t.phone||"")+(t.city?" | "+escapeHtml(t.city):"")+'</div>'
+            + '<div class="row" style="margin-top:6px;gap:4px"><button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 ברכה</button></div>'
+            + '</div>').join('')
+          + '</div></div>':"")
+        // מודולים
+        + '<div class="card"><div class="section-title">🗂 מודולים</div><div class="module-grid">'
+        + [["👥 לקוחות",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["📋 הצעות",S.trips.length,"trips"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🌍 מזג אוויר","","weather"],["🤖 GoAI","","matching"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
+        + '</div></div>'
+        + '</div>';
+    }
+
+    // ===== RENDER LEADS KANBAN =====
+    function renderLeadsTab() {
+      const f=S.leadForm;
+      const q=String(S.search||"").toLowerCase();
+      const allLeads=S.leads.filter(l=>!q||(l.fullName||"").toLowerCase().includes(q)||(l.phone||"").includes(q)||(l.destinationInterest||"").toLowerCase().includes(q));
+      return '<div class="layout-2">'
+        // טופס הוספה
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת ליד":"הוספת ליד")+'</div>'
+        + '<div class="autocomplete-wrap"><label>שם מלא</label><input value="'+escapeHtml(f.fullName)+'" oninput="S.leadForm.fullName=this.value;showAutocomplete(\'lead_name\',this.value,\'lead\')" placeholder="הקלד שם..."><div class="autocomplete-list" style="display:'+(S.autocompleteField==="lead_name"&&S.autocompleteResults.length?"block":"none")+'">'+(S.autocompleteField==="lead_name"?S.autocompleteResults.map((r,i)=>'<div class="autocomplete-item" onclick="applyAutocomplete('+i+')">'+escapeHtml(r.label)+'</div>').join(""):"")+'</div></div>'
+        + '<div class="grid">'
+        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.leadForm.phone=this.value" placeholder="05X-XXXXXXX"></div>'
+        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.leadForm.email=this.value"></div>'
+        + '<div><label>מקור</label><select onchange="S.leadForm.source=this.value">'+LEAD_SOURCES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.source===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
+        + '<div><label>סטטוס</label><select onchange="S.leadForm.status=this.value">'+LEAD_STATUSES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.status===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
+        + '<div><label>יעד מועדף</label><input value="'+escapeHtml(f.destinationInterest)+'" oninput="S.leadForm.destinationInterest=this.value" placeholder="איטליה, יוון..."></div>'
+        + '<div><label>תקציב ₪</label><input type="number" value="'+escapeHtml(f.budget)+'" oninput="S.leadForm.budget=this.value"></div>'
+        + '<div><label>כמות מטיילים</label><input type="number" value="'+escapeHtml(f.travelersCount)+'" oninput="S.leadForm.travelersCount=this.value"></div>'
+        + '<div><label>אחראי</label><input value="'+escapeHtml(f.assignedTo)+'" oninput="S.leadForm.assignedTo=this.value" placeholder="איציק"></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.leadForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveLead()">'+escapeHtml(f.id?"עדכון":"שמירה")+'</button>'+(f.id?'<button class="btn-soft" onclick="resetLeadForm();render()">ביטול</button>':'')+'</div>'
+        + (S.leadImportMsg?'<div class="small b-ok" style="margin-top:8px;padding:6px;border-radius:8px">'+escapeHtml(S.leadImportMsg)+'</div>':"")
+        + '</div>'
+        // לוח קנבן
+        + '<div><div class="section-title">🎯 לוח שלבי מכירה ('+allLeads.length+')</div>'
+        + '<div class="kanban-board">'
+        + LEAD_STATUSES.map(status=>{
+          const colLeads=allLeads.filter(l=>l.status===status);
+          return '<div class="kanban-col" ondragover="onKanbanDragOver(event)" ondrop="onKanbanDrop(event,\''+escapeHtml(status)+'\')">'
+            + '<div class="kanban-col-title">'+escapeHtml(status)+' <span class="kanban-col-count">('+colLeads.length+')</span></div>'
+            + colLeads.map(l=>'<div class="kanban-card" draggable="true" ondragstart="onKanbanDragStart(event,'+l.id+')">'
+              + '<strong>'+escapeHtml(l.fullName)+'</strong>'
+              + '<div class="small muted" style="margin-top:3px">'+escapeHtml(l.destinationInterest||"—")+(l.budget?' | ₪'+l.budget:'')+'</div>'
+              + '<div class="row" style="margin-top:6px;gap:3px">'
+              + '<button class="btn-wa" style="width:auto;font-size:11px;padding:4px 7px" onclick="window.open(\'https://wa.me/'+escapeHtml(phoneForWa(l.phone))+'\',\'_blank\')">💬</button>'
+              + '<button class="btn-soft" style="width:auto;font-size:11px;padding:4px 7px" onclick="editLead('+l.id+')">✏️</button>'
+              + '<button class="btn-danger" style="width:auto;font-size:11px;padding:4px 7px" onclick="deleteLead('+l.id+')">🗑</button>'
+              + '</div></div>').join("")
+            + '<button class="kanban-add" onclick="S.leadForm.status=\''+escapeHtml(status)+'\';render()">+ הוסף</button>'
+            + '</div>';
+        }).join("")
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER TRAVELERS =====
+    function renderTravelersTab() {
+      const f=S.travelerForm;
+      const folder=S.activeFolder||"all";
+      const q=String(S.search||"").toLowerCase();
+      const rows=(folder==="all"?S.travelers:S.travelers.filter(t=>(t.segments||[]).includes(folder))).filter(t=>!q||(t.fullName||"").toLowerCase().includes(q)||(t.phone||"").includes(q)||(t.city||"").toLowerCase().includes(q));
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת מטייל":"הוספת מטייל")+'</div>'
+        + '<div class="autocomplete-wrap"><label>שם מלא</label><input value="'+escapeHtml(f.fullName)+'" oninput="S.travelerForm.fullName=this.value;showAutocomplete(\'trav_name\',this.value,\'traveler\')" placeholder="הקלד שם..."><div class="autocomplete-list" style="display:'+(S.autocompleteField==="trav_name"&&S.autocompleteResults.length?"block":"none")+'">'+(S.autocompleteField==="trav_name"?S.autocompleteResults.map((r,i)=>'<div class="autocomplete-item" onclick="applyAutocomplete('+i+')">'+escapeHtml(r.label)+'</div>').join(""):"")+'</div></div>'
+        + '<div class="grid">'
+        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.travelerForm.phone=this.value"></div>'
+        + '<div><label>וואטסאפ</label><input value="'+escapeHtml(f.whatsapp)+'" oninput="S.travelerForm.whatsapp=this.value"></div>'
+        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.travelerForm.email=this.value"></div>'
+        + '<div><label>תאריך לידה</label><input type="date" value="'+escapeHtml(f.birthday)+'" oninput="S.travelerForm.birthday=this.value"></div>'
+        + '<div><label>עיר</label><input value="'+escapeHtml(f.city)+'" oninput="S.travelerForm.city=this.value" list="city_list"><datalist id="city_list">'+ISRAEL_CITIES.map(c=>'<option value="'+escapeHtml(c)+'">').join("")+'</datalist></div>'
+        + '<div><label>תקציב מינ׳ ₪</label><input type="number" value="'+escapeHtml(f.budgetMin)+'" oninput="S.travelerForm.budgetMin=this.value"></div>'
+        + '<div><label>תקציב מקס׳ ₪</label><input type="number" value="'+escapeHtml(f.budgetMax)+'" oninput="S.travelerForm.budgetMax=this.value"></div>'
+        + '<div><label>קטגוריה</label><select onchange="S.travelerForm.preferredCategory=this.value">'+TRIP_CATEGORIES.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.preferredCategory===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
+        + '<div><label>רמת הליכה</label><select onchange="S.travelerForm.walkingLevel=this.value">'+LEVELS.map(l=>'<option value="'+escapeHtml(l)+'" '+(f.walkingLevel===l?"selected":"")+'>'+escapeHtml(l)+'</option>').join("")+'</select></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>קבוצות</label><div class="chips" style="margin-top:4px">'+SEGMENTS.map(s=>'<span class="chip '+(( f.segments||[]).includes(s)?"active-chip":"")+'" onclick="toggleSegment(\''+escapeHtml(s)+'\')" style="cursor:pointer">'+escapeHtml(s)+'</span>').join("")+'</div></div>'
+        + '<div class="row" style="margin-top:8px">'
+        + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.religiousNeeds?"checked":"")+" onchange=\"S.travelerForm.religiousNeeds=this.checked\" style=\"width:auto\"> דתי/ה</label>"
+        + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.kashrutRequired?"checked":"")+" onchange=\"S.travelerForm.kashrutRequired=this.checked\" style=\"width:auto\"> כשרות</label>"
+        + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.shabbatFriendly?"checked":"")+" onchange=\"S.travelerForm.shabbatFriendly=this.checked\" style=\"width:auto\"> שבת</label>"
+        + '</div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.travelerForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveTraveler()">'+escapeHtml(f.id?"עדכון":"שמירה")+'</button>'+(f.id?'<button class="btn-soft" onclick="resetTravelerForm();render()">ביטול</button>':'')+'</div>'
+        + (S.travelerImportMsg?'<div class="small b-ok" style="margin-top:8px;padding:6px;border-radius:8px">'+escapeHtml(S.travelerImportMsg)+'</div>':"")
+        + '</div>'
+        + '<div><div class="folder-tabs"><div class="folder-tab '+(folder==="all"?"active":"")+'" onclick="setState({activeFolder:\'all\'},false)">כולם ('+S.travelers.length+')</div>'+SEGMENTS.map(s=>'<div class="folder-tab '+(folder===s?"active":"")+'" onclick="setState({activeFolder:\''+escapeHtml(s)+'\'},false)">'+escapeHtml(s)+' ('+S.travelers.filter(t=>(t.segments||[]).includes(s)).length+')</div>').join("")+'</div>'
+        + '<div class="list">'+(rows.length?rows.map(t=>{
+          const trip=tripById(t.currentTripId);
+          return '<div class="item '+(( t.segments||[]).includes("VIP")?"priority":"")+'">'
+            + '<div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><div class="chips">'+((t.segments||[]).map(s=>'<span class="chip">'+escapeHtml(s)+'</span>').join(""))+'</div></div>'
+            + '<div class="small">📞 '+escapeHtml(t.phone||"")+(t.city?" | "+escapeHtml(t.city):"")+(t.birthday?" | יום הולדת: "+escapeHtml(fmtDateShort(t.birthday)):"")+'</div>'
+            + (trip?'<div class="small b-ok" style="padding:3px 8px;border-radius:6px;display:inline-block;margin-top:4px">✈ '+escapeHtml(trip.title)+'</div>':"")
+            + (t.lastConversation?'<div class="small muted" style="margin-top:4px">שיחה אחרונה: '+escapeHtml(t.lastConversation.channel)+" – "+escapeHtml(fmtDateShort(t.lastConversation.at))+'</div>':"")
+            + '<div class="row" style="margin-top:8px;gap:4px">'
+            + '<button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 WA</button>'
+            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="callTraveler('+t.id+')">📞</button>'
+            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editTraveler('+t.id+')">✏️</button>'
+            + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteTraveler('+t.id+')">🗑</button>'
+            + '</div></div>';
+        }).join(""):'<div class="empty">אין מטיילים בתיקייה זו</div>')
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER CALENDAR & TASKS =====
+    function renderCalendarTab() {
+      const year=S.calendarYear||new Date().getFullYear();
+      const month=S.calendarMonth!=null?S.calendarMonth:new Date().getMonth();
+      const today=new Date();
+      const firstDay=new Date(year,month,1).getDay();
+      const daysInMonth=new Date(year,month+1,0).getDate();
+      const monthNames=["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
+      const dayNames=["א","ב","ג","ד","ה","ו","ש"];
+      const f=S.taskForm;
+      const tasks=S.tasks||[];
+      const overdue=tasks.filter(t=>!t.done&&t.dueDate&&new Date(t.dueDate)<today);
+      const upcoming=tasks.filter(t=>!t.done&&t.dueDate&&new Date(t.dueDate)>=today).sort((a,b)=>a.dueDate.localeCompare(b.dueDate));
+      const done=tasks.filter(t=>t.done);
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">📅 לוח שנה – '+escapeHtml(monthNames[month])+" "+year+'</div>'
+        + '<div class="row" style="margin-bottom:10px">'
+        + '<button class="btn-soft" style="width:auto" onclick="setState({calendarMonth:'+(month===0?11:month-1)+',calendarYear:'+(month===0?year-1:year)+'},false)">◀</button>'
+        + '<strong style="flex:1;text-align:center">'+escapeHtml(monthNames[month])+" "+year+'</strong>'
+        + '<button class="btn-soft" style="width:auto" onclick="setState({calendarMonth:'+(month===11?0:month+1)+',calendarYear:'+(month===11?year+1:year)+'},false)">▶</button>'
+        + '</div>'
+        + '<div class="calendar-grid">'
+        + dayNames.map(d=>'<div style="text-align:center;font-weight:800;font-size:12px;color:var(--muted);padding:4px">'+d+'</div>').join("")
+        + Array(firstDay).fill('<div></div>').join("")
+        + Array.from({length:daysInMonth},(_,i)=>{
+          const day=i+1;
+          const dateStr=year+"-"+String(month+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
+          const dayTasks=tasks.filter(t=>t.dueDate===dateStr);
+          const isToday=today.getFullYear()===year&&today.getMonth()===month&&today.getDate()===day;
+          const bdays=travelerBirthdayRows().filter(t=>t.birthdayMonthDay===String(month+1).padStart(2,"0")+"-"+String(day).padStart(2,"0"));
+          return '<div class="cal-day '+(isToday?"today":"")+(dayTasks.length?" has-event":"")+'"><div style="font-weight:700;font-size:12px">'+day+'</div>'
+            + dayTasks.map(t=>'<div class="cal-event '+(t.priority==="גבוהה"?"task-high":"")+'" title="'+escapeHtml(t.title)+'">'+escapeHtml(t.title.slice(0,10))+'</div>').join("")
+            + bdays.map(b=>'<div class="cal-event birthday" title="יום הולדת: '+escapeHtml(b.fullName)+'">🎂 '+escapeHtml(b.fullName.split(" ")[0])+'</div>').join("")
+            + '</div>';
+        }).join("")
+        + '</div>'
+        + '<div style="margin-top:10px"><button class="btn-primary" onclick="connectGoogle()">🔗 סנכרון Google Calendar</button></div>'
+        + '</div>'
+        + '<div>'
+        + '<div class="card" style="margin-bottom:12px"><div class="section-title">הוספת משימה</div>'
+        + '<div class="grid">'
+        + '<div><label>כותרת</label><input value="'+escapeHtml(f.title)+'" oninput="S.taskForm.title=this.value" placeholder="תיאור המשימה..."></div>'
+        + '<div><label>תאריך יעד</label><input type="date" value="'+escapeHtml(f.dueDate)+'" oninput="S.taskForm.dueDate=this.value"></div>'
+        + '<div><label>אחראי</label><input value="'+escapeHtml(f.assignedTo)+'" oninput="S.taskForm.assignedTo=this.value"></div>'
+        + '<div><label>עדיפות</label><select onchange="S.taskForm.priority=this.value"><option '+(f.priority==="גבוהה"?"selected":"")+'>גבוהה</option><option '+(f.priority==="בינונית"?"selected":"")+'>בינונית</option><option '+(f.priority==="נמוכה"?"selected":"")+'>נמוכה</option></select></div>'
+        + '</div>'
+        + '<button class="btn-ok" style="margin-top:10px" onclick="saveTask()">'+escapeHtml(f.id?"עדכון":"הוספת משימה")+'</button>'
+        + '</div>'
+        + (overdue.length?'<div class="card" style="margin-bottom:12px;border-color:var(--danger)"><div class="section-title" style="color:var(--danger)">⚠️ משימות באיחור ('+overdue.length+')</div><div class="list">'
+          + overdue.map(t=>'<div class="task-item overdue"><input type="checkbox" onchange="toggleTaskDone('+t.id+')" style="width:20px;flex:0"><div style="flex:1"><strong>'+escapeHtml(t.title)+'</strong><div class="small muted">'+escapeHtml(t.dueDate)+" | "+escapeHtml(t.assignedTo||"")+'</div></div><button class="btn-soft" style="width:auto;font-size:12px" onclick="editTask('+t.id+')">✏️</button><button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteTask('+t.id+')">🗑</button></div>').join("")
+          + '</div></div>':"")
+        + '<div class="card"><div class="section-title">📋 משימות קרובות ('+upcoming.length+')</div><div class="list">'
+        + (upcoming.length?upcoming.map(t=>'<div class="task-item"><input type="checkbox" onchange="toggleTaskDone('+t.id+')" style="width:20px;flex:0"><div style="flex:1"><strong>'+escapeHtml(t.title)+'</strong><div class="small muted">'+escapeHtml(t.dueDate)+" | "+escapeHtml(t.assignedTo||"")+" | עדיפות: "+escapeHtml(t.priority||"")+'</div></div><button class="btn-soft" style="width:auto;font-size:12px" onclick="editTask('+t.id+')">✏️</button><button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteTask('+t.id+')">🗑</button></div>').join(""):'<div class="empty">אין משימות קרובות</div>')
+        + '</div></div>'
+        + (done.length?'<div class="card" style="margin-top:12px"><div class="section-title">✅ הושלמו ('+done.length+')</div><div class="list">'
+          + done.slice(0,5).map(t=>'<div class="task-item done"><input type="checkbox" checked onchange="toggleTaskDone('+t.id+')" style="width:20px;flex:0"><div style="flex:1">'+escapeHtml(t.title)+'</div><button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteTask('+t.id+')">🗑</button></div>').join("")
+          + '</div></div>':"")
+        + '</div></div>';
+    }
+
+    // ===== RENDER SUPPLIERS =====
+    function renderSuppliersTab() {
+      const f=S.supplierForm;
+      const q=String(S.search||"").toLowerCase();
+      const rows=S.suppliers.filter(s=>!q||(s.name||"").toLowerCase().includes(q)||(s.type||"").includes(q));
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת ספק":"הוספת ספק")+'</div>'
+        + '<div class="autocomplete-wrap"><label>שם ספק</label><input value="'+escapeHtml(f.name)+'" oninput="S.supplierForm.name=this.value;showAutocomplete(\'sup_name\',this.value,\'supplier\')" placeholder="הקלד שם ספק..."><div class="autocomplete-list" style="display:'+(S.autocompleteField==="sup_name"&&S.autocompleteResults.length?"block":"none")+'">'+(S.autocompleteField==="sup_name"?S.autocompleteResults.map((r,i)=>'<div class="autocomplete-item" onclick="applyAutocomplete('+i+')">'+escapeHtml(r.label)+'</div>').join(""):"")+'</div></div>'
+        + '<div class="grid">'
+        + '<div><label>סוג</label><select onchange="S.supplierForm.type=this.value">'+SUPPLIER_TYPES.map(t=>'<option value="'+escapeHtml(t)+'" '+(f.type===t?"selected":"")+'>'+escapeHtml(t)+'</option>').join("")+'</select></div>'
+        + '<div><label>עיר</label><input value="'+escapeHtml(f.city)+'" oninput="S.supplierForm.city=this.value"></div>'
+        + '<div><label>איש קשר</label><input value="'+escapeHtml(f.contactName)+'" oninput="S.supplierForm.contactName=this.value"></div>'
+        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.supplierForm.phone=this.value"></div>'
+        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.supplierForm.email=this.value"></div>'
+        + '<div><label>ח"פ / ע"מ</label><input value="'+escapeHtml(f.taxId||"")+'" oninput="S.supplierForm.taxId=this.value"></div>'
+        + '<div><label>תנאי תשלום</label><input value="'+escapeHtml(f.paymentTerms||"")+'" oninput="S.supplierForm.paymentTerms=this.value" placeholder="שוטף+30"></div>'
+        + '<div><label>דירוג (1-5)</label><input type="number" min="1" max="5" step="0.1" value="'+escapeHtml(f.rating)+'" oninput="S.supplierForm.rating=this.value"></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.supplierForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveSupplier()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetSupplierForm();render()">ביטול</button>':"")+'</div>'
+        + '</div>'
+        + '<div><div class="section-title">ספקים ('+rows.length+')</div><div class="list">'
+        + (rows.length?rows.map(s=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(s.name)+'</strong><span class="badge b-ok">'+escapeHtml(s.type)+'</span></div>'
+          + '<div class="small">'+escapeHtml(s.city||"")+(s.contactName?" | "+escapeHtml(s.contactName):"")+(s.phone?" | "+escapeHtml(s.phone):"")+'</div>'
+          + (s.taxId?'<div class="small muted">ח"פ: '+escapeHtml(s.taxId)+(s.paymentTerms?" | תשלום: "+escapeHtml(s.paymentTerms):"")+'</div>':"")
+          + (s.rating?'<div class="small">⭐ '+escapeHtml(String(s.rating))+'</div>':"")
+          + '<div class="row" style="margin-top:6px;gap:4px">'
+          + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editSupplier('+s.id+')">✏️</button>'
+          + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteSupplier('+s.id+')">🗑</button>'
+          + (s.phone?'<button class="btn-soft" style="width:auto;font-size:12px" onclick="window.location.href=\'tel:'+escapeHtml(normalizePhone(s.phone))+'\'">📞</button>':"")
+          + (s.phone?'<button class="btn-wa" style="width:auto;font-size:12px" onclick="window.open(\'https://wa.me/'+escapeHtml(phoneForWa(s.phone))+'\',\'_blank\')">💬</button>':"")
+          + '</div></div>').join(""):'<div class="empty">אין ספקים</div>')
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER CONTACTS =====
+    function renderContactsTab() {
+      const f=S.contactForm;
+      const filter=S.contactCompanyFilter||"all";
+      const q=String(S.search||"").toLowerCase();
+      const rows=S.contacts.filter(c=>(filter==="all"||c.company===filter)&&(!q||(c.fullName||"").toLowerCase().includes(q)||(c.organization||"").toLowerCase().includes(q)));
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת איש קשר":"הוספת איש קשר")+'</div>'
+        + '<div class="grid">'
+        + '<div><label>שם מלא</label><input value="'+escapeHtml(f.fullName)+'" oninput="S.contactForm.fullName=this.value"></div>'
+        + '<div><label>תפקיד</label><input value="'+escapeHtml(f.role)+'" oninput="S.contactForm.role=this.value" placeholder="אחראית רווחה..."></div>'
+        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.contactForm.phone=this.value"></div>'
+        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.contactForm.email=this.value"></div>'
+        + '<div><label>חברה</label><select onchange="S.contactForm.company=this.value">'+COMPANY_OPTIONS.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.company===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
+        + '<div><label>ארגון</label><input value="'+escapeHtml(f.organization)+'" oninput="S.contactForm.organization=this.value" placeholder="AlphaHR..."></div>'
+        + '<div><label>תחום</label><select onchange="S.contactForm.orgField=this.value">'+ORG_FIELDS.map(o=>'<option value="'+escapeHtml(o)+'" '+(f.orgField===o?"selected":"")+'>'+escapeHtml(o)+'</option>').join("")+'</select></div>'
+        + '<div><label>שם קבוצה</label><input value="'+escapeHtml(f.groupName)+'" oninput="S.contactForm.groupName=this.value"></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.contactForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveContact()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetContactForm();render()">ביטול</button>':"")+'</div>'
+        + '</div>'
+        + '<div><div class="folder-tabs">'+["all",...COMPANY_OPTIONS].map(c=>'<div class="folder-tab '+(filter===c?"active":"")+'" onclick="setState({contactCompanyFilter:\''+escapeHtml(c)+'\'},false)">'+(c==="all"?"כולם ("+S.contacts.length+")":escapeHtml(c)+" ("+S.contacts.filter(x=>x.company===c).length+")")+'</div>').join("")+'</div>'
+        + '<div class="list">'+(rows.length?rows.map(c=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(c.fullName)+'</strong><span class="badge b-ok">'+escapeHtml(c.company)+'</span></div>'
+          + '<div class="small">'+escapeHtml(c.role||"")+(c.organization?" | "+escapeHtml(c.organization):"")+'</div>'
+          + '<div class="small muted">'+escapeHtml(c.phone||"")+(c.email?" | "+escapeHtml(c.email):"")+'</div>'
+          + '<div class="row" style="margin-top:6px;gap:4px">'
+          + (c.phone?'<button class="btn-wa" style="width:auto;font-size:12px" onclick="window.open(\'https://wa.me/'+escapeHtml(phoneForWa(c.phone))+'\',\'_blank\')">💬</button>':"")
+          + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editContact('+c.id+')">✏️</button>'
+          + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteContact('+c.id+')">🗑</button>'
+          + '</div></div>').join(""):'<div class="empty">אין אנשי קשר</div>')
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER HR =====
+    function renderHrTab() {
+      const f=S.hrForm;
+      const filter=S.hrCompanyFilter||"all";
+      const q=String(S.search||"").toLowerCase();
+      const rows=S.hrManagers.filter(h=>(filter==="all"||h.site===filter)&&(!q||(h.fullName||"").toLowerCase().includes(q)));
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכה":"הוספת מנהל/ת כ\"א")+'</div>'
+        + '<div class="grid">'
+        + '<div><label>שם מלא</label><input value="'+escapeHtml(f.fullName)+'" oninput="S.hrForm.fullName=this.value"></div>'
+        + '<div><label>תפקיד</label><input value="'+escapeHtml(f.role)+'" oninput="S.hrForm.role=this.value"></div>'
+        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.hrForm.phone=this.value"></div>'
+        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.hrForm.email=this.value"></div>'
+        + '<div><label>חברה</label><select onchange="S.hrForm.site=this.value">'+COMPANY_OPTIONS.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.site===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
+        + '<div><label>צוות</label><input value="'+escapeHtml(f.team)+'" oninput="S.hrForm.team=this.value"></div>'
+        + '<div><label>כמות עובדים</label><input type="number" value="'+escapeHtml(f.employeesCount)+'" oninput="S.hrForm.employeesCount=this.value"></div>'
+        + '<div><label>צרכים</label><input value="'+escapeHtml(f.needs)+'" oninput="S.hrForm.needs=this.value" placeholder="דרושים מדריכים..."></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.hrForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveHrManager()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetHrForm();render()">ביטול</button>':"")+'</div>'
+        + '</div>'
+        + '<div><div class="folder-tabs">'+["all",...COMPANY_OPTIONS].map(c=>'<div class="folder-tab '+(filter===c?"active":"")+'" onclick="setState({hrCompanyFilter:\''+escapeHtml(c)+'\'},false)">'+(c==="all"?"כולם ("+S.hrManagers.length+")":escapeHtml(c)+" ("+S.hrManagers.filter(h=>h.site===c).length+")")+'</div>').join("")+'</div>'
+        + '<div class="list">'+(rows.length?rows.map(h=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(h.fullName)+'</strong><span class="badge b-ok">'+escapeHtml(h.site)+'</span></div>'
+          + '<div class="small">'+escapeHtml(h.role||"")+(h.team?" | "+escapeHtml(h.team):"")+(h.employeesCount?" | "+h.employeesCount+" עובדים":"")+'</div>'
+          + (h.needs?'<div class="small muted">צרכים: '+escapeHtml(h.needs)+'</div>':"")
+          + (Array.isArray(h.correspondenceHistory)&&h.correspondenceHistory.length?'<div class="small muted">שיחה אחרונה: '+escapeHtml(h.correspondenceHistory[0].channel)+" – "+escapeHtml(fmtDateShort(h.correspondenceHistory[0].at))+'</div>':"")
+          + '<div class="row" style="margin-top:6px;gap:4px">'
+          + (h.phone?'<button class="btn-wa" style="width:auto;font-size:12px" onclick="window.open(\'https://wa.me/'+escapeHtml(phoneForWa(h.phone))+'\',\'_blank\')">💬</button>':"")
+          + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editHrManager('+h.id+')">✏️</button>'
+          + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteHrManager('+h.id+')">🗑</button>'
+          + '</div></div>').join(""):'<div class="empty">אין מנהלי/ות כ"א</div>')
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER TRIPS =====
+    function renderTripsTab() {
+      const f=S.tripForm;
+      const q=String(S.search||"").toLowerCase();
+      const rows=S.trips.filter(t=>!q||(t.title||"").toLowerCase().includes(q)||(t.destination||"").toLowerCase().includes(q));
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת הצעה":"הצעת מחיר חדשה")+'</div>'
+        + '<div class="grid">'
+        + '<div><label>כותרת</label><input value="'+escapeHtml(f.title)+'" oninput="S.tripForm.title=this.value" placeholder="טרק הרי האלפים..."></div>'
+        + '<div><label>יעד</label><input value="'+escapeHtml(f.destination)+'" oninput="S.tripForm.destination=this.value" list="dest_list"><datalist id="dest_list">'+COUNTRY_TRAVEL_CATALOG.map(c=>'<option value="'+escapeHtml(c.country)+'">').join("")+'</datalist></div>'
+        + '<div><label>קטגוריה</label><select onchange="S.tripForm.category=this.value">'+TRIP_CATEGORIES.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.category===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
+        + '<div><label>רמה</label><select onchange="S.tripForm.difficulty=this.value">'+LEVELS.map(l=>'<option value="'+escapeHtml(l)+'" '+(f.difficulty===l?"selected":"")+'>'+escapeHtml(l)+'</option>').join("")+'</select></div>'
+        + '<div><label>מחיר ₪</label><input type="number" value="'+escapeHtml(f.price)+'" oninput="S.tripForm.price=this.value"></div>'
+        + '<div><label>ימים</label><input type="number" value="'+escapeHtml(f.durationDays)+'" oninput="S.tripForm.durationDays=this.value"></div>'
+        + '<div><label>עונה</label><input value="'+escapeHtml(f.season)+'" oninput="S.tripForm.season=this.value" placeholder="קיץ, אביב..."></div>'
+        + '<div><label>קיבולת</label><input type="number" value="'+escapeHtml(f.capacity)+'" oninput="S.tripForm.capacity=this.value"></div>'
+        + '<div><label>רשומים</label><input type="number" value="'+escapeHtml(f.enrolled)+'" oninput="S.tripForm.enrolled=this.value"></div>'
+        + '</div>'
+        + '<div class="row" style="margin-top:8px">'
+        + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.religiousFriendly?"checked":"")+" onchange=\"S.tripForm.religiousFriendly=this.checked\" style=\"width:auto\"> מתאים לדתיים</label>"
+        + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.kashrutAvailable?"checked":"")+" onchange=\"S.tripForm.kashrutAvailable=this.checked\" style=\"width:auto\"> כשרות</label>"
+        + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.shabbatOptions?"checked":"")+" onchange=\"S.tripForm.shabbatOptions=this.checked\" style=\"width:auto\"> שבת</label>"
+        + '</div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.tripForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveTrip()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetTripForm();render()">ביטול</button>':"")+'</div>'
+        + '</div>'
+        + '<div><div class="section-title">הצעות מחיר ('+rows.length+')</div><div class="list">'
+        + (rows.length?rows.map(t=>{
+          const pct=t.capacity?Math.round((t.enrolled||0)/t.capacity*100):0;
+          return '<div class="item"><div class="item-head"><strong>'+escapeHtml(t.title)+'</strong><span class="badge b-ok">'+escapeHtml(t.destination)+'</span></div>'
+            + '<div class="small">'+escapeHtml(t.category||"")+" | "+escapeHtml(t.difficulty||"")+(t.durationDays?" | "+t.durationDays+" ימים":"")+(t.price?" | ₪"+t.price:"")+'</div>'
+            + '<div class="small">קיבולת: '+escapeHtml(String(t.enrolled||0))+"/"+escapeHtml(String(t.capacity||0))+'</div>'
+            + '<div class="meter"><span style="width:'+pct+'%"></span></div>'
+            + '<div class="row" style="margin-top:6px;gap:4px">'
+            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editTrip('+t.id+')">✏️</button>'
+            + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteTrip('+t.id+')">🗑</button>'
+            + '</div></div>';
+        }).join(""):'<div class="empty">אין הצעות מחיר</div>')
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER AGENCIES =====
+    function renderAgenciesTab() {
+      const f=S.agencyForm;
+      const q=String(S.search||"").toLowerCase();
+      const rows=S.agencies.filter(a=>!q||(a.name||"").toLowerCase().includes(q)||(a.city||"").toLowerCase().includes(q));
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת ארגון":"הוספת ארגון")+'</div>'
+        + '<div class="grid">'
+        + '<div><label>שם ארגון</label><input value="'+escapeHtml(f.name)+'" oninput="S.agencyForm.name=this.value"></div>'
+        + '<div><label>עיר</label><input value="'+escapeHtml(f.city)+'" oninput="S.agencyForm.city=this.value"></div>'
+        + '<div><label>מנהל/ת</label><input value="'+escapeHtml(f.managerName)+'" oninput="S.agencyForm.managerName=this.value"></div>'
+        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.agencyForm.phone=this.value"></div>'
+        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.agencyForm.email=this.value"></div>'
+        + '<div><label>התמחות</label><input value="'+escapeHtml(f.specialization)+'" oninput="S.agencyForm.specialization=this.value"></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.agencyForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveAgency()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetAgencyForm();render()">ביטול</button>':"")+'</div>'
+        + '</div>'
+        + '<div><div class="section-title">ארגונים ('+rows.length+')</div><div class="list">'
+        + (rows.length?rows.map(a=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(a.name)+'</strong><span class="badge '+(a.active?"b-ok":"b-warn")+'">'+(a.active?"פעיל":"לא פעיל")+'</span></div>'
+          + '<div class="small">'+escapeHtml(a.city||"")+(a.managerName?" | "+escapeHtml(a.managerName):"")+'</div>'
+          + (a.specialization?'<div class="small muted">'+escapeHtml(a.specialization)+'</div>':"")
+          + '<div class="row" style="margin-top:6px;gap:4px">'
+          + (a.phone?'<button class="btn-wa" style="width:auto;font-size:12px" onclick="window.open(\'https://wa.me/'+escapeHtml(phoneForWa(a.phone))+'\',\'_blank\')">💬</button>':"")
+          + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editAgency('+a.id+')">✏️</button>'
+          + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteAgency('+a.id+')">🗑</button>'
+          + '</div></div>').join(""):'<div class="empty">אין ארגונים</div>')
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER CONVERSATIONS =====
+    function renderConversationsTab() {
+      const f=S.conversationForm;
+      const hf=S.hrConversationForm;
+      const recent=S.travelers.filter(t=>t.lastConversation).sort((a,b)=>new Date(b.lastConversation.at)-new Date(a.lastConversation.at)).slice(0,10);
+      return '<div class="layout-2">'
+        + '<div>'
+        + '<div class="card" style="margin-bottom:12px"><div class="section-title">💬 רישום שיחה עם מטייל</div>'
+        + '<div class="grid">'
+        + '<div><label>מטייל</label><select onchange="S.conversationForm.travelerId=this.value"><option value="">-- בחר --</option>'+S.travelers.map(t=>'<option value="'+t.id+'" '+(f.travelerId==t.id?"selected":"")+'>'+escapeHtml(t.fullName)+'</option>').join("")+'</select></div>'
+        + '<div><label>ערוץ</label><select onchange="S.conversationForm.channel=this.value"><option '+(f.channel==="ווטסאפ"?"selected":"")+'>ווטסאפ</option><option '+(f.channel==="טלפון"?"selected":"")+'>טלפון</option><option '+(f.channel==="מייל"?"selected":"")+'>מייל</option><option '+(f.channel==="פגישה"?"selected":"")+'>פגישה</option></select></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>סיכום</label><textarea oninput="S.conversationForm.summary=this.value" placeholder="תיאור השיחה...">'+escapeHtml(f.summary)+'</textarea></div>'
+        + '<div style="margin-top:8px"><label>צעד הבא</label><input value="'+escapeHtml(f.nextStep)+'" oninput="S.conversationForm.nextStep=this.value" placeholder="לשלוח הצעה עד..."></div>'
+        + '<button class="btn-ok" style="margin-top:10px" onclick="saveConversation()">שמירת שיחה</button>'
+        + '</div>'
+        + '<div class="card"><div class="section-title">📞 רישום שיחה עם מנהל/ת כ"א</div>'
+        + '<div class="grid">'
+        + '<div><label>מנהל/ת</label><select onchange="S.hrConversationForm.hrManagerId=this.value"><option value="">-- בחר --</option>'+S.hrManagers.map(h=>'<option value="'+h.id+'" '+(hf.hrManagerId==h.id?"selected":"")+'>'+escapeHtml(h.fullName)+'</option>').join("")+'</select></div>'
+        + '<div><label>ערוץ</label><select onchange="S.hrConversationForm.channel=this.value"><option '+(hf.channel==="מייל"?"selected":"")+'>מייל</option><option '+(hf.channel==="טלפון"?"selected":"")+'>טלפון</option><option '+(hf.channel==="ווטסאפ"?"selected":"")+'>ווטסאפ</option><option '+(hf.channel==="פגישה"?"selected":"")+'>פגישה</option></select></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>סיכום</label><textarea oninput="S.hrConversationForm.summary=this.value" placeholder="תיאור השיחה...">'+escapeHtml(hf.summary)+'</textarea></div>'
+        + '<div style="margin-top:8px"><label>צעד הבא</label><input value="'+escapeHtml(hf.nextStep)+'" oninput="S.hrConversationForm.nextStep=this.value"></div>'
+        + '<button class="btn-ok" style="margin-top:10px" onclick="saveHrConversation()">שמירת שיחה</button>'
+        + '</div></div>'
+        + '<div><div class="section-title">📋 שיחות אחרונות</div><div class="list">'
+        + (recent.length?recent.map(t=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><span class="badge b-ok">'+escapeHtml(t.lastConversation.channel)+'</span></div>'
+          + '<div class="small">'+escapeHtml(fmtDateShort(t.lastConversation.at))+'</div>'
+          + '<div class="small muted">'+escapeHtml(t.lastConversation.summary||"")+'</div>'
+          + (t.lastConversation.nextStep?'<div class="small" style="color:var(--warn)">▶ '+escapeHtml(t.lastConversation.nextStep)+'</div>':"")
+          + '<div class="row" style="margin-top:6px;gap:4px"><button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 WA</button></div>'
+          + '</div>').join(""):'<div class="empty">אין שיחות רשומות</div>')
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER BIRTHDAYS =====
+    function renderBirthdaysTab() {
+      const rows=travelerBirthdayRows();
+      const todayRows=rows.filter(t=>t.isToday);
+      const upcomingRows=rows.filter(t=>!t.isToday&&t.daysUntil<=30);
+      const template=S.birthdayMessageTemplate||seed.birthdayMessageTemplate;
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">🎂 ימי הולדת</div>'
+        + (todayRows.length?'<div class="section-title" style="font-size:16px;color:var(--danger)">🎉 היום ('+todayRows.length+')</div><div class="list">'+todayRows.map(t=>'<div class="item priority-high"><div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><span class="badge b-danger">היום!</span></div><div class="small">'+escapeHtml(t.phone||"")+'</div><div class="row" style="margin-top:6px;gap:4px"><button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 שלח ברכה</button></div></div>').join("")+'</div>':"")
+        + '<div class="section-title" style="font-size:16px;margin-top:12px">📅 ב-30 ימים הקרובים ('+upcomingRows.length+')</div>'
+        + '<div class="list">'+(upcomingRows.length?upcomingRows.map(t=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><span class="badge b-ok">בעוד '+t.daysUntil+' ימים</span></div><div class="small">'+escapeHtml(t.phone||"")+(t.city?" | "+escapeHtml(t.city):"")+'</div><div class="row" style="margin-top:6px;gap:4px"><button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 WA</button></div></div>').join(""):'<div class="empty">אין ימי הולדת ב-30 ימים הקרובים</div>')+'</div>'
+        + '</div>'
+        + '<div class="card"><div class="section-title">⚙️ הגדרות אוטומציה</div>'
+        + '<div class="grid">'
+        + '<div><label>תבנית הודעה</label><textarea oninput="S.birthdayMessageTemplate=this.value" style="min-height:120px">'+escapeHtml(template)+'</textarea></div>'
+        + '<div><label>ערוץ שליחה</label><select onchange="S.birthdayAutomationChannel=this.value"><option '+(S.birthdayAutomationChannel==="whatsapp"?"selected":"")+' value="whatsapp">ווטסאפ</option><option '+(S.birthdayAutomationChannel==="email"?"selected":"")+' value="email">מייל</option></select></div>'
+        + '<div><label>הנחה לכבוד יום הולדת</label><input type="number" min="0" max="50" value="'+escapeHtml(String(S.birthdayDiscountPercent||5))+'" oninput="S.birthdayDiscountPercent=this.value"> %</div>'
+        + '<div><label>קוד קופון</label><input value="'+escapeHtml(S.birthdayCouponCode||"BIRTHDAY5")+'" oninput="S.birthdayCouponCode=this.value"></div>'
+        + '</div>'
+        + '<button class="btn-ok" style="margin-top:12px" onclick="dispatchBirthdayMessages()">'+(S.birthdayAutoDispatchLoading?"שולח...":"📤 שלח ברכות לכולם")+'</button>'
+        + '</div></div>';
+    }
+
+    // ===== RENDER ALERTS =====
+    function renderAlertsTab() {
+      const today=new Date(); today.setHours(0,0,0,0);
+      const overdueTasks=S.tasks.filter(t=>!t.done&&t.dueDate&&new Date(t.dueDate)<today);
+      const todayBdays=travelerBirthdayRows().filter(t=>t.isToday);
+      const hotLeads=S.leads.filter(l=>l.status==="חדש");
+      const upcomingBdays=travelerBirthdayRows().filter(t=>!t.isToday&&t.daysUntil<=7);
+      return '<div class="card"><div class="section-title">🔔 מרכז התראות</div>'
+        + (overdueTasks.length?'<div class="section-title" style="font-size:16px;color:var(--danger)">⚠️ משימות באיחור ('+overdueTasks.length+')</div><div class="list">'+overdueTasks.map(t=>'<div class="task-item overdue"><input type="checkbox" onchange="toggleTaskDone('+t.id+')" style="width:20px;flex:0"><div style="flex:1"><strong>'+escapeHtml(t.title)+'</strong><div class="small muted">'+escapeHtml(t.dueDate)+" | "+escapeHtml(t.assignedTo||"")+'</div></div><button class="btn-soft" style="width:auto;font-size:12px" onclick="setState({tab:\'calendar\'},false)">→ לוח שנה</button></div>').join("")+'</div>':"")
+        + (todayBdays.length?'<div class="section-title" style="font-size:16px;color:#e91e8c;margin-top:12px">🎂 ימי הולדת היום ('+todayBdays.length+')</div><div class="list">'+todayBdays.map(t=>'<div class="item priority-high"><div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><span class="badge b-danger">היום!</span></div><div class="row" style="margin-top:6px;gap:4px"><button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 שלח ברכה</button></div></div>').join("")+'</div>':"")
+        + (hotLeads.length?'<div class="section-title" style="font-size:16px;color:var(--warn);margin-top:12px">🎯 לידים חדשים ממתינים ('+hotLeads.length+')</div><div class="list">'+hotLeads.slice(0,5).map(l=>'<div class="item priority"><div class="item-head"><strong>'+escapeHtml(l.fullName)+'</strong><span class="badge b-warn">חדש</span></div><div class="small">'+escapeHtml(l.destinationInterest||"")+(l.budget?" | ₪"+l.budget:"")+'</div><div class="row" style="margin-top:6px;gap:4px"><button class="btn-wa" style="width:auto;font-size:12px" onclick="window.open(\'https://wa.me/'+escapeHtml(phoneForWa(l.phone))+'\',\'_blank\')">💬 WA</button><button class="btn-soft" style="width:auto;font-size:12px" onclick="editLead('+l.id+')">✏️</button></div></div>').join("")+'</div>':"")
+        + (upcomingBdays.length?'<div class="section-title" style="font-size:16px;margin-top:12px">🎁 ימי הולדת השבוע ('+upcomingBdays.length+')</div><div class="list">'+upcomingBdays.map(t=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><span class="badge b-ok">בעוד '+t.daysUntil+' ימים</span></div></div>').join("")+'</div>':"")
+        + ((!overdueTasks.length&&!todayBdays.length&&!hotLeads.length&&!upcomingBdays.length)?'<div class="empty">אין התראות פעילות 🎉</div>':"")
+        + '</div>';
+    }
+
+    // ===== RENDER BROADCAST =====
+    function renderBroadcastTab() {
+      const audience=getBroadcastAudience();
+      const filtered=filterBroadcastByCriteria(audience);
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">📲 שליחה קבוצתית</div>'
+        + '<div><label>קהל יעד</label><select onchange="setState({broadcastAudience:this.value},false)"><option value="all" '+(S.broadcastAudience==="all"?"selected":"")+'>כולם</option><option value="travelers" '+(S.broadcastAudience==="travelers"?"selected":"")+'>מטיילים</option><option value="leads" '+(S.broadcastAudience==="leads"?"selected":"")+'>לידים</option><option value="contacts" '+(S.broadcastAudience==="contacts"?"selected":"")+'>אנשי קשר</option><option value="hr" '+(S.broadcastAudience==="hr"?"selected":"")+'>כוח אדם</option></select></div>'
+        + '<div style="margin-top:10px"><label>סינון לפי קבוצה</label><div class="chips" style="margin-top:4px">'+SEGMENTS.map(s=>'<span class="chip '+((S.broadcastCriteria||[]).includes(s)?"active-chip":"")+'" onclick="toggleBroadcastCriteria(\''+escapeHtml(s)+'\')" style="cursor:pointer">'+escapeHtml(s)+'</span>').join("")+'</div></div>'
+        + '<div style="margin-top:10px"><label>הודעה</label><textarea id="broadcast_msg" placeholder="כתוב הודעה לשליחה..."></textarea></div>'
+        + '<div class="row" style="margin-top:10px">'
+        + '<button class="btn-ok" onclick="sendBroadcast(document.getElementById(\'broadcast_msg\').value)">📤 שלח ל-'+filtered.length+' אנשים</button>'
+        + '<button class="btn-soft" onclick="setState({broadcastCriteria:[]},false)">נקה סינון</button>'
+        + '</div></div>'
+        + '<div class="card"><div class="section-title">👥 נמענים ('+filtered.length+')</div><div class="list" style="max-height:400px;overflow-y:auto">'
+        + filtered.slice(0,30).map(r=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(r.fullName||r.name||"")+'</strong><div class="chips">'+((r.segments||[]).map(s=>'<span class="chip">'+escapeHtml(s)+'</span>').join(""))+'</div></div><div class="small muted">'+escapeHtml(r.phone||"")+'</div></div>').join("")
+        + (filtered.length>30?'<div class="small muted" style="text-align:center;padding:8px">ועוד '+(filtered.length-30)+' נוספים...</div>':"")
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER REPORTS =====
+    function renderReportsTab() {
+      const totalLeads=S.leads.length;
+      const closedLeads=S.leads.filter(l=>l.status==="נסגר").length;
+      const lostLeads=S.leads.filter(l=>l.status==="אבוד").length;
+      const conversion=totalLeads?Math.round(closedLeads/totalLeads*100):0;
+      const revenue=S.trips.reduce((a,t)=>a+(t.enrolled||0)*(t.price||0),0);
+      const bySource=LEAD_SOURCES.map(s=>({source:s,count:S.leads.filter(l=>l.source===s).length})).filter(x=>x.count>0).sort((a,b)=>b.count-a.count);
+      const byStatus=LEAD_STATUSES.map(s=>({status:s,count:S.leads.filter(l=>l.status===s).length}));
+      const bySegment=SEGMENTS.map(s=>({segment:s,count:S.travelers.filter(t=>(t.segments||[]).includes(s)).length}));
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">📊 דוח מכירות</div>'
+        + '<div class="list">'
+        + '<div class="item"><div class="item-head"><strong>סה"כ לידים</strong><span class="badge b-ok">'+totalLeads+'</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>נסגרו</strong><span class="badge b-ok">'+closedLeads+'</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>אבדו</strong><span class="badge b-danger">'+lostLeads+'</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>יחס המרה</strong><span class="badge b-ok">'+conversion+'%</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>הכנסות מטיולים</strong><span class="badge b-ok">₪'+revenue.toLocaleString("he-IL")+'</span></div></div>'
+        + '</div>'
+        + '<div class="section-title" style="margin-top:14px">📍 לידים לפי מקור</div><div class="list">'
+        + bySource.map(x=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(x.source)+'</strong><span class="badge b-ok">'+x.count+'</span></div><div class="meter"><span style="width:'+Math.round(x.count/totalLeads*100)+'%"></span></div></div>').join("")
+        + '</div></div>'
+        + '<div>'
+        + '<div class="card" style="margin-bottom:12px"><div class="section-title">📈 לידים לפי סטטוס</div><div class="list">'
+        + byStatus.map(x=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(x.status)+'</strong><span class="badge b-ok">'+x.count+'</span></div></div>').join("")
+        + '</div></div>'
+        + '<div class="card"><div class="section-title">👥 מטיילים לפי קבוצה</div><div class="list">'
+        + bySegment.map(x=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(x.segment)+'</strong><span class="badge b-ok">'+x.count+'</span></div></div>').join("")
+        + '</div></div></div></div>';
+    }
+
+    // ===== RENDER WEATHER & CURRENCY =====
+    function renderWeatherTab() {
+      const cities=getWeatherCitiesByScope();
+      if(!S.weatherCity||!cities.includes(S.weatherCity)) S.weatherCity=cities[0]||"";
+      const weather=S.globalWeatherData||null;
+      const currencyRows=Array.isArray(S.currencyRows)?S.currencyRows:[];
+      const selectedCountry=countryTravelByName(S.globalCountry);
+      const ratesMeta=S.currencyRatesDate?"עודכן: "+escapeHtml(S.currencyRatesDate):"טרם נמשכו שערים.";
+      const base=S.currencyBase||"ILS";
+      const amount=Number(S.currencyAmount)||100;
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">🌤 מזג אוויר בארץ</div>'
+        + '<div class="row"><div><label>עיר</label><select onchange="setState({weatherCity:this.value},false)">'+cities.map(c=>'<option value="'+escapeHtml(c)+'" '+(S.weatherCity===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div><div><label>נושא</label><select onchange="setState({weatherTopic:this.value},false)">'+WEATHER_QUICK_TOPICS.map(t=>'<option value="'+escapeHtml(t)+'" '+(S.weatherTopic===t?"selected":"")+'>'+escapeHtml(t)+'</option>').join("")+'</select></div></div>'
+        + '<div class="row" style="margin-top:8px"><button class="btn-primary" onclick="runWeatherLookup()">🔍 בדיקת מזג אוויר</button></div>'
+        + '<div class="list" style="margin-top:10px">'+cities.slice(0,12).map(c=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(c)+'</strong><button class="btn-soft" style="width:auto;font-size:12px" onclick="openWeather(\''+escapeHtml(c)+'\')">בדיקה מהירה</button></div></div>').join("")+'</div>'
+        + '</div>'
+        + '<div class="card"><div class="section-title">🌍 מרכז בינלאומי – מזג אוויר, מטבע ומסלול</div>'
+        + '<div class="sub-title">'+COUNTRY_TRAVEL_CATALOG.length+' מדינות | '+Object.keys(ALL_CURRENCIES).length+' מטבעות | שערים יומיים | בניית מסלול חכמה</div>'
+        + '<div class="row"><div><label>מדינה</label><select onchange="setState({globalCountry:this.value,routeCountry:this.value},false)">'+COUNTRY_TRAVEL_CATALOG.map(x=>'<option value="'+escapeHtml(x.country)+'" '+(S.globalCountry===x.country?"selected":"")+'>'+escapeHtml(x.country+" ("+x.city+")")+'</option>').join("")+'</select></div><div><label>מטבע בסיס</label><select onchange="setState({currencyBase:this.value},false)">'+FX_BASE_OPTIONS.map(x=>'<option value="'+x+'" '+(base===x?"selected":"")+'>'+x+'</option>').join("")+'</select></div></div>'
+        + '<div class="row"><div><label>סכום להמרה</label><input type="number" min="0.01" step="1" value="'+escapeHtml(String(amount))+'" oninput="S.currencyAmount=this.value"></div><div><label>עדכון נתונים</label><button class="btn-primary" onclick="refreshGlobalTravelData()">'+(S.globalWeatherLoading?"טוען...":"🔄 עדכון מזג אוויר + מטבע")+'</button></div></div>'
+        + (S.globalWeatherError?'<div class="small" style="color:var(--danger);margin-top:6px">'+escapeHtml(S.globalWeatherError)+'</div>':"")
+        + '<div class="small muted" style="margin-top:6px">'+ratesMeta+'</div>'
+        + (weather?'<div class="item" style="margin-top:8px"><div class="item-head"><strong>'+escapeHtml(weather.city+", "+weather.country)+'</strong><span class="badge b-ok">'+escapeHtml(weatherCodeText(weather.current?.weatherCode))+'</span></div><div class="small">🌡 '+escapeHtml(String(weather.current?.temperature))+'°C | 💨 '+escapeHtml(String(weather.current?.windSpeed))+' קמ"ש</div>'
+          + (Array.isArray(weather.daily)&&weather.daily.length?'<div class="list" style="margin-top:8px">'+weather.daily.slice(0,5).map(d=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(d.date)+'</strong><span class="small muted">'+escapeHtml(weatherCodeText(d.weatherCode))+'</span></div><div class="small">מינ׳ '+escapeHtml(String(d.min))+'°C · מקס׳ '+escapeHtml(String(d.max))+'°C · גשם '+escapeHtml(String(d.precipitationChance))+'%</div></div>').join("")+'</div>':"")
+          + '</div>'
+          :'<div class="empty" style="margin-top:8px">לחץ על עדכון נתונים לקבלת תחזית.</div>')
+        + '<div class="section-title" style="margin-top:14px">💱 המרת מטבע – '+escapeHtml(String(amount))+' '+escapeHtml(base)+' לכל המדינות</div>'
+        + (currencyRows.length?'<div style="overflow-x:auto;max-height:320px;overflow-y:auto"><table class="currency-table"><thead><tr><th>מדינה / מטבע</th><th>קוד</th><th>שווה ל...</th></tr></thead><tbody>'
+          + currencyRows.map(r=>'<tr><td>'+escapeHtml(r.country)+'</td><td>'+escapeHtml(r.currency)+'</td><td><strong>'+escapeHtml(formatCurrencyAmount(r.value,r.currency))+'</strong></td></tr>').join("")
+          + '</tbody></table></div>'
+          :'<div class="empty">לחץ על עדכון נתונים לקבלת שערי מטבע מכל העולם.</div>')
+        + '<div class="section-title" style="margin-top:14px">🗺️ בניית מסלול טיול</div>'
+        + '<div class="row"><div><label>מדינה</label><select onchange="setState({routeCountry:this.value},false)">'+COUNTRY_TRAVEL_CATALOG.map(x=>'<option value="'+escapeHtml(x.country)+'" '+(S.routeCountry===x.country?"selected":"")+'>'+escapeHtml(x.country)+'</option>').join("")+'</select></div><div><label>ימים</label><input type="number" min="2" max="21" value="'+escapeHtml(String(S.routeDays))+'" oninput="S.routeDays=this.value"></div></div>'
+        + '<div class="row"><div><label>סגנון</label><select onchange="setState({routeStyle:this.value},false)">'+ROUTE_STYLES.map(x=>'<option value="'+escapeHtml(x)+'" '+(S.routeStyle===x?"selected":"")+'>'+escapeHtml(x)+'</option>').join("")+'</select></div><div><label>בנה מסלול</label><button class="btn-ok" onclick="buildRoutePlan()">🗺️ בניית מסלול</button></div></div>'
+        + (S.routePlan?'<div class="item" style="margin-top:8px;white-space:pre-wrap;font-size:13px;line-height:1.6">'+escapeHtml(S.routePlan)+'</div>':'<div class="small muted" style="margin-top:8px">המסלול נבנה אוטומטית לפי מדינה, ימים וסגנון.</div>')
+        + '</div></div>';
+    }
+
+    // ===== RENDER INTEGRATIONS =====
+    function renderIntegrationsTab() {
+      const status=S.integrationsStatus&&typeof S.integrationsStatus==="object"?S.integrationsStatus:{};
+      const cardcom=status.cardcom&&typeof status.cardcom==="object"?status.cardcom:{};
+      const google=status.google&&typeof status.google==="object"?status.google:{};
+      const storage=status.storage&&typeof status.storage==="object"?status.storage:{};
+      const sites=status.sites&&typeof status.sites==="object"?status.sites:{};
+      const siteRows=Array.isArray(sites.rows)?sites.rows:[];
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">🔌 אינטגרציות</div>'
+        + '<div class="list">'
+        + '<div class="item"><div class="item-head"><strong>אתרי החברה</strong><span class="badge '+(sites.allConnected?"b-ok":"b-warn")+'">'+escapeHtml((sites.connected||0)+"/"+(sites.total||3)+" מחוברים")+'</span></div>'
+        + (siteRows.length?'<div class="list">'+siteRows.map(site=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(site.name||"")+'</strong><span class="badge '+(site.connected?"b-ok":"b-warn")+'">'+(site.connected?"מחובר":"לא מחובר")+'</span></div><div class="small">'+escapeHtml(site.url||"")+'</div><div class="row" style="margin-top:6px"><button class="btn-soft" onclick="openIntegrationSite(\''+escapeHtml(site.url||"")+'\')">פתיחת אתר</button><button class="'+(site.connected?"btn-danger":"btn-ok")+'" onclick="setSiteConnection(\''+escapeHtml(site.id||"")+'\')">'+(site.connected?"נתק":"חבר")+'</button></div></div>').join("")+'</div>'
+          :'<div class="small muted">אין מידע על אתרים.</div>')
+        + '<div class="row" style="margin-top:8px"><button class="btn-ok" onclick="connectAllSites()">חבר את כל 3 האתרים</button></div></div>'
+        + '<div class="item"><div class="item-head"><strong>Cardcom – סליקה</strong><span class="badge '+(cardcom.configured?"b-ok":"b-warn")+'">'+(cardcom.configured?"מוגדר":"לא הוגדר")+'</span></div><div class="small">אירועים: '+escapeHtml(String(cardcom.eventsCount||0))+'</div><div class="row" style="margin-top:6px"><button class="btn-primary" onclick="openCardcomStart()">פתיחת Cardcom</button></div></div>'
+        + '<div class="item"><div class="item-head"><strong>Google OAuth + Calendar</strong><span class="badge '+(google.connected?"b-ok":"b-warn")+'">'+(google.connected?"מחובר":"לא מחובר")+'</span></div><div class="small">Client: '+(google.configured?"מוגדר":"לא מוגדר")+'</div><div class="row" style="margin-top:6px"><button class="btn-primary" onclick="connectGoogle()">🔗 חיבור Google</button></div></div>'
+        + '</div>'
+        + (S.integrationsError?'<div class="small" style="color:var(--danger);margin-top:8px">'+escapeHtml(S.integrationsError)+'</div>':"")
+        + '<div class="row" style="margin-top:10px"><button class="btn-soft" onclick="refreshIntegrationsStatus()">'+(S.integrationsLoading?"מרענן...":"🔄 רענון סטטוס")+'</button></div>'
+        + '</div>'
+        + '<div class="card"><div class="section-title">☁️ יציבות נתונים</div>'
+        + '<div class="item"><div class="small">מצב שמירה: <strong>'+escapeHtml(storage.mode||"netlify-blobs-strong")+'</strong></div><div class="small">עדכון אחרון: '+escapeHtml(storage.lastSavedAt||"עדיין לא נשמר")+'</div><div class="small">Snapshots: '+escapeHtml(String(storage.snapshots||0))+'</div></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveRemote()">💾 שמור לענן</button></div>'
+        + '</div></div>';
+    }
+
+    // ===== RENDER IMPORTS =====
+    function renderImportsTab() {
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">🧠 ייבוא חכם</div>'
+        + '<div class="sub-title">ייבוא מאקסל, CSV, או JSON חיצוני. הנתונים מסווגים אוטומטית לתיקיות.</div>'
+        + '<div class="grid">'
+        + '<div><label>📥 ייבוא מטיילים מאקסל</label><div class="import-zone" onclick="document.getElementById(\'imp_trav\').click()">לחץ לבחירת קובץ Excel<input id="imp_trav" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importTravelersFromExcel(this)"></div>'+(S.travelerImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.travelerImportMsg)+'</div>':"")+'</div>'
+        + '<div><label>📥 ייבוא לידים מאקסל</label><div class="import-zone" onclick="document.getElementById(\'imp_lead\').click()">לחץ לבחירת קובץ Excel<input id="imp_lead" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importLeadsFromExcel(this)"></div>'+(S.leadImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.leadImportMsg)+'</div>':"")+'</div>'
+        + '<div><label>📥 ייבוא אנשי קשר</label><div class="import-zone" onclick="document.getElementById(\'imp_cont\').click()">לחץ לבחירת קובץ Excel<input id="imp_cont" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importContactsFromExcel(this,S.contactImportCompany)"></div>'+(S.contactImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.contactImportMsg)+'</div>':"")+'</div>'
+        + '<div><label>📥 ייבוא מנהלי/ות כ"א</label><div class="import-zone" onclick="document.getElementById(\'imp_hr\').click()">לחץ לבחירת קובץ Excel<input id="imp_hr" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importHrFromExcel(this)"></div>'+(S.hrImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.hrImportMsg)+'</div>':"")+'</div>'
+        + '<div><label>📥 ייבוא ארגונים</label><div class="import-zone" onclick="document.getElementById(\'imp_org\').click()">לחץ לבחירת קובץ Excel<input id="imp_org" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importOrganizationsFromExcel(this)"></div>'+(S.orgImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.orgImportMsg)+'</div>':"")+'</div>'
+        + '</div></div>'
+        + '<div class="card"><div class="section-title">🔗 מיזוג ממערכת חיצונית</div>'
+        + '<div class="sub-title">הזן URL שמחזיר JSON עם מטיילים, לידים, או ספקים.</div>'
+        + '<div><label>URL מקור JSON</label><input placeholder="https://example.com/data.json" value="'+escapeHtml(S.mergeUrl||"")+'" oninput="S.mergeUrl=this.value"></div>'
+        + '<button class="btn-primary" style="margin-top:10px" onclick="mergeDataFromUrl()">🔄 מיזוג נתונים</button>'
+        + '<div class="section-title" style="margin-top:16px">📋 מבנה JSON נדרש</div>'
+        + '<div class="item"><div class="small" style="font-family:monospace">{ "travelers":[...], "leads":[...], "suppliers":[...] }</div></div>'
+        + '</div></div>';
+    }
+
+    // ===== RENDER MATCHING (GoAI) =====
+    function renderMatchingTab() {
+      const trips=S.trips;
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">🤖 GoAI – התאמת מטיילים לטיולים</div>'
+        + '<div class="sub-title">מנוע ההתאמה החכם מנתח העדפות, תקציב, רמת הליכה ודרישות דתיות.</div>'
+        + '<div class="list">'
+        + S.travelers.slice(0,10).map(t=>{
+          const matches=trips.filter(trip=>{
+            if(t.walkingLevel==="מיטיבי לכת"&&trip.difficulty==="קל") return false;
+            if(t.religiousNeeds&&!trip.religiousFriendly) return false;
+            if(t.kashrutRequired&&!trip.kashrutAvailable) return false;
+            if(t.budgetMax&&trip.price>t.budgetMax) return false;
+            return true;
+          });
+          return '<div class="item"><div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><span class="badge b-ok">'+matches.length+' התאמות</span></div>'
+            + '<div class="small muted">'+escapeHtml(t.preferredCategory||"")+" | "+escapeHtml(t.walkingLevel||"")+(t.budgetMax?" | עד ₪"+t.budgetMax:"")+'</div>'
+            + (matches.length?'<div class="chips" style="margin-top:6px">'+matches.map(m=>'<span class="chip">✈ '+escapeHtml(m.title)+'</span>').join("")+'</div>':"")
+            + '</div>';
+        }).join("")
+        + '</div></div>'
+        + '<div class="card"><div class="section-title">📋 טיולים זמינים</div>'
+        + '<div class="list">'+trips.map(t=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(t.title)+'</strong><span class="badge b-ok">'+escapeHtml(t.destination)+'</span></div>'
+          + '<div class="small">'+escapeHtml(t.difficulty||"")+" | ₪"+t.price+" | "+t.durationDays+" ימים"+(t.religiousFriendly?" | ✡ דתי":"")+(t.kashrutAvailable?" | 🥩 כשר":"")+'</div>'
+          + '<div class="small muted">'+escapeHtml(t.enrolled||0)+"/"+escapeHtml(t.capacity||0)+" רשומים"+'</div>'
+          + '</div>').join("")
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER AI WIDGET =====
+    function renderAiWidget() {
+      const panel=S.aiWidgetOpen
+        ? '<div class="ai-panel card"><div class="item-head"><strong>🤖 GoAI</strong><button class="btn-soft" style="width:auto" onclick="toggleAiWidget()">סגירה</button></div>'
+          + '<div class="ai-log">'+(S.aiHistory||[]).slice(-12).map(m=>'<div class="ai-msg '+escapeHtml(m.role||"")+'"><strong>'+(m.role==="user"?"אתם":"GoAI")+':</strong> '+escapeHtml(m.text||"")+'</div>').join("")+'</div>'
+          + (S.aiError?'<div class="small" style="color:var(--danger);margin-bottom:6px">'+escapeHtml(S.aiError)+'</div>':"")
+          + '<div class="row"><input placeholder="שאל את GoAI..." value="'+escapeHtml(S.aiPrompt||"")+'" oninput="S.aiPrompt=this.value" onkeydown="if(event.key===\'Enter\'){sendAiPrompt()}"><button class="btn-primary" onclick="sendAiPrompt()">'+(S.aiLoading?"שולח...":"שלח")+'</button></div>'
+          + '</div>'
+        : '';
+      return panel+'<button class="ai-fab" onclick="toggleAiWidget()" title="GoAI">🤖</button>';
+    }
+
+    // ===== RENDER NATALY WIDGET =====
+    function renderNatalyWidget() {
+      const panel=S.natalyOpen
+        ? '<div class="nataly-panel">'
+          + '<div class="nataly-header"><div><strong>💬 נטלי</strong><div style="font-size:12px;opacity:0.85">השותפה הדיגיטלית של איציק</div></div><button onclick="toggleNataly()" style="background:transparent;border:none;color:#fff;font-size:18px;width:auto;cursor:pointer">✕</button></div>'
+          + '<div class="nataly-chat">'
+          + (S.natalyHistory.length===0?'<div class="nataly-msg bot">'+escapeHtml(natalyGreeting(null))+'</div>':"")
+          + S.natalyHistory.slice(-12).map(m=>'<div class="nataly-msg '+(m.role==="user"?"user":"bot")+'">'+escapeHtml(m.text)+'</div>').join("")
+          + (S.natalyLoading?'<div class="nataly-msg bot">נטלי מקלידה...</div>':"")
+          + '</div>'
+          + '<div class="nataly-input-row"><input placeholder="כתוב הודעה לנטלי..." value="'+escapeHtml(S.natalyInput||"")+'" oninput="S.natalyInput=this.value" onkeydown="if(event.key===\'Enter\'){sendNatalyMessage()}"><button class="btn-wa" onclick="sendNatalyMessage()">שלח</button></div>'
+          + '</div>'
+        : '';
+      return panel+'<button class="nataly-fab" onclick="toggleNataly()" title="נטלי – בוט חכם">💬</button>';
+    }
+
+    // ===== RENDER MAIN =====
+    function renderMain() {
+      const tabs=[
+        {id:"dashboard",label:"📊 לוח בקרה"},
+        {id:"travelers",label:"👥 לקוחות"},
+        {id:"contacts",label:"📇 אנשי קשר"},
+        {id:"leads",label:"🎯 לידים"},
+        {id:"suppliers",label:"🏪 ספקים"},
+        {id:"trips",label:"📋 הצעות מחיר"},
+        {id:"conversations",label:"💬 תקשורת"},
+        {id:"birthdays",label:"🎂 ימי הולדת"},
+        {id:"alerts",label:"🔔 התראות"},
+        {id:"broadcast",label:"📲 קבוצות WA"},
+        {id:"reports",label:"📊 דוחות"},
+        {id:"weather",label:"🌍 מזג אוויר"},
+        {id:"integrations",label:"🔌 אינטגרציות"},
+        {id:"imports",label:"🧠 ייבוא חכם"},
+        {id:"agencies",label:"🏢 ארגונים"},
+        {id:"hr",label:"👔 כוח אדם"},
+        {id:"matching",label:"🤖 GoAI"},
+        {id:"calendar",label:"📅 לוח שנה"}
+      ];
+      let content="";
+      if(S.tab==="dashboard") content=renderDashboard();
+      else if(S.tab==="leads") content=renderLeadsTab();
+      else if(S.tab==="travelers") content=renderTravelersTab();
+      else if(S.tab==="contacts") content=renderContactsTab();
+      else if(S.tab==="trips") content=renderTripsTab();
+      else if(S.tab==="agencies") content=renderAgenciesTab();
+      else if(S.tab==="suppliers") content=renderSuppliersTab();
+      else if(S.tab==="hr") content=renderHrTab();
+      else if(S.tab==="matching") content=renderMatchingTab();
+      else if(S.tab==="conversations") content=renderConversationsTab();
+      else if(S.tab==="broadcast") content=renderBroadcastTab();
+      else if(S.tab==="birthdays") content=renderBirthdaysTab();
+      else if(S.tab==="alerts") content=renderAlertsTab();
+      else if(S.tab==="reports") content=renderReportsTab();
+      else if(S.tab==="weather") content=renderWeatherTab();
+      else if(S.tab==="integrations") content=renderIntegrationsTab();
+      else if(S.tab==="imports") content=renderImportsTab();
+      else if(S.tab==="calendar") content=renderCalendarTab();
+      else content=renderDashboard();
+
+      const d=dashboardData();
+      return '<div class="shell">'
+        + '<div class="header"><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div class="top-meta"><span class="meta-pill">☁️ מחובר</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span><span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span></div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש לקוח, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
+        + '<div class="tabs">'+tabs.map(t=>'<button class="'+(S.tab===t.id?"active":"")+'" onclick="setState({tab:\''+t.id+'\'},false)">'+t.label+'</button>').join("")+'</div>'
+        + content
+        + renderAiWidget()
+        + renderNatalyWidget()
+        + '</div>';
+    }
+
+    function render() {
+      const app=document.getElementById("app");
+      if(S.loading){app.innerHTML='<div class="auth-wrap"><div class="card auth"><h1>✈ GoTours CRM 360</h1><div class="muted">טוען נתונים...</div></div></div>'; return;}
+      app.innerHTML=S.isAuthenticated?renderMain():renderAuth();
+      renderSyncMeta();
+    }
+
+    // ===== INIT =====
+    loadFallback();
+    normalizeStateShape();
+    render();
+    loadRemote();
+    refreshIntegrationsStatus();
+    refreshBirthdayAutomationStatus();
+  </script>
+</body>
+</html>
