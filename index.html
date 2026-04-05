@@ -69,7 +69,7 @@
     .top-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
     .meta-pill { background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.28); border-radius:999px; padding:4px 10px; font-size:12px; font-weight:700; }
     .dashboard-flow { display:grid; gap:12px; }
-    .module-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+    .module-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }
     .module { border:1px solid var(--line); border-radius:12px; background:#f8fbff; padding:10px; font-weight:700; color:var(--text); display:flex; align-items:center; justify-content:space-between; gap:8px; }
     .module .count { color:#fff; background:linear-gradient(120deg,#0f567f,#1f89aa); border-radius:999px; min-width:24px; text-align:center; font-size:12px; padding:2px 7px; }
     .kpi-note { font-size:12px; color:var(--muted); }
@@ -98,6 +98,18 @@
     .ai-msg.user { background:#f2f2ff; }
     /* NATALY BOT */
     .nataly-fab { position:fixed; right:18px; bottom:18px; width:62px; height:62px; border-radius:50%; border:0; background:linear-gradient(135deg,#128c7e,#25d366); color:#fff; font-size:28px; box-shadow:0 14px 28px rgba(18,140,126,0.4); z-index:30; cursor:pointer; }
+    /* INCOMING CALL OVERLAY */
+    .call-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:100; display:grid; place-items:center; }
+    .call-panel { background:#fff; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.3); padding:24px; width:min(500px,calc(100vw - 32px)); max-height:85vh; overflow:auto; animation:callSlide 0.3s ease; }
+    @keyframes callSlide { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
+    .call-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+    .call-avatar { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#0f567f,#1fa3bb); color:#fff; display:grid; place-items:center; font-size:24px; font-weight:800; flex-shrink:0; }
+    .call-recording { display:flex; align-items:center; gap:8px; padding:8px 14px; background:#fff3f3; border:1px solid #ffcdd2; border-radius:10px; margin-bottom:12px; }
+    .call-rec-dot { width:12px; height:12px; border-radius:50%; background:#e53935; animation:callBlink 1s infinite; }
+    @keyframes callBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .call-card-info { background:#f5faff; border:1px solid #d7e8f6; border-radius:12px; padding:12px; margin-bottom:12px; }
+    .call-card-info h4 { color:var(--brand); margin-bottom:6px; }
+    .call-sim-input { display:flex; gap:6px; align-items:center; }
     .nataly-panel { position:fixed; right:18px; bottom:90px; width:min(380px,calc(100vw - 36px)); max-height:75vh; overflow:auto; z-index:31; background:#fff; border-radius:18px; border:1px solid #d7e1eb; box-shadow:0 20px 50px rgba(0,0,0,0.15); }
     .nataly-header { background:linear-gradient(135deg,#128c7e,#25d366); color:#fff; padding:14px 16px; border-radius:18px 18px 0 0; display:flex; align-items:center; justify-content:space-between; }
     .nataly-chat { padding:12px; display:grid; gap:8px; max-height:320px; overflow-y:auto; }
@@ -157,15 +169,87 @@
     .smart-folder .folder-icon { font-size:28px; }
     .smart-folder .folder-info { flex:1; }
     .smart-folder .folder-count { font-size:22px; font-weight:800; color:var(--brand); }
+    /* GUIDE TAB */
+    .guide-section { border:1px solid var(--line); border-radius:14px; background:#fff; padding:16px; margin-bottom:12px; }
+    .guide-section h3 { color:var(--brand); font-size:18px; margin-bottom:8px; }
+    .guide-section p, .guide-section li { font-size:14px; line-height:1.7; color:var(--text); }
+    .guide-section ul { padding-right:20px; margin:8px 0; }
+    .guide-section .guide-step { display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid #f0f4f8; }
+    .guide-section .guide-step:last-child { border-bottom:none; }
+    .guide-section .step-num { background:linear-gradient(135deg,#0f567f,#1f89aa); color:#fff; border-radius:50%; min-width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; flex-shrink:0; }
+    .guide-section .step-text { flex:1; }
+    .guide-toc { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-bottom:16px; }
+    .guide-toc-item { background:#f0f7ff; border:1px solid #d4e5f5; border-radius:10px; padding:10px 12px; font-weight:700; color:var(--brand); cursor:pointer; transition:0.15s; text-align:center; }
+    .guide-toc-item:hover { background:var(--brand); color:#fff; transform:translateY(-2px); }
+    /* UPGRADES SECTION */
+    .upgrade-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+    .upgrade-card { border:1px solid var(--line); border-radius:14px; background:linear-gradient(135deg,#f8fbff 0%,#edf5fc 100%); padding:14px; transition:0.2s; }
+    .upgrade-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(15,86,127,0.12); }
+    .upgrade-card h4 { color:var(--brand); font-size:15px; margin-bottom:6px; }
+    .upgrade-card p { font-size:13px; color:var(--muted); line-height:1.5; margin:0; }
+    .upgrade-card .upgrade-badge { display:inline-block; background:linear-gradient(120deg,#0f567f,#1f89aa); color:#fff; border-radius:999px; padding:3px 10px; font-size:11px; font-weight:800; margin-top:8px; }
+    /* ENHANCED CALENDAR */
+    .cal-day .cal-event { display:block; overflow:hidden; text-overflow:ellipsis; }
+    .cal-header-row { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:4px; }
+    .cal-header-cell { text-align:center; font-weight:800; font-size:13px; color:var(--brand); padding:8px 4px; background:#edf5fc; border-radius:8px; }
+    .cal-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+    .cal-stat { background:#f8fbff; border:1px solid var(--line); border-radius:10px; padding:10px; text-align:center; }
+    .cal-stat strong { display:block; font-size:22px; color:var(--brand); }
+    .cal-stat .cal-stat-label { font-size:12px; color:var(--muted); }
     @media (max-width:1120px) {
       .kpis { grid-template-columns:repeat(3,minmax(0,1fr)); }
       .layout-2,.layout-3 { grid-template-columns:1fr; }
       .module-grid,.site-live,.quick-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .guide-toc { grid-template-columns:repeat(2,1fr); }
+      .upgrade-grid { grid-template-columns:repeat(2,1fr); }
+      .cal-stats { grid-template-columns:repeat(3,1fr); }
+    }
+    @media (max-width:900px) {
+      body { padding:10px; }
+      .shell { gap:8px; }
+      .header { padding:12px; border-radius:14px; }
+      .header-row { flex-direction:column; align-items:stretch; }
+      .header-row > .row { max-width:100% !important; }
+      .top-meta { justify-content:center; }
+      .tabs { justify-content:center; }
+      .tabs button { padding:7px 10px; font-size:13px; }
+      .kanban-board { flex-direction:column; }
+      .kanban-col { min-width:auto; }
+      .card { padding:10px; }
     }
     @media (max-width:640px) {
+      body { padding:6px; }
+      h1 { font-size:22px; }
       .kpis { grid-template-columns:1fr 1fr; }
       .module-grid,.site-live,.quick-actions { grid-template-columns:1fr; }
       .feed-row,.goal-head { flex-direction:column; align-items:flex-start; }
+      .tabs { gap:4px; }
+      .tabs button { padding:6px 8px; font-size:12px; border-radius:8px; }
+      .row { flex-direction:column; }
+      .row > * { min-width:auto; width:100%; }
+      .grid { gap:6px; }
+      .item-head { flex-direction:column; gap:4px; }
+      .chips { gap:4px; }
+      .chip { font-size:11px; padding:3px 7px; }
+      .guide-toc { grid-template-columns:1fr; }
+      .upgrade-grid { grid-template-columns:1fr; }
+      .cal-stats { grid-template-columns:1fr; }
+      .calendar-grid { gap:2px; }
+      .cal-day { padding:4px; min-height:56px; }
+      .cal-event { font-size:9px; padding:1px 3px; }
+      .meta-pill { font-size:11px; padding:3px 7px; }
+      .section-title { font-size:18px; }
+      .layout-2 { gap:8px; }
+      .ai-fab { width:48px; height:48px; font-size:22px; left:10px; bottom:10px; }
+      .nataly-fab { width:50px; height:50px; font-size:24px; right:10px; bottom:10px; }
+      .ai-panel { left:8px; bottom:66px; width:calc(100vw - 16px); max-height:60vh; }
+      .nataly-panel { right:8px; bottom:68px; width:calc(100vw - 16px); max-height:60vh; }
+      .currency-table th, .currency-table td { padding:5px 6px; font-size:12px; }
+    }
+    @media (max-width:400px) {
+      .kpis { grid-template-columns:1fr; }
+      .tabs { flex-direction:column; }
+      .tabs button { width:100%; text-align:center; }
     }
   </style>
 </head>
@@ -319,7 +403,7 @@
     const seed = {
       isAuthenticated:false, authError:"", loading:true, syncError:"", syncOkAt:"",
       tab:"dashboard", search:"", activeFolder:"all",
-      travelerImportMsg:"", leadImportMsg:"", contactImportMsg:"", hrImportMsg:"", orgImportMsg:"",
+      travelerImportMsg:"", leadImportMsg:"", contactImportMsg:"", hrImportMsg:"", orgImportMsg:"", waImportMsg:"", waImportText:"",
       mergeUrl:"", selectedBroadcastIds:[], broadcastCriteria:[], broadcastAudience:"all",
       contactCompanyFilter:"all", hrCompanyFilter:"all", contactImportCompany:"tiyoolim.com",
       aiCompanyScope:"all", weatherCompanyScope:"all", weatherCity:"", weatherTopic:WEATHER_QUICK_TOPICS[0],
@@ -327,6 +411,37 @@
       currencyBase:"ILS", currencyAmount:100, currencyRatesDate:"", currencyRows:[],
       routeCountry:COUNTRY_TRAVEL_CATALOG[0].country, routeDays:5, routeStyle:ROUTE_STYLES[1], routePlan:"",
       integrationsStatus:null, integrationsLoading:false, integrationsError:"",
+      // שיחות נכנסות
+      incomingCallOpen:false, incomingCallNumber:"", incomingCallMatch:null, incomingCallNote:"", incomingCallRecording:false, incomingCallRecorded:false,
+      callLog:[],
+      // כספים וגבייה
+      finances:[
+        {id:uid()+60,type:"חשבונית",travelerId:null,travelerName:"עידו ברק",description:"טיול איטליה - תשלום ראשון",amount:3250,currency:"ILS",status:"שולם",dueDate:new Date(Date.now()-3*86400000).toISOString().slice(0,10),paidDate:new Date(Date.now()-3*86400000).toISOString().slice(0,10),method:"כרטיס אשראי",invoiceNumber:"INV-001",notes:""},
+        {id:uid()+61,type:"חשבונית",travelerId:null,travelerName:"אביגיל כהן",description:"טיול גאורגיה - מקדמה",amount:2100,currency:"ILS",status:"ממתין",dueDate:new Date(Date.now()+7*86400000).toISOString().slice(0,10),paidDate:"",method:"",invoiceNumber:"INV-002",notes:"קבוצה דתית 6 אנשים"},
+        {id:uid()+62,type:"קבלה",travelerId:null,travelerName:"רות כהן",description:"טרק הרי האלפים - תשלום מלא",amount:4900,currency:"ILS",status:"שולם",paidDate:new Date(Date.now()-10*86400000).toISOString().slice(0,10),dueDate:"",method:"העברה בנקאית",invoiceNumber:"RCP-001",notes:""}
+      ],
+      financeForm:{id:null,type:"חשבונית",travelerName:"",description:"",amount:"",currency:"ILS",status:"ממתין",dueDate:"",paidDate:"",method:"כרטיס אשראי",invoiceNumber:"",notes:""},
+      // מסלולי הליכה
+      hikingTrails:[
+        {id:uid()+70,name:"שביל ישראל – מקטע גולן",region:"צפון",difficulty:"מיטיבי לכת",distance:"18 ק\"מ",duration:"7 שעות",elevation:"650 מטר",season:"סתיו-אביב",description:"מקטע מרהיב בגולן, מבנטל לגמלא",highlights:["נחל גמלא","מפל גמלא","תצפית בנטל"],suitable:["מיטיבי לכת"],rating:4.8,active:true},
+        {id:uid()+71,name:"נחל ערוגות – ים המלח",region:"דרום",difficulty:"בינוני",distance:"8 ק\"מ",duration:"4 שעות",elevation:"320 מטר",season:"חורף",description:"מסלול מדברי עם מפלים ובריכות טבעיות",highlights:["מפל ערוגות","בריכה עליונה","מצוקי ים המלח"],suitable:["אוהבי לכת","משפחות"],rating:4.6,active:true},
+        {id:uid()+72,name:"הר תבור",region:"צפון",difficulty:"קל",distance:"5 ק\"מ",duration:"2.5 שעות",elevation:"200 מטר",season:"כל השנה",description:"מסלול קל עם נוף פנורמי של עמק יזרעאל",highlights:["כנסיית ההשתנות","תצפית 360°","יער אלונים"],suitable:["משפחות","גיל שלישי"],rating:4.4,active:true}
+      ],
+      hikingForm:{id:null,name:"",region:"צפון",difficulty:"בינוני",distance:"",duration:"",elevation:"",season:"",description:"",highlights:[],suitable:[],rating:"",active:true},
+      // רשתות חברתיות
+      socialPosts:[
+        {id:uid()+80,platform:"פייסבוק",content:"טיול מדהים לאיטליה יוצא בקרוב! 🇮🇹✈️ מקומות אחרונים",status:"פורסם",scheduledDate:new Date(Date.now()-2*86400000).toISOString().slice(0,10),campaign:"קמפיין אביב 2026",engagement:{likes:45,shares:12,comments:8},image:"",notes:""},
+        {id:uid()+81,platform:"אינסטגרם",content:"מי מצטרף לטרק הרי האלפים? 🏔⛰ #GoTours #hiking",status:"מתוזמן",scheduledDate:new Date(Date.now()+3*86400000).toISOString().slice(0,10),campaign:"קמפיין אביב 2026",engagement:{likes:0,shares:0,comments:0},image:"",notes:""},
+        {id:uid()+82,platform:"וואטסאפ סטטוס",content:"הנחה מיוחדת 15% לטיולי פסח 🎉",status:"טיוטה",scheduledDate:"",campaign:"פסח 2026",engagement:{likes:0,shares:0,comments:0},image:"",notes:""}
+      ],
+      socialForm:{id:null,platform:"פייסבוק",content:"",status:"טיוטה",scheduledDate:"",campaign:"",image:"",notes:""},
+      // ניהול מדריכים
+      guides:[
+        {id:uid()+90,fullName:"אורי שדה",phone:"0501234001",email:"ori@gotours.co.il",specialization:"טרקים והרים",languages:["עברית","אנגלית"],rating:4.9,regions:["אירופה","קווקז"],certifications:["מדריך מוסמך","עזרה ראשונה"],availability:"פנוי",pricePerDay:800,currency:"ILS",notes:"מדריך בכיר, 15 שנות ניסיון",active:true},
+        {id:uid()+91,fullName:"דנה ים",phone:"0521234002",email:"dana@gotours.co.il",specialization:"סיורים עירוניים",languages:["עברית","אנגלית","צרפתית"],rating:4.7,regions:["אירופה"],certifications:["מדריך מוסמך"],availability:"תפוס",pricePerDay:650,currency:"ILS",notes:"מומחית לפריז וצרפת",active:true},
+        {id:uid()+92,fullName:"משה הרים",phone:"0531234003",email:"moshe@gotours.co.il",specialization:"טבע ונופים",languages:["עברית","אנגלית","ספרדית"],rating:4.5,regions:["דרום אמריקה","אסיה"],certifications:["מדריך מוסמך","צלילה"],availability:"פנוי",pricePerDay:750,currency:"ILS",notes:"מומחה לטיולי טבע מרוחקים",active:true}
+      ],
+      guideForm:{id:null,fullName:"",phone:"",email:"",specialization:"",languages:[],rating:"",regions:[],certifications:[],availability:"פנוי",pricePerDay:"",currency:"ILS",notes:"",active:true},
       birthdayIncludeDiscount:true, birthdayDiscountPercent:5, birthdayCouponCode:"BIRTHDAY5",
       birthdayMessageTemplate:"יום הולדת שמח {{firstName}}! 🎉\nמאחלים לך שנה מלאה בחוויות וטיולים בלתי נשכחים.\n{{discountLine}}",
       birthdayAutomationEnabled:true, birthdayAutomationChannel:"whatsapp",
@@ -429,6 +544,15 @@
       if (!S.hrForm) S.hrForm = structuredClone(seed.hrForm);
       if (!S.conversationForm) S.conversationForm = structuredClone(seed.conversationForm);
       if (!S.hrConversationForm) S.hrConversationForm = structuredClone(seed.hrConversationForm);
+      if (!Array.isArray(S.finances)) S.finances = seed.finances;
+      if (!S.financeForm) S.financeForm = structuredClone(seed.financeForm);
+      if (!Array.isArray(S.hikingTrails)) S.hikingTrails = seed.hikingTrails;
+      if (!S.hikingForm) S.hikingForm = structuredClone(seed.hikingForm);
+      if (!Array.isArray(S.socialPosts)) S.socialPosts = seed.socialPosts;
+      if (!S.socialForm) S.socialForm = structuredClone(seed.socialForm);
+      if (!Array.isArray(S.guides)) S.guides = seed.guides;
+      if (!Array.isArray(S.callLog)) S.callLog = [];
+      if (!S.guideForm) S.guideForm = structuredClone(seed.guideForm);
     }
     function renderSyncMeta() {
       const el = document.getElementById("sync_meta");
@@ -766,6 +890,53 @@
         window.open(url,"_blank","width=560,height=760");
       } catch(err) { alert("חיבור Google נכשל: "+(err?.message||"")); }
     }
+    // ===== INCOMING CALL SYSTEM =====
+    const GOTOURS_PHONE = "972542233888";
+    function simulateIncomingCall() {
+      const num = String(S.incomingCallNumber||"").replace(/[\s\-\(\)]/g,"");
+      if(!num) { alert("הזן מספר טלפון של המתקשר"); return; }
+      const normalized = normalizePhone(num);
+      // Search travelers and contacts for matching phone
+      let match = null;
+      const traveler = S.travelers.find(t => normalizePhone(t.phone) === normalized || normalizePhone(t.whatsapp) === normalized);
+      if(traveler) { match = {type:"traveler", data:traveler}; }
+      else {
+        const contact = S.contacts.find(c => normalizePhone(c.phone) === normalized);
+        if(contact) { match = {type:"contact", data:contact}; }
+        else {
+          const lead = S.leads.find(l => normalizePhone(l.phone) === normalized);
+          if(lead) { match = {type:"lead", data:lead}; }
+        }
+      }
+      setState({incomingCallOpen:true, incomingCallMatch:match, incomingCallNote:"", incomingCallRecording:true, incomingCallRecorded:false});
+    }
+    function endIncomingCall() {
+      const note = String(S.incomingCallNote||"").trim();
+      const match = S.incomingCallMatch;
+      const callEntry = {
+        id: uid(),
+        phone: String(S.incomingCallNumber||"").trim(),
+        matchType: match ? match.type : "unknown",
+        matchName: match ? (match.data.fullName || match.data.name || "") : "לא מוכר",
+        note: note,
+        recorded: true,
+        at: new Date().toISOString(),
+        receivedAt: GOTOURS_PHONE
+      };
+      const newLog = [callEntry, ...S.callLog];
+      // Save conversation to the matched record
+      if(match && note) {
+        if(match.type === "traveler") {
+          const t = S.travelers.find(x=>x.id===match.data.id);
+          if(t) { t.lastConversation = {channel:"טלפון נכנס",summary:note,at:new Date().toISOString()}; }
+        }
+      }
+      setState({callLog:newLog, incomingCallOpen:false, incomingCallNumber:"", incomingCallMatch:null, incomingCallNote:"", incomingCallRecording:false, incomingCallRecorded:true});
+    }
+    function dismissIncomingCall() {
+      setState({incomingCallOpen:false, incomingCallNumber:"", incomingCallMatch:null, incomingCallNote:"", incomingCallRecording:false});
+    }
+
     function connectAllSites() { alert("מחבר את כל 3 האתרים... הפונקציה זמינה דרך שרת ה-Netlify."); }
     function openIntegrationSite(url) { if(url) window.open(url,"_blank"); }
     function setSiteConnection(id,connected) { alert("עדכון חיבור אתר "+id+" – דרך שרת ה-Netlify."); }
@@ -836,6 +1007,55 @@
         });
         S.agencies.unshift(...created); setState({agencies:S.agencies,orgImportMsg:"יובאו "+created.length+" ארגונים"});
       } catch(_) { alert("שגיאה בייבוא קובץ"); }
+    }
+    function importContactsFromWhatsApp() {
+      const raw=String(S.waImportText||"").trim(); if(!raw) return alert("יש להדביק טקסט מקבוצת וואטסאפ");
+      try {
+        const lines=raw.split(/\n/);
+        const contacts=[];
+        const seen=new Set();
+        // Pattern 1: WhatsApp exported chat format "DD/MM/YYYY, HH:MM - Name: message" or "DD.MM.YYYY, HH:MM - +972XXXXXXXXX: message"
+        const chatLineRe=/^\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4},?\s*\d{1,2}:\d{2}\s*-\s*(.+?):\s/;
+        // Pattern 2: WhatsApp group info export "Name  phone" or "phone  Name" or just lines with phone numbers
+        const phoneRe=/((?:\+?\d{1,3}[\s\-]?)?\(?\d{2,4}\)?[\s\-]?\d{3,4}[\s\-]?\d{3,4})/;
+        // Pattern 3: vCard-style (from WhatsApp contact export)
+        const vcardNameRe=/^FN[;:](.+)/i;
+        const vcardTelRe=/^TEL[;:].*?:([\d\+\-\s]+)/i;
+        let vcardName="",vcardPhone="";
+        for(let i=0;i<lines.length;i++){
+          const line=lines[i].trim(); if(!line) continue;
+          // vCard parsing
+          const vnm=line.match(vcardNameRe);
+          if(vnm){vcardName=vnm[1].trim();continue;}
+          const vtel=line.match(vcardTelRe);
+          if(vtel){vcardPhone=vtel[1].replace(/[\s\-]/g,"").trim();
+            if(vcardName&&vcardPhone&&!seen.has(vcardPhone)){seen.add(vcardPhone);contacts.push({id:uid(),fullName:vcardName,phone:normalizePhone(vcardPhone),email:"",role:"",company:"tiyoolim.com",organization:"",orgField:"אחר",domain:"",groupName:"ייבוא וואטסאפ",notes:"יובא מקבוצת וואטסאפ",active:true});}
+            vcardName="";vcardPhone="";continue;
+          }
+          // Chat line parsing
+          const chatMatch=line.match(chatLineRe);
+          if(chatMatch){
+            let nameOrPhone=chatMatch[1].trim();
+            const ph=nameOrPhone.match(phoneRe);
+            if(ph){const p=normalizePhone(ph[1]);if(p&&!seen.has(p)){seen.add(p);contacts.push({id:uid(),fullName:nameOrPhone.replace(phoneRe,"").trim()||p,phone:p,email:"",role:"",company:"tiyoolim.com",organization:"",orgField:"אחר",domain:"",groupName:"ייבוא וואטסאפ",notes:"יובא מקבוצת וואטסאפ",active:true});}}
+            else if(nameOrPhone&&!seen.has(nameOrPhone)){seen.add(nameOrPhone);contacts.push({id:uid(),fullName:nameOrPhone,phone:"",email:"",role:"",company:"tiyoolim.com",organization:"",orgField:"אחר",domain:"",groupName:"ייבוא וואטסאפ",notes:"יובא מקבוצת וואטסאפ – ללא טלפון",active:true});}
+            continue;
+          }
+          // Simple line: "Name - Phone" or "Phone - Name" or "Name, Phone" or tab separated
+          const parts=line.split(/[\t,;\|]|\s{2,}|\s*-\s*/).map(s=>s.trim()).filter(Boolean);
+          if(parts.length>=2){
+            let name="",phone="";
+            for(const p of parts){ const pm=p.match(phoneRe); if(pm&&!phone) phone=normalizePhone(pm[1]); else if(!name) name=p; }
+            if(phone&&!seen.has(phone)){seen.add(phone);contacts.push({id:uid(),fullName:name||phone,phone:phone,email:"",role:"",company:"tiyoolim.com",organization:"",orgField:"אחר",domain:"",groupName:"ייבוא וואטסאפ",notes:"יובא מקבוצת וואטסאפ",active:true});}
+          } else if(parts.length===1){
+            const pm=parts[0].match(phoneRe);
+            if(pm){const p=normalizePhone(pm[1]);if(p&&!seen.has(p)){seen.add(p);contacts.push({id:uid(),fullName:p,phone:p,email:"",role:"",company:"tiyoolim.com",organization:"",orgField:"אחר",domain:"",groupName:"ייבוא וואטסאפ",notes:"יובא מקבוצת וואטסאפ",active:true});}}
+          }
+        }
+        if(contacts.length===0) return alert("לא נמצאו אנשי קשר בטקסט. ודאו שהדבקתם טקסט מייצוא צ׳אט או רשימת אנשי קשר של וואטסאפ.");
+        S.contacts.unshift(...contacts);
+        setState({contacts:S.contacts,waImportMsg:"יובאו "+contacts.length+" אנשי קשר מוואטסאפ",waImportText:""});
+      } catch(_) { alert("שגיאה בייבוא אנשי קשר מוואטסאפ"); }
     }
     async function mergeDataFromUrl() {
       const url=String(S.mergeUrl||"").trim(); if(!url) return alert("יש להזין URL");
@@ -957,8 +1177,8 @@
         + '<div class="quick-actions">'
         + '<button class="btn-primary" onclick="setState({tab:\'leads\'},false)">🎯 לידים חדשים ('+d.hotLeads+')</button>'
         + '<button class="btn-ok" onclick="setState({tab:\'travelers\'},false)">👥 הוסף מטייל</button>'
-        + '<button class="btn-warn" onclick="setState({tab:\'calendar\'},false)">📅 לוח שנה ומשימות</button>'
-        + '<button class="btn-soft" onclick="setState({tab:\'weather\'},false)">🌍 מזג אוויר ומטבע</button>'
+        + '<button class="btn-warn" onclick="setState({tab:\'finances\'},false)">💳 כספים וגבייה</button>'
+        + '<button class="btn-soft" onclick="setState({tab:\'trips\'},false)">📋 תיקי טיולים</button>'
         + '</div></div>'
         // לידים חמים + משימות
         + '<div class="layout-2">'
@@ -989,8 +1209,22 @@
           + '</div></div>':"")
         // מודולים
         + '<div class="card"><div class="section-title">🗂 מודולים</div><div class="module-grid">'
-        + [["👥 לקוחות",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["📋 הצעות",S.trips.length,"trips"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🌍 מזג אוויר","","weather"],["🤖 GoAI","","matching"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
+        + [["👥 לקוחות",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["📋 תיקי טיולים",S.trips.length,"trips"],["💳 כספים",S.finances.length,"finances"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🥾 מסלולי הליכה",S.hikingTrails.length,"hiking"],["🌐 רשתות חברתיות",S.socialPosts.length,"social"],["🧭 מדריכים",S.guides.length,"guidesManage"],["🌍 מזג אוויר","","weather"],["🤖 GoAI","","matching"],["📖 מדריך","","guide"],["🚀 שדרוגים","","upgrades"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
         + '</div></div>'
+        // שדרוגים אחרונים
+        + '<div class="card"><div class="section-title">🚀 שדרוגים אחרונים</div><div class="sub-title">כל היכולות המתקדמות שנוספו למערכת</div>'
+        + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">'
+        + '<div class="module" onclick="setState({tab:\'matching\'},false)" style="cursor:pointer;background:#edf5fc">🤖 GoAI חכם</div>'
+        + '<div class="module" onclick="setState({tab:\'finances\'},false)" style="cursor:pointer;background:#edf5fc">💳 כספים וגבייה</div>'
+        + '<div class="module" onclick="setState({tab:\'hiking\'},false)" style="cursor:pointer;background:#edf5fc">🥾 מסלולי הליכה</div>'
+        + '<div class="module" onclick="setState({tab:\'social\'},false)" style="cursor:pointer;background:#edf5fc">🌐 רשתות חברתיות</div>'
+        + '<div class="module" onclick="setState({tab:\'guidesManage\'},false)" style="cursor:pointer;background:#edf5fc">🧭 ניהול מדריכים</div>'
+        + '<div class="module" onclick="setState({tab:\'weather\'},false)" style="cursor:pointer;background:#edf5fc">🌍 45+ מדינות</div>'
+        + '<div class="module" onclick="setState({tab:\'weather\'},false)" style="cursor:pointer;background:#edf5fc">💱 70+ מטבעות</div>'
+        + '<div class="module" onclick="setState({tab:\'imports\'},false)" style="cursor:pointer;background:#edf5fc">🧠 ייבוא חכם</div>'
+        + '</div>'
+        + '<div style="margin-top:10px"><button class="btn-primary" onclick="setState({tab:\'upgrades\'},false)">צפו בכל השדרוגים →</button> <button class="btn-soft" onclick="setState({tab:\'guide\'},false)" style="margin-right:8px">📖 מדריך הפעלה</button></div>'
+        + '</div>'
         + '</div>';
     }
 
@@ -1107,8 +1341,8 @@
         + '<strong style="flex:1;text-align:center">'+escapeHtml(monthNames[month])+" "+year+'</strong>'
         + '<button class="btn-soft" style="width:auto" onclick="setState({calendarMonth:'+(month===11?0:month+1)+',calendarYear:'+(month===11?year+1:year)+'},false)">▶</button>'
         + '</div>'
+        + '<div class="cal-header-row">'+dayNames.map(d=>'<div class="cal-header-cell">'+d+'</div>').join("")+'</div>'
         + '<div class="calendar-grid">'
-        + dayNames.map(d=>'<div style="text-align:center;font-weight:800;font-size:12px;color:var(--muted);padding:4px">'+d+'</div>').join("")
         + Array(firstDay).fill('<div></div>').join("")
         + Array.from({length:daysInMonth},(_,i)=>{
           const day=i+1;
@@ -1123,6 +1357,11 @@
         }).join("")
         + '</div>'
         + '<div style="margin-top:10px"><button class="btn-primary" onclick="connectGoogle()">🔗 סנכרון Google Calendar</button></div>'
+        + '<div class="cal-stats">'
+        + '<div class="cal-stat"><strong style="color:var(--danger)">'+overdue.length+'</strong><div class="cal-stat-label">באיחור</div></div>'
+        + '<div class="cal-stat"><strong>'+upcoming.length+'</strong><div class="cal-stat-label">קרובות</div></div>'
+        + '<div class="cal-stat"><strong style="color:var(--ok)">'+done.length+'</strong><div class="cal-stat-label">הושלמו</div></div>'
+        + '</div>'
         + '</div>'
         + '<div>'
         + '<div class="card" style="margin-bottom:12px"><div class="section-title">הוספת משימה</div>'
@@ -1351,6 +1590,14 @@
           + (t.lastConversation.nextStep?'<div class="small" style="color:var(--warn)">▶ '+escapeHtml(t.lastConversation.nextStep)+'</div>':"")
           + '<div class="row" style="margin-top:6px;gap:4px"><button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 WA</button></div>'
           + '</div>').join(""):'<div class="empty">אין שיחות רשומות</div>')
+        + '</div>'
+        // CALL LOG
+        + (S.callLog.length?'<div class="section-title" style="margin-top:14px">📞 יומן שיחות נכנסות ('+S.callLog.length+')</div><div class="list">'
+          + S.callLog.map(c=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(c.matchName)+'</strong><span class="badge '+(c.matchType==="unknown"?"b-warn":"b-ok")+'">'+escapeHtml(c.matchType==="traveler"?"מטייל":c.matchType==="contact"?"איש קשר":c.matchType==="lead"?"ליד":"לא מוכר")+'</span></div>'
+            + '<div class="small">📞 '+escapeHtml(c.phone)+' | '+escapeHtml(fmtDateShort(c.at))+(c.recorded?' | 🔴 הוקלט':'')+'</div>'
+            + (c.note?'<div class="small muted">📝 '+escapeHtml(c.note)+'</div>':'')
+            + '</div>').join("")
+          + '</div>':'')
         + '</div></div></div>';
     }
 
@@ -1505,6 +1752,33 @@
         + '<div class="card"><div class="section-title">☁️ יציבות נתונים</div>'
         + '<div class="item"><div class="small">מצב שמירה: <strong>'+escapeHtml(storage.mode||"netlify-blobs-strong")+'</strong></div><div class="small">עדכון אחרון: '+escapeHtml(storage.lastSavedAt||"עדיין לא נשמר")+'</div><div class="small">Snapshots: '+escapeHtml(String(storage.snapshots||0))+'</div></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveRemote()">💾 שמור לענן</button></div>'
+        + '</div></div>'
+        // === WEBSITES SECTION ===
+        + '<div class="card" style="margin-top:12px"><div class="section-title">🌐 אתרי החברה</div>'
+        + '<div class="site-live">'
+        + '<div class="site-card"><h4>🌍 tiyoolim.com</h4><div class="small muted">אתר הטיולים הראשי</div><div class="row" style="margin-top:8px"><button class="btn-primary" onclick="window.open(\'https://tiyoolim.com\',\'_blank\')">פתיחת אתר</button></div></div>'
+        + '<div class="site-card"><h4>✈ GoTours</h4><div class="small muted">אתר GoTours הבינלאומי</div><div class="row" style="margin-top:8px"><button class="btn-primary" onclick="window.open(\'https://gotours.co.il\',\'_blank\')">פתיחת אתר</button></div></div>'
+        + '<div class="site-card"><h4>🎬 שטח הפקות</h4><div class="small muted">אתר שטח הפקות</div><div class="row" style="margin-top:8px"><button class="btn-primary" onclick="window.open(\'https://shetach.co.il\',\'_blank\')">פתיחת אתר</button></div></div>'
+        + '</div></div>'
+        // === MAPS SECTION ===
+        + '<div class="card" style="margin-top:12px"><div class="section-title">🗺️ אתרי מפות ומיקום</div>'
+        + '<div class="site-live">'
+        + '<div class="site-card"><h4>📍 Google Maps – tiyoolim.com</h4><div class="small muted">מיקום העסק במפות גוגל</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://maps.google.com/?q=tiyoolim.com\',\'_blank\')">פתח במפה</button></div></div>'
+        + '<div class="site-card"><h4>📍 Google Maps – GoTours</h4><div class="small muted">מיקום GoTours במפות</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://maps.google.com/?q=GoTours+Israel\',\'_blank\')">פתח במפה</button></div></div>'
+        + '<div class="site-card"><h4>🗺️ Google Maps</h4><div class="small muted">מפות גוגל – חיפוש מיקומים ומסלולים</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://www.google.com/maps\',\'_blank\')">פתח Google Maps</button></div></div>'
+        + '<div class="site-card"><h4>📍 Waze – ניווט למשרד</h4><div class="small muted">ניווט ישיר ב-Waze</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://waze.com/ul\',\'_blank\')">פתח ב-Waze</button></div></div>'
+        + '<div class="site-card"><h4>🧭 Waze Live Map</h4><div class="small muted">מפה חיה – תנועה ועדכוני כבישים בזמן אמת</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://www.waze.com/he/live-map\',\'_blank\')">פתח Waze Live Map</button></div></div>'
+        + '<div class="site-card"><h4>🏔️ עמוד ענן – שבילי עולם (Wikiloc)</h4><div class="small muted">מסלולי הליכה, טיולים ורכיבה ברחבי העולם</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://www.wikiloc.com\',\'_blank\')">פתח Wikiloc</button></div></div>'
+        + '<div class="site-card"><h4>🗺️ עמודענן (Amudanan)</h4><div class="small muted">מפות שבילים ומסלולי טיולים בישראל</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://amudanan.co.il/\',\'_blank\')">פתח עמודענן</button></div></div>'
+        + '<div class="site-card"><h4>🥾 Israel Hiking Map</h4><div class="small muted">היק ישראל – מפת שבילים מפורטת לטיולים בארץ</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://israelhiking.osm.org.il\',\'_blank\')">פתח היק ישראל</button></div></div>'
+        + '</div></div>'
+        // === HIK ISRAEL CLOUD ===
+        + '<div class="card" style="margin-top:12px"><div class="section-title">☁️ Hik-Connect – ענן היק ישראל</div>'
+        + '<div class="sub-title">גישה למערכת המצלמות והאבטחה בענן Hikvision</div>'
+        + '<div class="site-live">'
+        + '<div class="site-card"><h4>📹 Hik-Connect Cloud</h4><div class="small muted">ענן Hikvision – צפייה במצלמות, הקלטות ואירועים</div><div class="row" style="margin-top:8px"><button class="btn-purple" onclick="window.open(\'https://www.hik-connect.com\',\'_blank\')">☁️ כניסה ל-Hik-Connect</button></div></div>'
+        + '<div class="site-card"><h4>🖥️ iVMS-4200</h4><div class="small muted">תוכנת ניהול מצלמות Hikvision מקומית</div><div class="row" style="margin-top:8px"><button class="btn-soft" onclick="window.open(\'https://www.hikvision.com/en/support/tools/hitools/\',\'_blank\')">הורדת תוכנה</button></div></div>'
+        + '<div class="site-card"><h4>🔒 Hik-Partner Pro</h4><div class="small muted">פורטל שותפים ומתקינים</div><div class="row" style="margin-top:8px"><button class="btn-soft" onclick="window.open(\'https://www.hik-partnerpro.com\',\'_blank\')">כניסה לפורטל</button></div></div>'
         + '</div></div>';
     }
 
@@ -1519,6 +1793,12 @@
         + '<div><label>📥 ייבוא אנשי קשר</label><div class="import-zone" onclick="document.getElementById(\'imp_cont\').click()">לחץ לבחירת קובץ Excel<input id="imp_cont" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importContactsFromExcel(this,S.contactImportCompany)"></div>'+(S.contactImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.contactImportMsg)+'</div>':"")+'</div>'
         + '<div><label>📥 ייבוא מנהלי/ות כ"א</label><div class="import-zone" onclick="document.getElementById(\'imp_hr\').click()">לחץ לבחירת קובץ Excel<input id="imp_hr" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importHrFromExcel(this)"></div>'+(S.hrImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.hrImportMsg)+'</div>':"")+'</div>'
         + '<div><label>📥 ייבוא ארגונים</label><div class="import-zone" onclick="document.getElementById(\'imp_org\').click()">לחץ לבחירת קובץ Excel<input id="imp_org" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importOrganizationsFromExcel(this)"></div>'+(S.orgImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.orgImportMsg)+'</div>':"")+'</div>'
+        + '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)"><label style="font-size:16px;color:var(--brand)">📱 ייבוא אנשי קשר מקבוצות וואטסאפ</label>'
+        + '<div class="sub-title" style="margin-top:4px">הדביקו טקסט מייצוא צ׳אט וואטסאפ, רשימת אנשי קשר, או כל טקסט הכולל שמות ומספרי טלפון. המערכת תזהה אוטומטית שמות וטלפונים.</div>'
+        + '<textarea placeholder="הדביקו כאן טקסט מקבוצת וואטסאפ...\n\nלדוגמה:\n01/04/2026, 10:30 - יוסי כהן: שלום לכולם\n01/04/2026, 10:31 - +972-50-1234567: מה שלום?\n\nאו רשימה פשוטה:\nיוסי כהן  0501234567\nדנה לוי  0521234567" style="min-height:120px;font-size:13px" oninput="S.waImportText=this.value">'+escapeHtml(S.waImportText||"")+'</textarea>'
+        + '<button class="btn-wa" style="margin-top:8px" onclick="importContactsFromWhatsApp()">📱 ייבוא אנשי קשר מוואטסאפ</button>'
+        + (S.waImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:6px">'+escapeHtml(S.waImportMsg)+'</div>':"")
+        + '</div>'
         + '</div></div>'
         + '<div class="card"><div class="section-title">🔗 מיזוג ממערכת חיצונית</div>'
         + '<div class="sub-title">הזן URL שמחזיר JSON עם מטיילים, לידים, או ספקים.</div>'
@@ -1586,6 +1866,539 @@
       return panel+'<button class="nataly-fab" onclick="toggleNataly()" title="נטלי – בוט חכם">💬</button>';
     }
 
+    // ===== RENDER GUIDE (CRM OPERATING INSTRUCTIONS) =====
+    // ===== כספים וגבייה =====
+    const FINANCE_TYPES = ["חשבונית","קבלה","זיכוי","הצעת מחיר"];
+    const FINANCE_STATUSES = ["ממתין","שולם","באיחור","בוטל"];
+    const PAYMENT_METHODS = ["כרטיס אשראי","העברה בנקאית","מזומן","צ'ק","PayPal","Bit"];
+
+    function saveFinance() {
+      const f=S.financeForm; if(!f.travelerName||!f.amount) return;
+      if(f.id) { const i=S.finances.findIndex(x=>x.id===f.id); if(i>=0) S.finances[i]={...f}; }
+      else { S.finances.push({...f,id:uid()}); }
+      setState({financeForm:structuredClone(seed.financeForm)});
+    }
+    function editFinance(id) { const f=S.finances.find(x=>x.id===id); if(f) setState({financeForm:{...f}},false); }
+    function deleteFinance(id) { setState({finances:S.finances.filter(x=>x.id!==id)}); }
+
+    function renderFinancesTab() {
+      const q=(S.search||"").trim().toLowerCase();
+      const list=q?S.finances.filter(f=>(f.travelerName||"").toLowerCase().includes(q)||(f.description||"").toLowerCase().includes(q)||(f.invoiceNumber||"").toLowerCase().includes(q)):S.finances;
+      const totalPaid=S.finances.filter(f=>f.status==="שולם").reduce((s,f)=>s+(Number(f.amount)||0),0);
+      const totalPending=S.finances.filter(f=>f.status==="ממתין"||f.status==="באיחור").reduce((s,f)=>s+(Number(f.amount)||0),0);
+      const f=S.financeForm;
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">💳 '+(f.id?"עריכת":"הוספת")+' רשומה כספית</div>'
+        + '<div class="grid">'
+        + '<div class="row"><div><label>סוג</label><select value="'+escapeHtml(f.type)+'" onchange="S.financeForm.type=this.value;render()">'+FINANCE_TYPES.map(t=>'<option'+(t===f.type?' selected':'')+'>'+t+'</option>').join('')+'</select></div>'
+        + '<div><label>שם לקוח</label><input value="'+escapeHtml(f.travelerName)+'" oninput="S.financeForm.travelerName=this.value"></div></div>'
+        + '<div><label>תיאור</label><input value="'+escapeHtml(f.description)+'" oninput="S.financeForm.description=this.value"></div>'
+        + '<div class="row"><div><label>סכום</label><input type="number" value="'+escapeHtml(f.amount)+'" oninput="S.financeForm.amount=this.value"></div>'
+        + '<div><label>מטבע</label><select onchange="S.financeForm.currency=this.value">'+["ILS","USD","EUR","GBP"].map(c=>'<option'+(c===f.currency?' selected':'')+'>'+c+'</option>').join('')+'</select></div></div>'
+        + '<div class="row"><div><label>סטטוס</label><select onchange="S.financeForm.status=this.value">'+FINANCE_STATUSES.map(s=>'<option'+(s===f.status?' selected':'')+'>'+s+'</option>').join('')+'</select></div>'
+        + '<div><label>אמצעי תשלום</label><select onchange="S.financeForm.method=this.value">'+PAYMENT_METHODS.map(m=>'<option'+(m===f.method?' selected':'')+'>'+m+'</option>').join('')+'</select></div></div>'
+        + '<div class="row"><div><label>תאריך יעד</label><input type="date" value="'+escapeHtml(f.dueDate)+'" oninput="S.financeForm.dueDate=this.value"></div>'
+        + '<div><label>תאריך תשלום</label><input type="date" value="'+escapeHtml(f.paidDate)+'" oninput="S.financeForm.paidDate=this.value"></div></div>'
+        + '<div><label>מספר חשבונית</label><input value="'+escapeHtml(f.invoiceNumber)+'" oninput="S.financeForm.invoiceNumber=this.value"></div>'
+        + '<div><label>הערות</label><textarea oninput="S.financeForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<button class="btn-primary" onclick="saveFinance()">'+(f.id?"עדכן":"הוסף")+' רשומה</button>'
+        + (f.id?'<button class="btn-soft" onclick="setState({financeForm:structuredClone(seed.financeForm)},false)">ביטול</button>':'')
+        + '</div></div>'
+        // סיכום כספי
+        + '<div class="card"><div class="section-title">💰 סיכום כספי</div>'
+        + '<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">'
+        + '<div class="kpi"><div class="small muted">שולם</div><strong style="color:var(--ok)">₪'+totalPaid.toLocaleString("he-IL")+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">ממתין לגבייה</div><strong style="color:var(--warn)">₪'+totalPending.toLocaleString("he-IL")+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">סה"כ רשומות</div><strong>'+S.finances.length+'</strong></div>'
+        + '</div>'
+        + '<div class="list">'+list.map(fi=>'<div class="item '+(fi.status==="באיחור"?"priority-high":fi.status==="ממתין"?"priority":"")+'">'
+          + '<div class="item-head"><strong>'+escapeHtml(fi.travelerName)+'</strong><span class="badge '+(fi.status==="שולם"?"b-ok":fi.status==="באיחור"?"b-danger":"b-warn")+'">'+escapeHtml(fi.status)+'</span></div>'
+          + '<div class="small">'+escapeHtml(fi.type)+' | '+escapeHtml(fi.description)+' | '+formatCurrencyAmount(fi.amount,fi.currency)+'</div>'
+          + '<div class="small muted">'+(fi.invoiceNumber?"מס׳ "+escapeHtml(fi.invoiceNumber)+" | ":"")+(fi.dueDate?"יעד: "+escapeHtml(fi.dueDate):"")+(fi.paidDate?" | שולם: "+escapeHtml(fi.paidDate):"")+(fi.method?" | "+escapeHtml(fi.method):"")+'</div>'
+          + '<div class="row" style="margin-top:6px;gap:4px">'
+          + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editFinance('+fi.id+')">✏️</button>'
+          + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteFinance('+fi.id+')">🗑</button>'
+          + (fi.status==="ממתין"?'<button class="btn-ok" style="width:auto;font-size:12px" onclick="S.finances.find(x=>x.id==='+fi.id+').status=\'שולם\';S.finances.find(x=>x.id==='+fi.id+').paidDate=new Date().toISOString().slice(0,10);setState({})">✅ סמן שולם</button>':'')
+          + '</div></div>').join('')
+        + '</div></div></div>';
+    }
+
+    // ===== מסלולי הליכה =====
+    const HIKING_REGIONS = ["צפון","מרכז","דרום","ירושלים","שפלה","נגב","גולן","ים המלח","ערבה"];
+
+    function saveHiking() {
+      const f=S.hikingForm; if(!f.name) return;
+      if(f.id) { const i=S.hikingTrails.findIndex(x=>x.id===f.id); if(i>=0) S.hikingTrails[i]={...f}; }
+      else { S.hikingTrails.push({...f,id:uid()}); }
+      setState({hikingForm:structuredClone(seed.hikingForm)});
+    }
+    function editHiking(id) { const h=S.hikingTrails.find(x=>x.id===id); if(h) setState({hikingForm:{...h}},false); }
+    function deleteHiking(id) { setState({hikingTrails:S.hikingTrails.filter(x=>x.id!==id)}); }
+
+    function renderHikingTab() {
+      const q=(S.search||"").trim().toLowerCase();
+      const list=q?S.hikingTrails.filter(h=>(h.name||"").toLowerCase().includes(q)||(h.region||"").toLowerCase().includes(q)):S.hikingTrails;
+      const f=S.hikingForm;
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">🥾 '+(f.id?"עריכת":"הוספת")+' מסלול הליכה</div>'
+        + '<div class="grid">'
+        + '<div><label>שם מסלול</label><input value="'+escapeHtml(f.name)+'" oninput="S.hikingForm.name=this.value"></div>'
+        + '<div class="row"><div><label>אזור</label><select onchange="S.hikingForm.region=this.value">'+HIKING_REGIONS.map(r=>'<option'+(r===f.region?' selected':'')+'>'+r+'</option>').join('')+'</select></div>'
+        + '<div><label>רמת קושי</label><select onchange="S.hikingForm.difficulty=this.value">'+LEVELS.map(l=>'<option'+(l===f.difficulty?' selected':'')+'>'+l+'</option>').join('')+'</select></div></div>'
+        + '<div class="row"><div><label>מרחק</label><input value="'+escapeHtml(f.distance)+'" oninput="S.hikingForm.distance=this.value" placeholder="לדוגמה: 12 ק&quot;מ"></div>'
+        + '<div><label>משך זמן</label><input value="'+escapeHtml(f.duration)+'" oninput="S.hikingForm.duration=this.value" placeholder="לדוגמה: 5 שעות"></div></div>'
+        + '<div class="row"><div><label>הפרש גובה</label><input value="'+escapeHtml(f.elevation)+'" oninput="S.hikingForm.elevation=this.value" placeholder="לדוגמה: 400 מטר"></div>'
+        + '<div><label>עונה מומלצת</label><input value="'+escapeHtml(f.season)+'" oninput="S.hikingForm.season=this.value" placeholder="לדוגמה: סתיו-אביב"></div></div>'
+        + '<div><label>דירוג (1-5)</label><input type="number" min="1" max="5" step="0.1" value="'+escapeHtml(f.rating)+'" oninput="S.hikingForm.rating=this.value"></div>'
+        + '<div><label>תיאור</label><textarea oninput="S.hikingForm.description=this.value">'+escapeHtml(f.description)+'</textarea></div>'
+        + '<button class="btn-primary" onclick="saveHiking()">'+(f.id?"עדכן":"הוסף")+' מסלול</button>'
+        + (f.id?'<button class="btn-soft" onclick="setState({hikingForm:structuredClone(seed.hikingForm)},false)">ביטול</button>':'')
+        + '</div></div>'
+        + '<div class="card"><div class="section-title">🥾 מסלולי הליכה ('+list.length+')</div>'
+        + '<div class="list">'+list.map(h=>'<div class="item">'
+          + '<div class="item-head"><strong>'+escapeHtml(h.name)+'</strong><span class="badge '+(h.difficulty==="מיטיבי לכת"?"b-danger":h.difficulty==="בינוני"?"b-warn":"b-ok")+'">'+escapeHtml(h.difficulty)+'</span></div>'
+          + '<div class="small">📍 '+escapeHtml(h.region)+' | 📏 '+escapeHtml(h.distance)+' | ⏱ '+escapeHtml(h.duration)+' | ⬆ '+escapeHtml(h.elevation)+'</div>'
+          + '<div class="small muted">🌤 '+escapeHtml(h.season)+(h.rating?' | ⭐ '+h.rating:'')+'</div>'
+          + (h.description?'<div class="small" style="margin-top:4px">'+escapeHtml(h.description)+'</div>':'')
+          + (h.highlights&&h.highlights.length?'<div class="chips" style="margin-top:6px">'+h.highlights.map(hl=>'<span class="chip">📌 '+escapeHtml(hl)+'</span>').join("")+'</div>':'')
+          + '<div class="row" style="margin-top:6px;gap:4px">'
+          + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editHiking('+h.id+')">✏️</button>'
+          + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteHiking('+h.id+')">🗑</button>'
+          + '</div></div>').join('')
+        + '</div></div></div>';
+    }
+
+    // ===== רשתות חברתיות =====
+    const SOCIAL_PLATFORMS = ["פייסבוק","אינסטגרם","טיקטוק","לינקדאין","יוטיוב","וואטסאפ סטטוס","טוויטר/X"];
+    const SOCIAL_STATUSES = ["טיוטה","מתוזמן","פורסם","ארכיון"];
+
+    function saveSocial() {
+      const f=S.socialForm; if(!f.content) return;
+      if(f.id) { const i=S.socialPosts.findIndex(x=>x.id===f.id); if(i>=0) S.socialPosts[i]={...f}; }
+      else { S.socialPosts.push({...f,id:uid(),engagement:{likes:0,shares:0,comments:0}}); }
+      setState({socialForm:structuredClone(seed.socialForm)});
+    }
+    function editSocial(id) { const p=S.socialPosts.find(x=>x.id===id); if(p) setState({socialForm:{...p}},false); }
+    function deleteSocial(id) { setState({socialPosts:S.socialPosts.filter(x=>x.id!==id)}); }
+
+    function renderSocialTab() {
+      const q=(S.search||"").trim().toLowerCase();
+      const list=q?S.socialPosts.filter(p=>(p.content||"").toLowerCase().includes(q)||(p.platform||"").toLowerCase().includes(q)||(p.campaign||"").toLowerCase().includes(q)):S.socialPosts;
+      const f=S.socialForm;
+      const totalEng=S.socialPosts.reduce((s,p)=>s+(p.engagement?p.engagement.likes+p.engagement.shares+p.engagement.comments:0),0);
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">🌐 '+(f.id?"עריכת":"יצירת")+' פוסט</div>'
+        + '<div class="grid">'
+        + '<div class="row"><div><label>פלטפורמה</label><select onchange="S.socialForm.platform=this.value">'+SOCIAL_PLATFORMS.map(p=>'<option'+(p===f.platform?' selected':'')+'>'+p+'</option>').join('')+'</select></div>'
+        + '<div><label>סטטוס</label><select onchange="S.socialForm.status=this.value">'+SOCIAL_STATUSES.map(s=>'<option'+(s===f.status?' selected':'')+'>'+s+'</option>').join('')+'</select></div></div>'
+        + '<div><label>תוכן הפוסט</label><textarea oninput="S.socialForm.content=this.value" style="min-height:100px">'+escapeHtml(f.content)+'</textarea></div>'
+        + '<div class="row"><div><label>תאריך פרסום</label><input type="date" value="'+escapeHtml(f.scheduledDate)+'" oninput="S.socialForm.scheduledDate=this.value"></div>'
+        + '<div><label>קמפיין</label><input value="'+escapeHtml(f.campaign)+'" oninput="S.socialForm.campaign=this.value"></div></div>'
+        + '<div><label>הערות</label><textarea oninput="S.socialForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<button class="btn-primary" onclick="saveSocial()">'+(f.id?"עדכן":"צור")+' פוסט</button>'
+        + (f.id?'<button class="btn-soft" onclick="setState({socialForm:structuredClone(seed.socialForm)},false)">ביטול</button>':'')
+        + '</div></div>'
+        + '<div class="card"><div class="section-title">🌐 פוסטים ברשתות ('+list.length+')</div>'
+        + '<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">'
+        + '<div class="kpi"><div class="small muted">פוסטים</div><strong>'+S.socialPosts.length+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">פורסמו</div><strong style="color:var(--ok)">'+S.socialPosts.filter(p=>p.status==="פורסם").length+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">מעורבות כוללת</div><strong style="color:var(--brand)">'+totalEng+'</strong></div>'
+        + '</div>'
+        + '<div class="list">'+list.map(p=>'<div class="item">'
+          + '<div class="item-head"><strong>'+escapeHtml(p.platform)+'</strong><span class="badge '+(p.status==="פורסם"?"b-ok":p.status==="מתוזמן"?"b-warn":"b-purple")+'">'+escapeHtml(p.status)+'</span></div>'
+          + '<div class="small" style="white-space:pre-wrap;margin-bottom:4px">'+escapeHtml(p.content)+'</div>'
+          + '<div class="small muted">'+(p.campaign?"🎯 "+escapeHtml(p.campaign)+" | ":"")+(p.scheduledDate?"📅 "+escapeHtml(p.scheduledDate):"")+'</div>'
+          + (p.engagement&&(p.engagement.likes||p.engagement.shares||p.engagement.comments)?'<div class="chips" style="margin-top:4px"><span class="chip">❤ '+p.engagement.likes+'</span><span class="chip">🔁 '+p.engagement.shares+'</span><span class="chip">💬 '+p.engagement.comments+'</span></div>':'')
+          + '<div class="row" style="margin-top:6px;gap:4px">'
+          + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editSocial('+p.id+')">✏️</button>'
+          + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteSocial('+p.id+')">🗑</button>'
+          + (p.status==="טיוטה"?'<button class="btn-ok" style="width:auto;font-size:12px" onclick="S.socialPosts.find(x=>x.id==='+p.id+').status=\'מתוזמן\';setState({})">📅 תזמן</button>':'')
+          + (p.status==="מתוזמן"?'<button class="btn-wa" style="width:auto;font-size:12px" onclick="S.socialPosts.find(x=>x.id==='+p.id+').status=\'פורסם\';setState({})">🚀 פרסם</button>':'')
+          + '</div></div>').join('')
+        + '</div></div></div>';
+    }
+
+    // ===== ניהול מדריכים =====
+    const GUIDE_AVAILABILITY = ["פנוי","תפוס","חופשה","לא פעיל"];
+
+    function saveGuide() {
+      const f=S.guideForm; if(!f.fullName) return;
+      if(f.id) { const i=S.guides.findIndex(x=>x.id===f.id); if(i>=0) S.guides[i]={...f}; }
+      else { S.guides.push({...f,id:uid()}); }
+      setState({guideForm:structuredClone(seed.guideForm)});
+    }
+    function editGuideRecord(id) { const g=S.guides.find(x=>x.id===id); if(g) setState({guideForm:{...g}},false); }
+    function deleteGuide(id) { setState({guides:S.guides.filter(x=>x.id!==id)}); }
+
+    function renderGuidesManageTab() {
+      const q=(S.search||"").trim().toLowerCase();
+      const list=q?S.guides.filter(g=>(g.fullName||"").toLowerCase().includes(q)||(g.specialization||"").toLowerCase().includes(q)):S.guides;
+      const f=S.guideForm;
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">🧭 '+(f.id?"עריכת":"הוספת")+' מדריך</div>'
+        + '<div class="grid">'
+        + '<div class="row"><div><label>שם מלא</label><input value="'+escapeHtml(f.fullName)+'" oninput="S.guideForm.fullName=this.value"></div>'
+        + '<div><label>התמחות</label><input value="'+escapeHtml(f.specialization)+'" oninput="S.guideForm.specialization=this.value"></div></div>'
+        + '<div class="row"><div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.guideForm.phone=this.value"></div>'
+        + '<div><label>אימייל</label><input type="email" value="'+escapeHtml(f.email)+'" oninput="S.guideForm.email=this.value"></div></div>'
+        + '<div class="row"><div><label>זמינות</label><select onchange="S.guideForm.availability=this.value">'+GUIDE_AVAILABILITY.map(a=>'<option'+(a===f.availability?' selected':'')+'>'+a+'</option>').join('')+'</select></div>'
+        + '<div><label>מחיר ליום (₪)</label><input type="number" value="'+escapeHtml(f.pricePerDay)+'" oninput="S.guideForm.pricePerDay=this.value"></div></div>'
+        + '<div><label>דירוג (1-5)</label><input type="number" min="1" max="5" step="0.1" value="'+escapeHtml(f.rating)+'" oninput="S.guideForm.rating=this.value"></div>'
+        + '<div><label>הערות</label><textarea oninput="S.guideForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<button class="btn-primary" onclick="saveGuide()">'+(f.id?"עדכן":"הוסף")+' מדריך</button>'
+        + (f.id?'<button class="btn-soft" onclick="setState({guideForm:structuredClone(seed.guideForm)},false)">ביטול</button>':'')
+        + '</div></div>'
+        + '<div class="card"><div class="section-title">🧭 מדריכים ('+list.length+')</div>'
+        + '<div class="list">'+list.map(g=>'<div class="item">'
+          + '<div class="item-head"><strong>'+escapeHtml(g.fullName)+'</strong><span class="badge '+(g.availability==="פנוי"?"b-ok":g.availability==="תפוס"?"b-warn":"b-purple")+'">'+escapeHtml(g.availability)+'</span></div>'
+          + '<div class="small">🎯 '+escapeHtml(g.specialization)+(g.pricePerDay?" | 💰 ₪"+g.pricePerDay+"/יום":"")+(g.rating?" | ⭐ "+g.rating:"")+'</div>'
+          + '<div class="small muted">'+(g.phone?"📞 "+escapeHtml(g.phone)+" | ":"")+(g.email?"📧 "+escapeHtml(g.email):"")+'</div>'
+          + (g.languages&&g.languages.length?'<div class="chips" style="margin-top:4px">'+g.languages.map(l=>'<span class="chip">🗣 '+escapeHtml(l)+'</span>').join("")+'</div>':'')
+          + (g.regions&&g.regions.length?'<div class="chips" style="margin-top:4px">'+g.regions.map(r=>'<span class="chip">🌍 '+escapeHtml(r)+'</span>').join("")+'</div>':'')
+          + (g.certifications&&g.certifications.length?'<div class="chips" style="margin-top:4px">'+g.certifications.map(c=>'<span class="chip">🏅 '+escapeHtml(c)+'</span>').join("")+'</div>':'')
+          + '<div class="row" style="margin-top:6px;gap:4px">'
+          + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editGuideRecord('+g.id+')">✏️</button>'
+          + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteGuide('+g.id+')">🗑</button>'
+          + (g.phone?'<button class="btn-wa" style="width:auto;font-size:12px" onclick="window.open(\'https://wa.me/'+escapeHtml(phoneForWa(g.phone))+'\',\'_blank\')">💬</button>':'')
+          + (g.phone?'<button class="btn-soft" style="width:auto;font-size:12px" onclick="window.location.href=\'tel:'+escapeHtml(g.phone)+'\'">📞</button>':'')
+          + '</div></div>').join('')
+        + '</div></div></div>';
+    }
+
+    function renderGuideTab() {
+      return '<div class="card" style="margin-bottom:12px">'
+        + '<div class="section-title">📖 מדריך הפעלה מלא – GoTours CRM 360</div>'
+        + '<div class="sub-title">כל מה שצריך לדעת כדי לעבוד עם המערכת כמו מקצוען. לחצו על נושא כדי לגלול אליו.</div>'
+        + '<div class="guide-toc">'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-dashboard\').scrollIntoView({behavior:\'smooth\'})">📊 לוח בקרה</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-travelers\').scrollIntoView({behavior:\'smooth\'})">👥 לקוחות</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-contacts\').scrollIntoView({behavior:\'smooth\'})">📇 אנשי קשר</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-leads\').scrollIntoView({behavior:\'smooth\'})">🎯 לידים</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-suppliers\').scrollIntoView({behavior:\'smooth\'})">🏪 ספקים</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-trips\').scrollIntoView({behavior:\'smooth\'})">📋 תיקי טיולים</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-conversations\').scrollIntoView({behavior:\'smooth\'})">💬 תקשורת</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-finances\').scrollIntoView({behavior:\'smooth\'})">💳 כספים וגבייה</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-birthdays\').scrollIntoView({behavior:\'smooth\'})">🎂 ימי הולדת</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-alerts\').scrollIntoView({behavior:\'smooth\'})">🔔 התראות</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-broadcast\').scrollIntoView({behavior:\'smooth\'})">📲 הודעות קבוצתיות</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-reports\').scrollIntoView({behavior:\'smooth\'})">📊 דוחות</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-weather\').scrollIntoView({behavior:\'smooth\'})">🌍 מזג אוויר</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-integrations\').scrollIntoView({behavior:\'smooth\'})">🔌 אינטגרציות</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-incomingcall\').scrollIntoView({behavior:\'smooth\'})">📞 שיחות נכנסות</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-import\').scrollIntoView({behavior:\'smooth\'})">🧠 ייבוא חכם</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-agencies\').scrollIntoView({behavior:\'smooth\'})">🏢 ארגונים</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-hr\').scrollIntoView({behavior:\'smooth\'})">👔 כוח אדם</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-goai\').scrollIntoView({behavior:\'smooth\'})">🤖 GoAI</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-calendar\').scrollIntoView({behavior:\'smooth\'})">📅 לוח שנה</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-hiking\').scrollIntoView({behavior:\'smooth\'})">🥾 מסלולי הליכה</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-social\').scrollIntoView({behavior:\'smooth\'})">🌐 רשתות חברתיות</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-guidesmanage\').scrollIntoView({behavior:\'smooth\'})">🧭 ניהול מדריכים</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-tips\').scrollIntoView({behavior:\'smooth\'})">💡 טיפים מתקדמים</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-shortcuts\').scrollIntoView({behavior:\'smooth\'})">⌨ קיצורים שימושיים</div>'
+        + '</div></div>'
+
+        // 1. Dashboard
+        + '<div class="guide-section" id="guide-dashboard"><h3>📊 לוח בקרה (Dashboard)</h3>'
+        + '<p>לוח הבקרה הוא העמוד הראשי של המערכת. כאן תראו סיכום מצב עסקי מלא.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>KPIs</strong> – בחלק העליון מוצגים מדדי ביצוע: מטיילים פעילים, לידים, יחס המרה, ספקים, הכנסות ומשימות דחופות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>פעולות מהירות</strong> – כפתורים מהירים למעבר ללידים חדשים, הוספת מטייל, לוח שנה ומזג אוויר.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>לידים חמים</strong> – רשימת הלידים הדחופים ביותר (חדשים ובטיפול) עם פעולות מהירות: WhatsApp, עריכה, סגירה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>משימות דחופות</strong> – משימות שעברו את תאריך היעד ומשימות קרובות, עם אפשרות לסמן כבוצעו.</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>ימי הולדת</strong> – ימי הולדת קרובים של מטיילים עם כפתור שליחת ברכה ב-WhatsApp.</div></div>'
+        + '<div class="guide-step"><div class="step-num">6</div><div class="step-text"><strong>מודולים</strong> – גישה מהירה ל-16 מודולים עם מונה פריטים בכל מודול. לחצו על כל מודול למעבר מהיר.</div></div>'
+        + '</div>'
+
+        // 2. Travelers
+        + '<div class="guide-section" id="guide-travelers"><h3>👥 לקוחות (ניהול מטיילים)</h3>'
+        + '<p>מאגר הלקוחות המרכזי של החברה. כאן מנוהלים כל המטיילים עם פרטים מלאים.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>הוספת מטייל</strong> – מלאו את הטופס בצד ימין: שם, טלפון, WhatsApp, אימייל, תאריך לידה, עיר, תקציב, קטגוריה ורמת הליכה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>קבוצות (סגמנטים)</strong> – לחצו על שבבים (Chips) כדי לשייך מטייל לקבוצות: מיטיבי לכת, אוהבי לכת, דתיים, משפחות, גיל שלישי, VIP.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>דרישות דתיות</strong> – סמנו את תיבות הסימון: דתי/ה, כשרות, שבת – לצורך התאמת טיולים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>סינון תיקיות</strong> – בצד שמאל, לחצו על שם קבוצה כדי לסנן מטיילים לפי שיוך. "כולם" מציג את כל המטיילים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>פעולות מהירות</strong> – לכל מטייל: שלח WhatsApp (💬), התקשר (📞), ערוך (✏️), מחק (🗑).</div></div>'
+        + '<div class="guide-step"><div class="step-num">6</div><div class="step-text"><strong>חיפוש</strong> – השתמשו בשדה החיפוש הגלובלי בראש העמוד כדי לחפש לפי שם, טלפון או עיר.</div></div>'
+        + '</div>'
+
+        // 3. Contacts
+        + '<div class="guide-section" id="guide-contacts"><h3>📇 אנשי קשר (B2B)</h3>'
+        + '<p>ניהול אנשי קשר ארגוניים ועסקיים.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>חברה</strong> – כל איש קשר משויך לאחת מ-3 החברות: tiyoolim.com, GoTours, שטח הפקות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>סינון</strong> – סננו לפי חברה בטאבים. ראו את כל אנשי הקשר או רק של חברה מסוימת.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>ארגון ותחום</strong> – רשמו שם ארגון, תחום (הייטק/תעשייה/חינוך...) ושם קבוצה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>פעולות</strong> – לכל איש קשר: WhatsApp (💬), חיוג (📞), עריכה (✏️), מחיקה (🗑).</div></div>'
+        + '</div>'
+
+        // 4. Leads
+        + '<div class="guide-section" id="guide-leads"><h3>🎯 לידים (צינור מכירות)</h3>'
+        + '<p>מערכת לידים מתקדמת עם לוח קנבן (Kanban) לניהול שלבי מכירה.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>הוספת ליד</strong> – מלאו שם, טלפון, אימייל, מקור (אתר/פייסבוק/גוגל...), סטטוס, יעד, תקציב וכמות מטיילים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>לוח קנבן</strong> – 6 שלבי מכירה: חדש → בטיפול → הצעה נשלחה → ממתין לאישור → נסגר → אבוד. גררו כרטיסים בין העמודות!</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>גרירה (Drag & Drop)</strong> – לחצו על כרטיס ליד וגררו אותו לעמודה אחרת כדי לעדכן סטטוס.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>השלמה אוטומטית</strong> – כשמקלידים שם, המערכת מציעה שמות קיימים – חוסך זמן ומונע כפילויות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>מקורות</strong> – 9 מקורות מובנים: אתר, פייסבוק, אינסטגרם, WhatsApp, טלפון, סוכן שותף, גוגל, המלצה, אחר.</div></div>'
+        + '</div>'
+
+        // 5. Suppliers
+        + '<div class="guide-section" id="guide-suppliers"><h3>🏪 ניהול ספקים</h3>'
+        + '<p>מאגר ספקים עם 11 סוגים שונים ומערכת דירוג.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>סוגי ספקים</strong> – מלון, הסעות, מדריך, ביטוח, מסעדה, אטרקציה, טיסות, ספינה, פעילות, ויזה, צלם.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>דירוג</strong> – הזינו דירוג 1-5 כוכבים לכל ספק. מוצג ליד פרטי הספק.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>תנאי תשלום</strong> – רשמו תנאים כמו "שוטף+30" בשדה תנאי תשלום. הח"פ נשמר לצורך חשבוניות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>סינון</strong> – סננו ספקים לפי סוג (מלון/הסעות/מדריך...) או חפשו לפי שם בחיפוש הגלובלי.</div></div>'
+        + '</div>'
+
+        // 6. Trips
+        + '<div class="guide-section" id="guide-trips"><h3>📋 תיקי טיולים (הצעות מחיר)</h3>'
+        + '<p>קטלוג הטיולים והמוצרים של החברה.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>יצירת תיק טיול</strong> – הגדירו כותרת, יעד, קטגוריה (טבע/עירוני/תרבות/משפחתי/אקסטרים/יוקרה), רמה, מחיר וימים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>קיבולת ורישום</strong> – הגדירו קיבולת מקסימלית וכמה רשומים. פס התקדמות מציג את אחוז המילוי.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>דרישות דתיות</strong> – סמנו "מתאים לדתיים", "כשרות", "שבת" – ישמש את מנוע GoAI להתאמה חכמה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>ניהול רשומות</strong> – עריכה, מחיקה ושכפול תיקי טיולים קיימים.</div></div>'
+        + '</div>'
+
+        // 7. Conversations
+        + '<div class="guide-section" id="guide-conversations"><h3>💬 תקשורת (רישום שיחות)</h3>'
+        + '<p>מרכז תקשורת לרישום ותיעוד כל האינטראקציות עם לקוחות ומנהלי כ"א.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>רישום שיחה עם מטייל</strong> – בחרו מטייל מהרשימה, ערוץ תקשורת (ווטסאפ/טלפון/מייל/פגישה), סיכום השיחה והצעד הבא.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>רישום שיחה עם כ"א</strong> – אותו תהליך עם מנהלי משאבי אנוש. מאפשר מעקב צמוד אחרי התקשרויות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>ערוצי תקשורת</strong> – 4 ערוצים: ווטסאפ, טלפון, מייל, פגישה – המערכת שומרת היסטוריית שיחות מלאה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>היסטוריה</strong> – כל השיחות נשמרות בכרטיס המטייל/מנהל כ"א וניתן לצפות בהן מדף התקשורת.</div></div>'
+        + '</div>'
+
+        // 8. Finances
+        + '<div class="guide-section" id="guide-finances"><h3>💳 כספים וגבייה</h3>'
+        + '<p>מערכת ניהול כספים מלאה: חשבוניות, קבלות, מעקב תשלומים וגבייה.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>הוספת רשומה</strong> – בחרו סוג (חשבונית/קבלה/זיכוי/הצעת מחיר), שם לקוח, סכום, מטבע ואמצעי תשלום.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>סטטוס תשלום</strong> – 4 סטטוסים: ממתין, שולם, באיחור, בוטל. רשומות באיחור מודגשות באדום.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>סימון שולם</strong> – לחצו ✅ "סמן שולם" כדי לעדכן סטטוס ותאריך תשלום אוטומטית.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>סיכום כספי</strong> – בחלק העליון: סה"כ שולם (ירוק), ממתין לגבייה (כתום), וסה"כ רשומות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>אמצעי תשלום</strong> – 6 אפשרויות: כרטיס אשראי, העברה בנקאית, מזומן, צ\'ק, PayPal, Bit.</div></div>'
+        + '<div class="guide-step"><div class="step-num">6</div><div class="step-text"><strong>מספר חשבונית</strong> – ניתן להזין מספר חשבונית/קבלה לזיהוי ומעקב.</div></div>'
+        + '</div>'
+
+        // 9. Birthdays
+        + '<div class="guide-section" id="guide-birthdays"><h3>🎂 ימי הולדת ואוטומציה</h3>'
+        + '<p>מערכת אוטומטית לשליחת ברכות יום הולדת עם הנחות.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>זיהוי אוטומטי</strong> – המערכת סורקת תאריכי לידה ומציגה ימי הולדת קרובים (30 יום).</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>תבנית הודעה</strong> – ערכו את תבנית ההודעה. משתנים: {{firstName}} – שם פרטי, {{discountLine}} – שורת הנחה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>הנחה</strong> – הגדירו אחוז הנחה וקוד קופון שיישלח אוטומטית.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>שליחה</strong> – לחצו "שלח ברכות לכולם" לשליחה לכל מי שחוגג היום, או "שלח ברכה" ליחיד.</div></div>'
+        + '</div>'
+
+        // 10. Alerts
+        + '<div class="guide-section" id="guide-alerts"><h3>🔔 מרכז התראות</h3>'
+        + '<p>מרכז התראות אוטומטי שמרכז את כל האירועים הדחופים במקום אחד.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>משימות באיחור</strong> – משימות שתאריך היעד שלהן עבר מוצגות ברשימה אדומה עם אפשרות לסמן כבוצעו.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>ימי הולדת היום</strong> – כל מטייל שחוגג יום הולדת היום מופיע כאן עם כפתור שליחת ברכה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>לידים חמים</strong> – לידים בסטטוס "חדש" או "בטיפול" שדורשים תשומת לב מידית.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>מונה התראות</strong> – בסרגל העליון מוצג מספר ההתראות הפעילות (משימות + ימי הולדת).</div></div>'
+        + '</div>'
+
+        // 11. Broadcast
+        + '<div class="guide-section" id="guide-broadcast"><h3>📲 הודעות קבוצתיות (Broadcast)</h3>'
+        + '<p>שליחת הודעות WhatsApp לקבוצות גדולות.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>קהל יעד</strong> – בחרו: כולם, מטיילים, לידים, אנשי קשר, או כוח אדם.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>סינון לפי קבוצה</strong> – לחצו על סגמנטים (מיטיבי לכת, VIP...) לסינון נוסף.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>תצוגת נמענים</strong> – בצד שמאל מוצגים עד 30 נמענים ראשונים. וודאו שהרשימה נכונה לפני שליחה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>כתיבת הודעה</strong> – כתבו את נוסח ההודעה ולחצו "שלח" לפתיחת WhatsApp לכל נמען.</div></div>'
+        + '</div>'
+
+        // 12. Reports
+        + '<div class="guide-section" id="guide-reports"><h3>📊 דוחות וניתוח</h3>'
+        + '<p>דוחות מכירות, ניתוח לידים ופילוח מטיילים.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>דוח מכירות</strong> – סה"כ לידים, נסגרו, אבדו, יחס המרה, הכנסות מטיולים פעילים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>לידים לפי מקור</strong> – תצוגת עמודות עם מד ויזואלי לכל מקור (פייסבוק, גוגל, אתר...).</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>לידים לפי סטטוס</strong> – פילוח לפי שלבי המכירה (חדש, בטיפול, נסגר...).</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>מטיילים לפי קבוצה</strong> – פילוח לפי סגמנטים לזיהוי קהל היעד החזק ביותר.</div></div>'
+        + '</div>'
+
+        // 13. Weather & Global
+        + '<div class="guide-section" id="guide-weather"><h3>🌍 מזג אוויר ומרכז בינלאומי</h3>'
+        + '<p>מרכז מידע גלובלי עם 45+ מדינות, המרת מטבע ובניית מסלולים.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>מזג אוויר בארץ</strong> – בחרו עיר ונושא (טמפרטורה, גשם, רוח...) ולחצו "בדיקת מזג אוויר".</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>מרכז בינלאומי</strong> – בחרו מדינה מתוך 45+ אפשרויות. לחצו "עדכון מזג אוויר + מטבע" לקבלת נתונים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>המרת מטבע</strong> – בחרו מטבע בסיס (ILS/USD/EUR...), הזינו סכום, ותקבלו המרה ל-45+ מטבעות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>בניית מסלול</strong> – בחרו מדינה, ימים (2-21) וסגנון (רגוע/מאוזן/אינטנסיבי) ולחצו "בניית מסלול".</div></div>'
+        + '</div>'
+
+        // 14. Integrations
+        + '<div class="guide-section" id="guide-integrations"><h3>🔌 אינטגרציות</h3>'
+        + '<p>חיבורים למערכות חיצוניות.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>אתרי החברה</strong> – חברו את 3 האתרים: tiyoolim.com, GoTours, שטח הפקות. ראו סטטוס חיבור בזמן אמת.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>Cardcom</strong> – שירות סליקה. לחצו "פתיחת Cardcom" להגדרה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>Google Calendar</strong> – חברו את יומן Google לסנכרון משימות ואירועים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>יציבות נתונים</strong> – הנתונים נשמרים בענן (Netlify Blobs). לחצו "שמור לענן" לשמירה ידנית.</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>🌐 אתרי החברה</strong> – קישורים ישירים ל-3 האתרים: tiyoolim.com, GoTours, שטח הפקות. לחצו "פתיחת אתר" לגלישה ישירה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">6</div><div class="step-text"><strong>🗺️ מפות ומיקום</strong> – Google Maps, Waze Live Map, עמודענן (Amudanan), שבילי עולם (Wikiloc), והיק ישראל – ניווט, מסלולי טיולים ומפות שבילים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">7</div><div class="step-text"><strong>☁️ Hik-Connect</strong> – גישה למערכת המצלמות בענן Hikvision, תוכנת iVMS-4200 ופורטל שותפים Hik-Partner Pro.</div></div>'
+        + '</div>'
+
+        // INCOMING CALLS GUIDE
+        + '<div class="guide-section" id="guide-incomingcall"><h3>📞 שיחות נכנסות</h3>'
+        + '<p>מערכת שיחות נכנסות למספר '+GOTOURS_PHONE+' עם זיהוי מתקשר, פתיחת כרטיסיה, רישום ידני והקלטה.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>סימולציית שיחה</strong> – בסרגל העליון, הזינו מספר טלפון של מתקשר בשדה "סמלץ שיחה נכנסת" ולחצו על כפתור 📞.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>זיהוי אוטומטי</strong> – המערכת מחפשת את המספר בין המטיילים, אנשי הקשר והלידים. אם נמצאת כרטיסיה – היא נפתחת מיידית.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>הקלטת שיחה</strong> – השיחה מוקלטת אוטומטית (אינדיקציה אדומה). ההקלטה נשמרת בכרטיסיית המתקשר.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>רישום ידני</strong> – כתבו סיכום השיחה בשדה הטקסט. הסיכום נשמר בכרטיסיית המתקשר ובדף התקשורת.</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>יומן שיחות</strong> – כל השיחות נשמרות ביומן וניתן לצפות בהן בדף התקשורת.</div></div>'
+        + '</div>'
+
+        // 15. Smart Import
+        + '<div class="guide-section" id="guide-import"><h3>🧠 ייבוא חכם</h3>'
+        + '<p>ייבוא נתונים מאקסל, CSV, JSON חיצוני, או קבוצות וואטסאפ.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>ייבוא מאקסל</strong> – לחצו על אזור הייבוא הרצוי (מטיילים/לידים/אנשי קשר/כ"א/ארגונים) ובחרו קובץ.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>סיווג אוטומטי</strong> – המערכת מזהה עמודות אוטומטית ומסווגת את הנתונים לשדות המתאימים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>מיזוג JSON</strong> – הזינו URL שמחזיר JSON בפורמט: { "travelers":[...], "leads":[...], "suppliers":[...] }</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>6 סוגי ייבוא</strong> – מטיילים, לידים, אנשי קשר, מנהלי כ"א, ארגונים – בייבוא מקובץ Excel, וגם ייבוא מקבוצות וואטסאפ.</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>📱 ייבוא מוואטסאפ</strong> – הדביקו טקסט מייצוא צ׳אט וואטסאפ או רשימת אנשי קשר. המערכת מזהה אוטומטית שמות ומספרי טלפון ומוסיפה אותם כאנשי קשר חדשים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">6</div><div class="step-text"><strong>פורמטים נתמכים</strong> – ייצוא צ׳אט וואטסאפ (DD/MM/YYYY - שם: הודעה), רשימות טלפון מופרדות בטאב/פסיק, וקבצי vCard (.vcf).</div></div>'
+        + '</div>'
+
+        // 16. Agencies
+        + '<div class="guide-section" id="guide-agencies"><h3>🏢 ארגונים (סוכנויות שותפות)</h3>'
+        + '<p>ניהול ארגונים וסוכנויות נסיעות שותפות.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>הוספה</strong> – שם ארגון, עיר, מנהל/ת, טלפון, אימייל והתמחות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>סטטוס</strong> – כל ארגון מסומן כ"פעיל" או "לא פעיל".</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>פעולות</strong> – WhatsApp, חיוג, עריכה ומחיקה לכל ארגון.</div></div>'
+        + '</div>'
+
+        // 17. HR
+        + '<div class="guide-section" id="guide-hr"><h3>👔 כוח אדם</h3>'
+        + '<p>ניהול מנהלי/ות משאבי אנוש ועובדים.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>הוספה</strong> – שם, תפקיד, טלפון, אימייל, חברה, צוות, כמות עובדים וצרכים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>סינון לפי חברה</strong> – סננו לפי GoTours, tiyoolim.com או שטח הפקות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>רישום שיחות</strong> – עברו לטאב "תקשורת" כדי לרשום שיחות עם מנהלי/ות כ"א.</div></div>'
+        + '</div>'
+
+        // 18. GoAI
+        + '<div class="guide-section" id="guide-goai"><h3>🤖 GoAI – מנוע התאמה חכם</h3>'
+        + '<p>מנוע AI שמתאים מטיילים לטיולים לפי העדפות אישיות.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>התאמה אוטומטית</strong> – GoAI מנתח: רמת הליכה, דרישות דתיות, כשרות ותקציב.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>תוצאות</strong> – לכל מטייל מוצגים הטיולים המתאימים עם מספר ההתאמות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>בוט GoAI</strong> – לחצו על 🤖 בפינה השמאלית התחתונה לפתיחת צ\'אט עם הבוט.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>נטלי</strong> – לחצו על 💬 בפינה הימנית התחתונה לפתיחת השותפה הדיגיטלית.</div></div>'
+        + '</div>'
+
+        // 19. Calendar
+        + '<div class="guide-section" id="guide-calendar"><h3>📅 לוח שנה ומשימות</h3>'
+        + '<p>לוח שנה חודשי עם ניהול משימות מלא.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>תצוגת חודש</strong> – נווטו בין חודשים עם החצים. ימים עם אירועים מסומנים בצבע.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>הוספת משימה</strong> – מלאו כותרת, תאריך יעד, אחראי ועדיפות (גבוהה/בינונית/נמוכה). המשימה מופיעה בלוח.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>משימות באיחור</strong> – משימות שעבר תאריך היעד שלהן מוצגות בכרטיס אדום. סמנו V כשהושלמה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>ימי הולדת</strong> – ימי הולדת של מטיילים מוצגים אוטומטית בלוח בוורוד (🎂).</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>Google Calendar</strong> – לחצו על "סנכרון Google Calendar" כדי לחבר את יומן Google.</div></div>'
+        + '<div class="guide-step"><div class="step-num">6</div><div class="step-text"><strong>סטטיסטיקות</strong> – מתחת ללוח מוצגים 3 KPI: משימות באיחור, משימות קרובות, ומשימות שהושלמו.</div></div>'
+        + '</div>'
+
+        // 20. Hiking Trails
+        + '<div class="guide-section" id="guide-hiking"><h3>🥾 מסלולי הליכה</h3>'
+        + '<p>מאגר מסלולי הליכה וטרקים בארץ ובעולם לשיוך ללקוחות ולטיולים.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>הוספת מסלול</strong> – שם מסלול, אזור (צפון/מרכז/דרום/גולן...), רמת קושי, מרחק, משך זמן והפרש גובה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>עונה מומלצת</strong> – ציינו את העונה הטובה ביותר למסלול (חורף/אביב/קיץ/סתיו/כל השנה).</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>דירוג</strong> – הזינו דירוג 1-5 לכל מסלול לפי חוות דעת מטיילים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>נקודות עניין</strong> – לכל מסלול מוצגות נקודות העניין (Highlights) שלו כשבבים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>חיפוש</strong> – חפשו מסלולים לפי שם או אזור דרך החיפוש הגלובלי.</div></div>'
+        + '</div>'
+
+        // 21. Social
+        + '<div class="guide-section" id="guide-social"><h3>🌐 רשתות חברתיות</h3>'
+        + '<p>ניהול פוסטים וקמפיינים ברשתות חברתיות – פייסבוק, אינסטגרם, טיקטוק ועוד.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>יצירת פוסט</strong> – בחרו פלטפורמה (7 רשתות), כתבו תוכן, בחרו סטטוס ותאריך פרסום.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>סטטוס פרסום</strong> – 4 סטטוסים: טיוטה → מתוזמן → פורסם → ארכיון. קדמו פוסטים בלחיצת כפתור.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>קמפיינים</strong> – שייכו פוסטים לקמפיין שיווקי (לדוגמה: "קמפיין אביב 2026") למעקב ודיווח.</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>מעורבות</strong> – לכל פוסט שפורסם מוצגים: לייקים ❤, שיתופים 🔁, ותגובות 💬.</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>KPI</strong> – בחלק העליון: סה"כ פוסטים, פוסטים שפורסמו, ומעורבות כוללת.</div></div>'
+        + '</div>'
+
+        // 22. Guides Management
+        + '<div class="guide-section" id="guide-guidesmanage"><h3>🧭 ניהול מדריכים</h3>'
+        + '<p>מאגר מדריכי טיולים עם ניהול זמינות, התמחויות ותמחור.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>הוספת מדריך</strong> – שם מלא, התמחות, טלפון, אימייל, זמינות ומחיר ליום.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>זמינות</strong> – 4 סטטוסים: פנוי (ירוק), תפוס (כתום), חופשה, לא פעיל.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>שפות</strong> – לכל מדריך מוצגות השפות שהוא דובר (עברית, אנגלית, צרפתית...).</div></div>'
+        + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>אזורי פעילות</strong> – אזורים גיאוגרפיים שבהם המדריך פעיל (אירופה, אסיה, קווקז...).</div></div>'
+        + '<div class="guide-step"><div class="step-num">5</div><div class="step-text"><strong>הסמכות</strong> – הסמכות ותעודות (מדריך מוסמך, עזרה ראשונה, צלילה...) מוצגות כתגיות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">6</div><div class="step-text"><strong>תקשורת</strong> – WhatsApp וחיוג ישיר לכל מדריך מתוך הכרטיס.</div></div>'
+        + '</div>'
+
+        // 23. Tips
+        + '<div class="guide-section" id="guide-tips"><h3>💡 טיפים מתקדמים</h3>'
+        + '<ul>'
+        + '<li><strong>חיפוש גלובלי</strong> – שדה החיפוש בראש העמוד עובד על כל המודולים. הקלידו שם, טלפון או מילת מפתח.</li>'
+        + '<li><strong>גיבוי אוטומטי</strong> – הנתונים נשמרים ב-localStorage של הדפדפן ובענן. זכרו ללחוץ "שמור לענן" מדי פעם.</li>'
+        + '<li><strong>מובייל</strong> – המערכת רספונסיבית ומותאמת גם לנייד. הטאבים עוברים לתצוגה מותאמת.</li>'
+        + '<li><strong>VIP</strong> – מטיילים שמסומנים VIP מוצגים עם גבול זהוב מיוחד ברשימה.</li>'
+        + '<li><strong>השלמה אוטומטית</strong> – כשמוסיפים ליד או מטייל, הקלידו שם והמערכת תציע שמות קיימים.</li>'
+        + '<li><strong>נתונים מאקסל</strong> – ניתן לייבא בבת אחת מטיילים, לידים, אנשי קשר, מנהלי כ"א וארגונים.</li>'
+        + '<li><strong>שער חליפין</strong> – השערים מתעדכנים בזמן אמת מ-API חיצוני.</li>'
+        + '<li><strong>24 טאבים</strong> – כל המודולים נגישים מתפריט הטאבים. עברו בין מודולים בלחיצה אחת.</li>'
+        + '<li><strong>גבייה</strong> – השתמשו במודול "כספים וגבייה" כדי לעקוב אחרי תשלומים ולסמן מה שולם.</li>'
+        + '<li><strong>מדריכים</strong> – נהלו מדריכי טיולים ובדקו זמינות לפני שיבוץ לקבוצה.</li>'
+        + '</ul>'
+        + '</div>'
+
+        // 24. Shortcuts
+        + '<div class="guide-section" id="guide-shortcuts"><h3>⌨ קיצורים שימושיים</h3>'
+        + '<div class="guide-step"><div class="step-num">🔍</div><div class="step-text">שדה חיפוש – חפשו לקוח, ספק או הזמנה מכל מקום במערכת</div></div>'
+        + '<div class="guide-step"><div class="step-num">💬</div><div class="step-text">כפתור WA – שולח הודעת WhatsApp ישירה ללקוח/ליד/ספק/מדריך</div></div>'
+        + '<div class="guide-step"><div class="step-num">📞</div><div class="step-text">כפתור טלפון – פותח חייגן ישירות למספר</div></div>'
+        + '<div class="guide-step"><div class="step-num">✏️</div><div class="step-text">כפתור עריכה – טוען את הפרטים לטופס לעריכה</div></div>'
+        + '<div class="guide-step"><div class="step-num">🗑</div><div class="step-text">כפתור מחיקה – מוחק רשומה (בלתי הפיך!)</div></div>'
+        + '<div class="guide-step"><div class="step-num">✅</div><div class="step-text">סימון שולם – עדכון סטטוס תשלום בכספים וגבייה</div></div>'
+        + '<div class="guide-step"><div class="step-num">🚀</div><div class="step-text">פרסום – קידום פוסט מטיוטה למתוזמן לפורסם ברשתות חברתיות</div></div>'
+        + '<div class="guide-step"><div class="step-num">🤖</div><div class="step-text">GoAI – פתיחת צ\'אט AI בפינה השמאלית</div></div>'
+        + '<div class="guide-step"><div class="step-num">💬</div><div class="step-text">נטלי – פתיחת בוט נטלי בפינה הימנית</div></div>'
+        + '</div>';
+    }
+
+    // ===== RENDER UPGRADES SECTION =====
+    function renderUpgradesTab() {
+      return '<div class="card" style="margin-bottom:12px">'
+        + '<div class="section-title">🚀 שדרוגים ויכולות – GoTours CRM 360</div>'
+        + '<div class="sub-title">כל היכולות המתקדמות שנבנו ושודרגו לאחרונה במערכת ה-CRM הטובה בעולם</div>'
+        + '</div>'
+        + '<div class="upgrade-grid">'
+        // Core CRM
+        + '<div class="upgrade-card"><h4>👥 ניהול מטיילים מתקדם</h4><p>מאגר לקוחות עם סגמנטציה ל-6 קבוצות, דרישות דתיות וכשרות, תקציב, רמת הליכה, ומעקב שיחות.</p><div class="upgrade-badge" onclick="setState({tab:\'travelers\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🎯 לוח קנבן לידים</h4><p>לוח Kanban עם 6 שלבי מכירה, Drag & Drop, השלמה אוטומטית, 9 מקורות לידים ומעקב תקציב.</p><div class="upgrade-badge" onclick="setState({tab:\'leads\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>📋 קטלוג הצעות מחיר</h4><p>ניהול טיולים עם קטגוריות, רמות קושי, קיבולת, רישום, ותמיכה בדרישות דתיות.</p><div class="upgrade-badge" onclick="setState({tab:\'trips\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🏪 ניהול ספקים (11 סוגים)</h4><p>מלון, הסעות, מדריך, ביטוח, מסעדה, אטרקציה, טיסות, ספינה, פעילות, ויזה, צלם. דירוג וניהול תשלומים.</p><div class="upgrade-badge" onclick="setState({tab:\'suppliers\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        // Communication
+        + '<div class="upgrade-card"><h4>💬 מערכת תקשורת</h4><p>רישום שיחות עם מטיילים ומנהלי כ"א. 4 ערוצים: WhatsApp, טלפון, מייל, פגישה.</p><div class="upgrade-badge" onclick="setState({tab:\'conversations\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>📲 שליחה קבוצתית</h4><p>Broadcast ל-WhatsApp עם סינון קהל יעד, סגמנטציה, ותצוגת נמענים.</p><div class="upgrade-badge" onclick="setState({tab:\'broadcast\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🎂 אוטומציית ימי הולדת</h4><p>זיהוי אוטומטי, תבנית הודעה מותאמת, קופוני הנחה, שליחה אוטומטית בWhatsApp/מייל.</p><div class="upgrade-badge" onclick="setState({tab:\'birthdays\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        // Intelligence
+        + '<div class="upgrade-card"><h4>🤖 GoAI – מנוע התאמה חכם</h4><p>AI שמתאים מטיילים לטיולים לפי רמת הליכה, דרישות דתיות, כשרות ותקציב.</p><div class="upgrade-badge" onclick="setState({tab:\'matching\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>💬 נטלי – שותפה דיגיטלית</h4><p>בוט צ\'אט חכם בסגנון WhatsApp. שואל ועונה בזמן אמת.</p><div class="upgrade-badge">פעיל תמיד 💬</div></div>'
+        + '<div class="upgrade-card"><h4>🔔 מרכז התראות</h4><p>משימות באיחור, ימי הולדת היום, לידים חמים, אירועים קרובים – הכל בלוח אחד.</p><div class="upgrade-badge" onclick="setState({tab:\'alerts\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        // Global
+        + '<div class="upgrade-card"><h4>🌍 מרכז בינלאומי – 45+ מדינות</h4><p>קטלוג מדינות עם אטרקציות, מזג אוויר בזמן אמת, המרת מטבע (70+ מטבעות).</p><div class="upgrade-badge" onclick="setState({tab:\'weather\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>💱 המרת מטבע עולמית</h4><p>שערי חליפין יומיים ל-70+ מטבעות. המרה מ-6 מטבעות בסיס: ILS, USD, EUR, GBP, AED, JPY.</p><div class="upgrade-badge" onclick="setState({tab:\'weather\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🗺️ בניית מסלול טיול חכמה</h4><p>בחירת מדינה, ימים וסגנון (רגוע/מאוזן/אינטנסיבי). מסלול אוטומטי עם אטרקציות.</p><div class="upgrade-badge" onclick="setState({tab:\'weather\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🌤 מזג אוויר בארץ ובעולם</h4><p>תחזית מזג אוויר ל-30+ ערים בישראל ומדינות ברחבי העולם. 7 נושאי בדיקה.</p><div class="upgrade-badge" onclick="setState({tab:\'weather\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        // Data & Integration
+        + '<div class="upgrade-card"><h4>🧠 ייבוא חכם מאקסל ווואטסאפ</h4><p>ייבוא מטיילים, לידים, אנשי קשר, כ"א וארגונים מקבצי Excel/CSV + ייבוא אנשי קשר מקבוצות וואטסאפ עם זיהוי אוטומטי.</p><div class="upgrade-badge" onclick="setState({tab:\'imports\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🔗 מיזוג ממערכת חיצונית</h4><p>ייבוא JSON ממערכות חיצוניות. הנתונים מסווגים ומוזגים אוטומטית.</p><div class="upgrade-badge" onclick="setState({tab:\'imports\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🔌 אינטגרציות מתקדמות</h4><p>Cardcom סליקה, Google Calendar, 3 אתרים, Netlify Blobs ענן. סטטוס בזמן אמת.</p><div class="upgrade-badge" onclick="setState({tab:\'integrations\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>📊 דוחות וניתוחים</h4><p>יחס המרה, הכנסות, לידים לפי מקור/סטטוס, פילוח מטיילים לפי סגמנטים.</p><div class="upgrade-badge" onclick="setState({tab:\'reports\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        // Calendar & Organization
+        + '<div class="upgrade-card"><h4>📅 לוח שנה מתקדם</h4><p>תצוגה חודשית, ניהול משימות עם עדיפויות, ימי הולדת בלוח, סנכרון Google Calendar.</p><div class="upgrade-badge" onclick="setState({tab:\'calendar\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>📇 ניהול אנשי קשר B2B</h4><p>אנשי קשר ארגוניים, סינון לפי חברה, תחומי פעילות, וקבוצות.</p><div class="upgrade-badge" onclick="setState({tab:\'contacts\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>👔 כוח אדם</h4><p>ניהול מנהלי משאבי אנוש, צוותים, צרכי גיוס ותיעוד שיחות.</p><div class="upgrade-badge" onclick="setState({tab:\'hr\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🏢 ארגונים וסוכנויות</h4><p>סוכנויות נסיעות שותפות, התמחויות, סטטוס פעילות ופרטי קשר.</p><div class="upgrade-badge" onclick="setState({tab:\'agencies\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        // New Modules
+        + '<div class="upgrade-card"><h4>💳 כספים וגבייה</h4><p>ניהול חשבוניות, קבלות, זיכויים והצעות מחיר. מעקב תשלומים עם 6 אמצעי תשלום, סטטוס גבייה וסיכום כספי.</p><div class="upgrade-badge" onclick="setState({tab:\'finances\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🥾 מסלולי הליכה</h4><p>מאגר מסלולי טרקים והליכות עם רמות קושי, מרחקים, הפרשי גובה, עונות מומלצות ונקודות עניין.</p><div class="upgrade-badge" onclick="setState({tab:\'hiking\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🌐 רשתות חברתיות</h4><p>ניהול פוסטים ב-7 פלטפורמות, תזמון פרסומים, קמפיינים שיווקיים ומעקב מעורבות (לייקים, שיתופים, תגובות).</p><div class="upgrade-badge" onclick="setState({tab:\'social\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🧭 ניהול מדריכים</h4><p>מאגר מדריכי טיולים עם זמינות, התמחויות, שפות, אזורי פעילות, הסמכות ותמחור ליום.</p><div class="upgrade-badge" onclick="setState({tab:\'guidesManage\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        // Platform
+        + '<div class="upgrade-card"><h4>📱 עיצוב רספונסיבי מלא</h4><p>התאמה מושלמת למחשב, טאבלט ונייד. קנבן, לוח שנה וטפסים מותאמים לכל מסך.</p><div class="upgrade-badge">פעיל ✓</div></div>'
+        + '<div class="upgrade-card"><h4>☁️ שמירה בענן</h4><p>Netlify Blobs לשמירה אמינה בענן + localStorage כגיבוי מקומי.</p><div class="upgrade-badge">פעיל ✓</div></div>'
+        + '<div class="upgrade-card"><h4>📞 שיחות נכנסות</h4><p>מערכת שיחות נכנסות למספר '+GOTOURS_PHONE+' עם זיהוי מתקשר, פתיחת כרטיסיה אוטומטית, רישום ידני והקלטת שיחה.</p><div class="upgrade-badge" style="cursor:pointer">חדש ✨</div></div>'
+        + '<div class="upgrade-card"><h4>🌐 אתרי החברה + מפות</h4><p>קישורים ישירים ל-3 אתרי החברה, Google Maps, Waze, עמודענן, שבילי עולם (Wikiloc), היק ישראל ומערכת מצלמות Hik-Connect בענן.</p><div class="upgrade-badge" onclick="setState({tab:\'integrations\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '</div>';
+    }
+
     // ===== RENDER MAIN =====
     function renderMain() {
       const tabs=[
@@ -1594,11 +2407,12 @@
         {id:"contacts",label:"📇 אנשי קשר"},
         {id:"leads",label:"🎯 לידים"},
         {id:"suppliers",label:"🏪 ספקים"},
-        {id:"trips",label:"📋 הצעות מחיר"},
+        {id:"trips",label:"📋 תיקי טיולים"},
         {id:"conversations",label:"💬 תקשורת"},
+        {id:"finances",label:"💳 כספים וגבייה"},
         {id:"birthdays",label:"🎂 ימי הולדת"},
         {id:"alerts",label:"🔔 התראות"},
-        {id:"broadcast",label:"📲 קבוצות WA"},
+        {id:"broadcast",label:"📲 הודעות קבוצתיות"},
         {id:"reports",label:"📊 דוחות"},
         {id:"weather",label:"🌍 מזג אוויר"},
         {id:"integrations",label:"🔌 אינטגרציות"},
@@ -1606,7 +2420,12 @@
         {id:"agencies",label:"🏢 ארגונים"},
         {id:"hr",label:"👔 כוח אדם"},
         {id:"matching",label:"🤖 GoAI"},
-        {id:"calendar",label:"📅 לוח שנה"}
+        {id:"calendar",label:"📅 לוח שנה"},
+        {id:"hiking",label:"🥾 מסלולי הליכה"},
+        {id:"social",label:"🌐 רשתות חברתיות"},
+        {id:"guidesManage",label:"🧭 ניהול מדריכים"},
+        {id:"guide",label:"📖 מדריך הפעלה"},
+        {id:"upgrades",label:"🚀 שדרוגים"}
       ];
       let content="";
       if(S.tab==="dashboard") content=renderDashboard();
@@ -1627,16 +2446,59 @@
       else if(S.tab==="integrations") content=renderIntegrationsTab();
       else if(S.tab==="imports") content=renderImportsTab();
       else if(S.tab==="calendar") content=renderCalendarTab();
+      else if(S.tab==="finances") content=renderFinancesTab();
+      else if(S.tab==="hiking") content=renderHikingTab();
+      else if(S.tab==="social") content=renderSocialTab();
+      else if(S.tab==="guidesManage") content=renderGuidesManageTab();
+      else if(S.tab==="guide") content=renderGuideTab();
+      else if(S.tab==="upgrades") content=renderUpgradesTab();
       else content=renderDashboard();
 
       const d=dashboardData();
       return '<div class="shell">'
-        + '<div class="header"><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div class="top-meta"><span class="meta-pill">☁️ מחובר</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span><span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span></div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש לקוח, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
+        + '<div class="header"><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div class="top-meta"><span class="meta-pill">☁️ מחובר</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span><span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span></div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש לקוח, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center"><div class="call-sim-input"><input placeholder="📞 סמלץ שיחה נכנסת..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall()" style="width:180px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:8px 12px;font-size:12px" onclick="simulateIncomingCall()">📞</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
         + '<div class="tabs">'+tabs.map(t=>'<button class="'+(S.tab===t.id?"active":"")+'" onclick="setState({tab:\''+t.id+'\'},false)">'+t.label+'</button>').join("")+'</div>'
         + content
         + renderAiWidget()
         + renderNatalyWidget()
+        + renderIncomingCallOverlay()
         + '</div>';
+    }
+
+    // ===== RENDER INCOMING CALL OVERLAY =====
+    function renderIncomingCallOverlay() {
+      if(!S.incomingCallOpen) return "";
+      const m = S.incomingCallMatch;
+      const avatar = m ? (m.data.fullName||m.data.name||"?").charAt(0) : "?";
+      const name = m ? escapeHtml(m.data.fullName||m.data.name||"לא ידוע") : "מספר לא מוכר";
+      const typeLabel = m ? (m.type==="traveler"?"מטייל":m.type==="contact"?"איש קשר":m.type==="lead"?"ליד":"") : "";
+      let cardInfo = "";
+      if(m) {
+        const d = m.data;
+        cardInfo = '<div class="call-card-info"><h4>'+escapeHtml(typeLabel)+': '+name+'</h4>'
+          + (d.phone?'<div class="small">📞 '+escapeHtml(d.phone)+'</div>':"")
+          + (d.email?'<div class="small">📧 '+escapeHtml(d.email)+'</div>':"")
+          + (d.city?'<div class="small">📍 '+escapeHtml(d.city)+'</div>':"")
+          + (d.company?'<div class="small">🏢 '+escapeHtml(d.company)+'</div>':"")
+          + (d.organization?'<div class="small">🏢 '+escapeHtml(d.organization)+'</div>':"")
+          + (d.preferredCategory?'<div class="small">✈ קטגוריה: '+escapeHtml(d.preferredCategory)+'</div>':"")
+          + (d.walkingLevel?'<div class="small">🥾 רמת הליכה: '+escapeHtml(d.walkingLevel)+'</div>':"")
+          + (d.budgetMax?'<div class="small">💰 תקציב: עד ₪'+escapeHtml(String(d.budgetMax))+'</div>':"")
+          + (d.destinationInterest?'<div class="small">🎯 יעד: '+escapeHtml(d.destinationInterest)+'</div>':"")
+          + (d.notes?'<div class="small" style="margin-top:4px;color:var(--muted)">📝 '+escapeHtml(d.notes)+'</div>':"")
+          + (d.lastConversation?'<div class="small" style="margin-top:4px">💬 שיחה אחרונה: '+escapeHtml(d.lastConversation.channel||"")+" – "+escapeHtml(fmtDateShort(d.lastConversation.at))+'</div>':"")
+          + '</div>';
+      }
+      return '<div class="call-overlay" onclick="if(event.target===this)dismissIncomingCall()">'
+        + '<div class="call-panel">'
+        + '<div class="call-header"><div class="call-avatar">'+escapeHtml(avatar)+'</div><div><h3>📞 שיחה נכנסת למספר '+escapeHtml(GOTOURS_PHONE)+'</h3><div class="small muted">מתקשר: '+escapeHtml(String(S.incomingCallNumber||""))+'</div>'+(m?'<div class="small" style="color:var(--ok);font-weight:700">✅ נמצאה כרטיסיה – '+escapeHtml(typeLabel)+'</div>':'<div class="small" style="color:var(--warn);font-weight:700">⚠ לא נמצאה כרטיסיה במערכת</div>')+'</div></div>'
+        + '<div class="call-recording"><div class="call-rec-dot"></div><strong style="color:#c62828">● מקליט שיחה</strong><span class="small muted">השיחה מוקלטת ותישמר בכרטיסיית המתקשר</span></div>'
+        + cardInfo
+        + '<div style="margin-bottom:12px"><label style="font-weight:700;color:var(--brand)">📝 רישום ידני – תיעוד השיחה</label><textarea placeholder="רשום כאן סיכום השיחה, בקשות, הערות..." oninput="S.incomingCallNote=this.value" style="min-height:100px">'+escapeHtml(S.incomingCallNote||"")+'</textarea></div>'
+        + (!m?'<div style="margin-bottom:12px;padding:10px;background:#fffbf0;border:1px solid #ffd54f;border-radius:10px"><div class="small"><strong>💡 טיפ:</strong> המספר לא קיים במערכת. תוכל להוסיף את המתקשר כמטייל חדש או איש קשר לאחר סיום השיחה.</div></div>':"")
+        + '<div class="row" style="gap:8px"><button class="btn-ok" onclick="endIncomingCall()">✅ סיום שיחה ושמירה</button><button class="btn-danger" onclick="dismissIncomingCall()">❌ ביטול</button>'+(m&&m.type==="traveler"?'<button class="btn-primary" onclick="dismissIncomingCall();editTraveler('+m.data.id+');setState({tab:\'travelers\'},false)">✏️ פתח כרטיסיה</button>':'')+(m&&m.type==="lead"?'<button class="btn-primary" onclick="dismissIncomingCall();editLead('+m.data.id+');setState({tab:\'leads\'},false)">✏️ פתח ליד</button>':'')+'</div>'
+        + (S.callLog.length?'<div style="margin-top:16px;border-top:1px dashed var(--line);padding-top:12px"><div class="section-title" style="font-size:15px">📞 יומן שיחות אחרונות</div><div class="list">'+S.callLog.slice(0,5).map(c=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(c.matchName)+'</strong><span class="badge b-ok">'+escapeHtml(c.matchType==="traveler"?"מטייל":c.matchType==="contact"?"איש קשר":c.matchType==="lead"?"ליד":"לא מוכר")+'</span></div><div class="small">📞 '+escapeHtml(c.phone)+' | '+escapeHtml(fmtDateShort(c.at))+(c.recorded?' | 🔴 הוקלט':'')+'</div>'+(c.note?'<div class="small muted">📝 '+escapeHtml(c.note)+'</div>':'')+'</div>').join("")+'</div></div>':"")
+        + '</div></div>';
     }
 
     function render() {
