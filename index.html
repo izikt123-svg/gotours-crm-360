@@ -1209,7 +1209,7 @@
           + '</div></div>':"")
         // מודולים
         + '<div class="card"><div class="section-title">🗂 מודולים</div><div class="module-grid">'
-        + [["👥 לקוחות",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["📋 תיקי טיולים",S.trips.length,"trips"],["💳 כספים",S.finances.length,"finances"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🥾 מסלולי הליכה",S.hikingTrails.length,"hiking"],["🌐 רשתות חברתיות",S.socialPosts.length,"social"],["🧭 מדריכים",S.guides.length,"guidesManage"],["🌍 מזג אוויר","","weather"],["🤖 GoAI","","matching"],["📖 מדריך","","guide"],["🚀 שדרוגים","","upgrades"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
+        + [["👥 לקוחות",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["📋 תיקי טיולים",S.trips.length,"trips"],["💳 כספים",S.finances.length,"finances"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🗺️ מפות","","maps"],["🥾 מסלולי הליכה",S.hikingTrails.length,"hiking"],["🌐 רשתות חברתיות",S.socialPosts.length,"social"],["🧭 מדריכים",S.guides.length,"guidesManage"],["🌍 מזג אוויר","","weather"],["🤖 GoAI","","matching"],["📖 מדריך","","guide"],["🚀 שדרוגים","","upgrades"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
         + '</div></div>'
         // שדרוגים אחרונים
         + '<div class="card"><div class="section-title">🚀 שדרוגים אחרונים</div><div class="sub-title">כל היכולות המתקדמות שנוספו למערכת</div>'
@@ -1222,6 +1222,7 @@
         + '<div class="module" onclick="setState({tab:\'weather\'},false)" style="cursor:pointer;background:#edf5fc">🌍 45+ מדינות</div>'
         + '<div class="module" onclick="setState({tab:\'weather\'},false)" style="cursor:pointer;background:#edf5fc">💱 70+ מטבעות</div>'
         + '<div class="module" onclick="setState({tab:\'imports\'},false)" style="cursor:pointer;background:#edf5fc">🧠 ייבוא חכם</div>'
+        + '<div class="module" onclick="setState({tab:\'maps\'},false)" style="cursor:pointer;background:#edf5fc">🗺️ מפות וניווט</div>'
         + '</div>'
         + '<div style="margin-top:10px"><button class="btn-primary" onclick="setState({tab:\'upgrades\'},false)">צפו בכל השדרוגים →</button> <button class="btn-soft" onclick="setState({tab:\'guide\'},false)" style="margin-right:8px">📖 מדריך הפעלה</button></div>'
         + '</div>'
@@ -1726,6 +1727,31 @@
         + '<div class="row"><div><label>סגנון</label><select onchange="setState({routeStyle:this.value},false)">'+ROUTE_STYLES.map(x=>'<option value="'+escapeHtml(x)+'" '+(S.routeStyle===x?"selected":"")+'>'+escapeHtml(x)+'</option>').join("")+'</select></div><div><label>בנה מסלול</label><button class="btn-ok" onclick="buildRoutePlan()">🗺️ בניית מסלול</button></div></div>'
         + (S.routePlan?'<div class="item" style="margin-top:8px;white-space:pre-wrap;font-size:13px;line-height:1.6">'+escapeHtml(S.routePlan)+'</div>':'<div class="small muted" style="margin-top:8px">המסלול נבנה אוטומטית לפי מדינה, ימים וסגנון.</div>')
         + '</div></div>';
+    }
+
+    // ===== RENDER MAPS =====
+    function renderMapsTab() {
+      return '<div class="layout-2">'
+        + '<div class="card" style="grid-column:1/-1"><div class="section-title">🗺️ אתרי מפות ומיקום</div>'
+        + '<div class="sub-title">כל שירותי המפות, הניווט ומסלולי הטיולים במקום אחד</div>'
+        + '<div class="site-live">'
+        + '<div class="site-card"><h4>📍 Google Maps – tiyoolim.com</h4><div class="small muted">מיקום העסק במפות גוגל</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://maps.google.com/?q=tiyoolim.com\',\'_blank\')">פתח במפה</button></div></div>'
+        + '<div class="site-card"><h4>📍 Google Maps – GoTours</h4><div class="small muted">מיקום GoTours במפות</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://maps.google.com/?q=GoTours+Israel\',\'_blank\')">פתח במפה</button></div></div>'
+        + '<div class="site-card"><h4>🗺️ Google Maps</h4><div class="small muted">מפות גוגל – חיפוש מיקומים ומסלולים</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://www.google.com/maps\',\'_blank\')">פתח Google Maps</button></div></div>'
+        + '<div class="site-card"><h4>📍 Waze – ניווט למשרד</h4><div class="small muted">ניווט ישיר ב-Waze</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://waze.com/ul\',\'_blank\')">פתח ב-Waze</button></div></div>'
+        + '<div class="site-card"><h4>🧭 Waze Live Map</h4><div class="small muted">מפה חיה – תנועה ועדכוני כבישים בזמן אמת</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://www.waze.com/he/live-map\',\'_blank\')">פתח Waze Live Map</button></div></div>'
+        + '<div class="site-card"><h4>🏔️ עמוד ענן – שבילי עולם (Wikiloc)</h4><div class="small muted">מסלולי הליכה, טיולים ורכיבה ברחבי העולם</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://www.wikiloc.com\',\'_blank\')">פתח Wikiloc</button></div></div>'
+        + '<div class="site-card"><h4>🗺️ עמודענן (Amudanan)</h4><div class="small muted">מפות שבילים ומסלולי טיולים בישראל</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://amudanan.co.il/\',\'_blank\')">פתח עמודענן</button></div></div>'
+        + '<div class="site-card"><h4>🥾 Israel Hiking Map</h4><div class="small muted">היק ישראל – מפת שבילים מפורטת לטיולים בארץ</div><div class="row" style="margin-top:8px"><button class="btn-ok" onclick="window.open(\'https://israelhiking.osm.org.il\',\'_blank\')">פתח היק ישראל</button></div></div>'
+        + '</div></div>'
+        + '<div class="card" style="grid-column:1/-1"><div class="section-title">☁️ Hik-Connect – ענן היק ישראל</div>'
+        + '<div class="sub-title">גישה למערכת המצלמות והאבטחה בענן Hikvision</div>'
+        + '<div class="site-live">'
+        + '<div class="site-card"><h4>📹 Hik-Connect Cloud</h4><div class="small muted">ענן Hikvision – צפייה במצלמות, הקלטות ואירועים</div><div class="row" style="margin-top:8px"><button class="btn-purple" onclick="window.open(\'https://www.hik-connect.com\',\'_blank\')">☁️ כניסה ל-Hik-Connect</button></div></div>'
+        + '<div class="site-card"><h4>🖥️ iVMS-4200</h4><div class="small muted">תוכנת ניהול מצלמות Hikvision מקומית</div><div class="row" style="margin-top:8px"><button class="btn-soft" onclick="window.open(\'https://www.hikvision.com/en/support/tools/hitools/\',\'_blank\')">הורדת תוכנה</button></div></div>'
+        + '<div class="site-card"><h4>🔒 Hik-Partner Pro</h4><div class="small muted">פורטל שותפים ומתקינים</div><div class="row" style="margin-top:8px"><button class="btn-soft" onclick="window.open(\'https://www.hik-partnerpro.com\',\'_blank\')">כניסה לפורטל</button></div></div>'
+        + '</div></div>'
+        + '</div>';
     }
 
     // ===== RENDER INTEGRATIONS =====
@@ -2395,7 +2421,7 @@
         + '<div class="upgrade-card"><h4>📱 עיצוב רספונסיבי מלא</h4><p>התאמה מושלמת למחשב, טאבלט ונייד. קנבן, לוח שנה וטפסים מותאמים לכל מסך.</p><div class="upgrade-badge">פעיל ✓</div></div>'
         + '<div class="upgrade-card"><h4>☁️ שמירה בענן</h4><p>Netlify Blobs לשמירה אמינה בענן + localStorage כגיבוי מקומי.</p><div class="upgrade-badge">פעיל ✓</div></div>'
         + '<div class="upgrade-card"><h4>📞 שיחות נכנסות</h4><p>מערכת שיחות נכנסות למספר '+GOTOURS_PHONE+' עם זיהוי מתקשר, פתיחת כרטיסיה אוטומטית, רישום ידני והקלטת שיחה.</p><div class="upgrade-badge" style="cursor:pointer">חדש ✨</div></div>'
-        + '<div class="upgrade-card"><h4>🌐 אתרי החברה + מפות</h4><p>קישורים ישירים ל-3 אתרי החברה, Google Maps, Waze, עמודענן, שבילי עולם (Wikiloc), היק ישראל ומערכת מצלמות Hik-Connect בענן.</p><div class="upgrade-badge" onclick="setState({tab:\'integrations\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🌐 אתרי החברה + מפות</h4><p>קישורים ישירים ל-3 אתרי החברה, Google Maps, Waze, עמודענן, שבילי עולם (Wikiloc), היק ישראל ומערכת מצלמות Hik-Connect בענן.</p><div class="upgrade-badge" onclick="setState({tab:\'maps\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         + '</div>';
     }
 
@@ -2415,6 +2441,7 @@
         {id:"broadcast",label:"📲 הודעות קבוצתיות"},
         {id:"reports",label:"📊 דוחות"},
         {id:"weather",label:"🌍 מזג אוויר"},
+        {id:"maps",label:"🗺️ מפות"},
         {id:"integrations",label:"🔌 אינטגרציות"},
         {id:"imports",label:"🧠 ייבוא חכם"},
         {id:"agencies",label:"🏢 ארגונים"},
@@ -2443,6 +2470,7 @@
       else if(S.tab==="alerts") content=renderAlertsTab();
       else if(S.tab==="reports") content=renderReportsTab();
       else if(S.tab==="weather") content=renderWeatherTab();
+      else if(S.tab==="maps") content=renderMapsTab();
       else if(S.tab==="integrations") content=renderIntegrationsTab();
       else if(S.tab==="imports") content=renderImportsTab();
       else if(S.tab==="calendar") content=renderCalendarTab();
