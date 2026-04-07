@@ -39,9 +39,18 @@
     .header-row { display:flex; align-items:center; justify-content:flex-start; gap:10px; flex-wrap:wrap; direction:rtl; }
     /* Menu Board Navigation - Full Width Grid */
     .main-layout { display:flex; flex-direction:column; gap:12px; }
-    .sidebar-nav { background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:12px; direction:rtl; }
-    .sidebar-nav .menu-board-grid { display:grid; grid-template-columns:repeat(10, 1fr); gap:6px; direction:rtl; }
-    .sidebar-nav button { width:100%; text-align:center; padding:10px 6px; background:#f8fbff; border:1px solid var(--line); border-radius:10px; font-size:15px; font-weight:800; color:var(--text); cursor:pointer; transition:all 0.15s ease; display:flex; align-items:center; justify-content:center; gap:5px; direction:rtl; white-space:nowrap; }
+    .sidebar-nav { background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:14px; direction:rtl; }
+    .sidebar-nav .menu-board-grid { display:grid; grid-template-columns:repeat(10, 1fr); gap:8px; direction:rtl; }
+    .sidebar-nav .menu-board-title { font-size:18px; font-weight:700; color:var(--brand); text-align:center; padding:6px 8px 10px; }
+    .sidebar-nav ul, .sidebar-nav li { list-style:none; margin:0; padding:0; }
+    .sidebar-nav ul ul { padding-right:18px; margin-top:4px; border-right:3px solid var(--brand); }
+    .sidebar-nav ul ul li { font-size:18px; font-weight:600; color:var(--text); padding:8px 10px; border-radius:8px; transition:background 0.15s ease; }
+    .sidebar-nav ul ul li:hover { background:#edf5fc; color:var(--brand); }
+    .sidebar-nav ul ul ul { padding-right:16px; border-right:2px solid var(--brand-2); }
+    .sidebar-nav ul ul ul li { font-size:17px; font-weight:600; color:var(--muted); }
+    .sidebar-nav a, .sidebar-nav .nav-link { font-size:18px; font-weight:700; color:var(--text); text-decoration:none; display:block; padding:8px 10px; border-radius:8px; transition:all 0.15s ease; }
+    .sidebar-nav a:hover, .sidebar-nav .nav-link:hover { background:#edf5fc; color:var(--brand); }
+    .sidebar-nav button { width:100%; text-align:center; padding:12px 8px; background:#f8fbff; border:1px solid var(--line); border-radius:10px; font-size:18px; font-weight:700; color:var(--text); cursor:pointer; transition:all 0.15s ease; display:flex; align-items:center; justify-content:center; gap:6px; direction:rtl; white-space:nowrap; line-height:1.4; }
     .sidebar-nav button:hover { background:#edf5fc; color:var(--brand); transform:none; border-color:#b0cfe0; }
     .sidebar-nav button.active { background:linear-gradient(125deg,#0f567f,#1777ab); color:#fff; box-shadow:0 4px 12px rgba(15,86,127,0.25); border-color:transparent; }
     .sidebar-nav button.active:hover { background:linear-gradient(125deg,#0d4a6c,#156898); }
@@ -55,10 +64,11 @@
     .tabs button.active { background:var(--brand); border-color:transparent; color:#fff; }
     @media (max-width:900px) {
       .sidebar-nav .menu-board-grid { grid-template-columns:repeat(5, 1fr); }
-      .sidebar-nav button { font-size:13px; padding:8px 4px; }
+      .sidebar-nav button { font-size:16px; padding:10px 6px; }
     }
     @media (max-width:600px) {
       .sidebar-nav .menu-board-grid { grid-template-columns:repeat(3, 1fr); }
+      .sidebar-nav button { font-size:15px; padding:9px 5px; }
     }
     .kpis { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; direction:rtl; }
     .kpi { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; text-align:right; direction:rtl; }
@@ -4642,7 +4652,7 @@
         + '<div class="header"><div style="text-align:right;padding:8px 4px 4px"><div id="hero_clock" style="font-size:20px;font-weight:800;letter-spacing:0.5px;direction:rtl">'+escapeHtml(greetingText)+' | '+new Date().toLocaleDateString("he-IL",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+" | "+new Date().toLocaleTimeString("he-IL")+'</div></div><div class="header-row"><div><h2 style="text-align:right">✈ GoTours CRM 360</h2><div style="text-align:right">מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><span class="small" style="color:#fff;opacity:0.8">👥 מחוברים כרגע:</span>'+onlineUsersHtml+'</div><div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">'+ (_offlineMode?'📴 לא מקוון':'☁️ מחובר') +'</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span>'+revenuePill+'</div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><div class="call-sim-input"><input placeholder="📞 מספר מתקשר..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall(\'972542233888\')" style="width:160px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:6px 10px;font-size:11px" onclick="simulateIncomingCall(\'972542233888\')" title="972542233888">📞 נייד</button><button class="btn-primary" style="width:auto;padding:6px 10px;font-size:11px" onclick="simulateIncomingCall(\'97236564488\')" title="97236564488">📞 קווי</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
         + '<div class="main-layout">'
         + '<nav class="sidebar-nav" id="sidebarNav">'
-        + '<div style="padding:4px 8px 8px;font-size:13px;font-weight:800;color:var(--brand);text-align:center;margin-bottom:4px">📌 לוח תפריטים – ' + tabs.length + ' מודולים</div>'
+        + '<div class="menu-board-title">📌 לוח תפריטים – ' + tabs.length + ' מודולים</div>'
         + '<div class="menu-board-grid">'
         + tabs.map(t=>'<button class="'+(S.tab===t.id?"active":"")+'" onclick="setState({tab:\''+t.id+'\'},false);closeSidebar()">'+t.label+'</button>').join("")
         + '</div>'
