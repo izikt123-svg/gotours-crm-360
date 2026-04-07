@@ -37,9 +37,29 @@
     .shell { max-width:1480px; margin:0 auto; display:grid; gap:12px; }
     .header { background:linear-gradient(125deg,#0f567f,#1777ab 58%,#1fa3bb); color:#fff; border-radius:20px; box-shadow:var(--shadow); padding:18px; }
     .header-row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    /* Sidebar Navigation */
+    .main-layout { display:grid; grid-template-columns:1fr 220px; gap:12px; }
+    .sidebar-nav { background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:8px; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow-y:auto; scrollbar-width:thin; }
+    .sidebar-nav::-webkit-scrollbar { width:4px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background:#c5d5e5; border-radius:4px; }
+    .sidebar-nav button { width:100%; text-align:right; padding:9px 12px; background:transparent; border:none; border-radius:10px; font-size:13.5px; font-weight:600; color:var(--text); cursor:pointer; transition:all 0.15s ease; display:flex; align-items:center; gap:8px; direction:rtl; margin-bottom:2px; }
+    .sidebar-nav button:hover { background:#edf5fc; color:var(--brand); transform:none; }
+    .sidebar-nav button.active { background:linear-gradient(125deg,#0f567f,#1777ab); color:#fff; box-shadow:0 4px 12px rgba(15,86,127,0.25); }
+    .sidebar-nav button.active:hover { background:linear-gradient(125deg,#0d4a6c,#156898); }
+    .sidebar-toggle { display:none; position:fixed; bottom:80px; right:18px; width:48px; height:48px; border-radius:50%; border:none; background:linear-gradient(135deg,#0f567f,#1777ab); color:#fff; font-size:22px; box-shadow:0 8px 20px rgba(15,86,127,0.35); z-index:29; cursor:pointer; padding:0; }
+    .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:39; }
+    .main-content { min-width:0; }
+    /* Legacy tabs hidden - replaced by sidebar */
     .tabs { display:flex; gap:8px; flex-wrap:wrap; }
     .tabs button { width:auto; padding:9px 13px; background:#fff; border:1px solid var(--line); }
     .tabs button.active { background:var(--brand); border-color:transparent; color:#fff; }
+    @media (max-width:900px) {
+      .main-layout { grid-template-columns:1fr; }
+      .sidebar-nav { display:none; position:fixed; top:0; right:0; bottom:0; width:260px; max-height:100vh; border-radius:0; z-index:40; box-shadow:-4px 0 24px rgba(0,0,0,0.2); padding:16px 8px; }
+      .sidebar-nav.open { display:block; }
+      .sidebar-overlay.open { display:block; }
+      .sidebar-toggle { display:grid; place-items:center; }
+    }
     .kpis { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; }
     .kpi { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; }
     .kpi strong { display:block; font-size:24px; color:var(--brand); }
@@ -246,6 +266,7 @@
       .top-meta { justify-content:center; }
       .tabs { justify-content:center; }
       .tabs button { padding:7px 10px; font-size:13px; }
+      .sidebar-toggle { display:grid; place-items:center; }
       .kanban-board { flex-direction:column; }
       .kanban-col { min-width:auto; }
       .card { padding:10px; }
@@ -4619,8 +4640,15 @@
       const greetingText = getTimeGreeting() + ', ' + escapeHtml(S.currentUser) + '!';
       return '<div class="shell">'
         + '<div class="header"><div style="text-align:center;padding:8px 0 4px"><div id="hero_clock" style="font-size:20px;font-weight:800;letter-spacing:0.5px">'+escapeHtml(greetingText)+' | '+new Date().toLocaleDateString("he-IL",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+" | "+new Date().toLocaleTimeString("he-IL")+'</div></div><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><span class="small" style="color:#fff;opacity:0.8">👥 מחוברים כרגע:</span>'+onlineUsersHtml+'</div><div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">'+ (_offlineMode?'📴 לא מקוון':'☁️ מחובר') +'</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span>'+revenuePill+'</div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><div class="call-sim-input"><input placeholder="📞 מספר מתקשר..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall(\'972542233888\')" style="width:160px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:6px 10px;font-size:11px" onclick="simulateIncomingCall(\'972542233888\')" title="972542233888">📞 נייד</button><button class="btn-primary" style="width:auto;padding:6px 10px;font-size:11px" onclick="simulateIncomingCall(\'97236564488\')" title="97236564488">📞 קווי</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
-        + '<div class="tabs">'+tabs.map(t=>'<button class="'+(S.tab===t.id?"active":"")+'" onclick="setState({tab:\''+t.id+'\'},false)">'+t.label+'</button>').join("")+'</div>'
-        + content
+        + '<div class="main-layout">'
+        + '<div class="main-content">' + content + '</div>'
+        + '<nav class="sidebar-nav" id="sidebarNav">'
+        + '<div style="padding:4px 8px 10px;font-size:12px;font-weight:800;color:var(--muted);border-bottom:1px solid var(--line);margin-bottom:6px">📌 תפריט ניווט</div>'
+        + tabs.map(t=>'<button class="'+(S.tab===t.id?"active":"")+'" onclick="setState({tab:\''+t.id+'\'},false);closeSidebar()">'+t.label+'</button>').join("")
+        + '</nav>'
+        + '</div>'
+        + '<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>'
+        + '<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>'
         + renderAiWidget()
         + renderNatalyWidget()
         + renderIncomingCallOverlay()
@@ -4664,11 +4692,27 @@
         + '</div></div>';
     }
 
+    // ===== SIDEBAR TOGGLE (MOBILE) =====
+    function toggleSidebar() {
+      var nav=document.getElementById("sidebarNav");
+      var ov=document.getElementById("sidebarOverlay");
+      if(nav&&ov){ nav.classList.toggle("open"); ov.classList.toggle("open"); }
+    }
+    function closeSidebar() {
+      var nav=document.getElementById("sidebarNav");
+      var ov=document.getElementById("sidebarOverlay");
+      if(nav) nav.classList.remove("open");
+      if(ov) ov.classList.remove("open");
+    }
+
     function render() {
       const app=document.getElementById("app");
       if(S.loading){app.innerHTML='<div class="auth-wrap"><div class="card auth"><h1>✈ GoTours CRM 360</h1><div class="muted">טוען נתונים...</div></div></div>'; return;}
       app.innerHTML=S.isAuthenticated?renderMain():renderAuth();
       renderSyncMeta();
+      // Scroll active sidebar item into view
+      var activeBtn=document.querySelector(".sidebar-nav button.active");
+      if(activeBtn) activeBtn.scrollIntoView({block:"nearest",behavior:"smooth"});
     }
 
     // ===== INIT =====
