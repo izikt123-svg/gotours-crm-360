@@ -34,11 +34,13 @@
     .btn-wa { background:#25d366; color:#fff; border:none; }
     .btn-warn { background:var(--warn); color:#fff; border:none; }
     .btn-purple { background:#7c3aed; color:#fff; border:none; }
-    .shell { max-width:1480px; margin:0 auto; display:grid; gap:12px; }
-    .header { background:linear-gradient(125deg,#0f567f,#1777ab 58%,#1fa3bb); color:#fff; border-radius:20px; box-shadow:var(--shadow); padding:18px; }
-    .header-row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .shell { max-width:1480px; margin:0 auto; display:grid; gap:12px; direction:rtl; text-align:right; }
+    .header { background:linear-gradient(125deg,#0f567f,#1777ab 58%,#1fa3bb); color:#fff; border-radius:20px; box-shadow:var(--shadow); padding:18px; direction:rtl; text-align:right; }
+    .header-row { display:flex; align-items:center; justify-content:flex-start; gap:10px; flex-wrap:wrap; direction:rtl; }
     /* Sidebar Navigation */
-    .main-layout { display:grid; grid-template-columns:1fr 220px; gap:12px; }
+    .main-layout { display:grid; grid-template-columns:220px 1fr; gap:12px; }
+    .sidebar-nav { grid-column:1; grid-row:1; }
+    .main-content { grid-column:2; grid-row:1; }
     .sidebar-nav { background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:8px; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow-y:auto; scrollbar-width:thin; }
     .sidebar-nav::-webkit-scrollbar { width:4px; }
     .sidebar-nav::-webkit-scrollbar-thumb { background:#c5d5e5; border-radius:4px; }
@@ -50,25 +52,25 @@
     .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:39; }
     .main-content { min-width:0; }
     /* Legacy tabs hidden - replaced by sidebar */
-    .tabs { display:flex; gap:8px; flex-wrap:wrap; }
+    .tabs { display:flex; gap:8px; flex-wrap:wrap; direction:rtl; }
     .tabs button { width:auto; padding:9px 13px; background:#fff; border:1px solid var(--line); }
     .tabs button.active { background:var(--brand); border-color:transparent; color:#fff; }
     @media (max-width:900px) {
       .main-layout { grid-template-columns:1fr; }
-      .sidebar-nav { display:none; position:fixed; top:0; right:0; bottom:0; width:260px; max-height:100vh; border-radius:0; z-index:40; box-shadow:-4px 0 24px rgba(0,0,0,0.2); padding:16px 8px; }
+      .sidebar-nav { display:none; position:fixed; top:0; right:0; bottom:0; left:auto; width:260px; max-height:100vh; border-radius:0; z-index:40; box-shadow:4px 0 24px rgba(0,0,0,0.2); padding:16px 8px; grid-column:auto; grid-row:auto; }
       .sidebar-nav.open { display:block; }
       .sidebar-overlay.open { display:block; }
       .sidebar-toggle { display:grid; place-items:center; }
     }
-    .kpis { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; }
-    .kpi { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; }
+    .kpis { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; direction:rtl; }
+    .kpi { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; text-align:right; direction:rtl; }
     .kpi strong { display:block; font-size:24px; color:var(--brand); }
-    .layout-2 { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:12px; }
-    .layout-3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .layout-2 { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:12px; direction:rtl; }
+    .layout-3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; direction:rtl; }
     .list { display:grid; gap:8px; }
     .item { border:1px solid var(--line); border-radius:12px; background:#fff; padding:10px; }
-    .item-head { display:flex; align-items:start; justify-content:space-between; gap:8px; margin-bottom:6px; }
-    .chips { display:flex; gap:6px; flex-wrap:wrap; }
+    .item-head { display:flex; align-items:start; justify-content:space-between; gap:8px; margin-bottom:6px; direction:rtl; }
+    .chips { display:flex; gap:6px; flex-wrap:wrap; direction:rtl; }
     .chip { background:var(--chip); border:1px solid #d7e8f6; color:#2f5575; border-radius:999px; padding:4px 9px; font-size:12px; font-weight:700; }
     .chip.active-chip { background:var(--brand); color:#fff; border-color:var(--brand); }
     .badge { font-size:12px; border-radius:999px; padding:4px 8px; font-weight:800; }
@@ -76,34 +78,34 @@
     .b-warn { background:#fff2dd; color:#95600f; }
     .b-danger { background:#ffe7e7; color:#9e1f1f; }
     .b-purple { background:#ede9fe; color:#5b21b6; }
-    .row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; direction:rtl; }
     .row > * { flex:1; min-width:120px; }
-    .section-title { color:var(--brand); font-size:21px; margin-bottom:10px; font-weight:800; }
+    .section-title { color:var(--brand); font-size:21px; margin-bottom:10px; font-weight:800; text-align:right; }
     .sub-title { color:var(--muted); font-size:13px; margin-bottom:10px; }
     .empty { border:1px dashed #c9d8e8; border-radius:12px; background:#fff; color:var(--muted); text-align:center; padding:22px; }
     .small { font-size:13px; }
     .meter { margin-top:4px; height:8px; background:#e6edf5; border-radius:999px; overflow:hidden; }
-    .meter > span { display:block; height:100%; background:linear-gradient(90deg,#1675a7,#27a2be); }
+    .meter > span { display:block; height:100%; background:linear-gradient(270deg,#1675a7,#27a2be); }
     .priority { border-inline-start:4px solid #bf7c15; background:#fffaf1; }
     .priority-high { border-inline-start:4px solid #ba3030; background:#fff3f3; }
-    .top-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .top-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; direction:rtl; justify-content:flex-start; }
     .meta-pill { background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.28); border-radius:999px; padding:4px 10px; font-size:12px; font-weight:700; }
     .dashboard-flow { display:grid; gap:12px; }
-    .module-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }
-    .module { border:1px solid var(--line); border-radius:12px; background:#f8fbff; padding:10px; font-weight:700; color:var(--text); display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .module-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; direction:rtl; }
+    .module { border:1px solid var(--line); border-radius:12px; background:#f8fbff; padding:10px; font-weight:700; color:var(--text); display:flex; align-items:center; justify-content:space-between; gap:8px; direction:rtl; }
     .module .count { color:#fff; background:linear-gradient(120deg,#0f567f,#1f89aa); border-radius:999px; min-width:24px; text-align:center; font-size:12px; padding:2px 7px; }
     .kpi-note { font-size:12px; color:var(--muted); }
     .kpi-trend-up { color:#1d8f5a; font-weight:800; }
-    .site-live { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+    .site-live { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; direction:rtl; }
     .site-card { border:1px solid var(--line); border-radius:12px; background:#fff; padding:10px; }
     .site-card h4 { font-size:15px; color:var(--brand); margin-bottom:6px; }
     .activity-feed { display:grid; gap:8px; }
-    .feed-row { border:1px solid var(--line); border-radius:12px; background:#fff; padding:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .feed-row { border:1px solid var(--line); border-radius:12px; background:#fff; padding:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; direction:rtl; text-align:right; }
     .feed-row strong { color:var(--brand); }
-    .quick-actions { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+    .quick-actions { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; direction:rtl; }
     .goal-list { display:grid; gap:9px; }
     .goal { border:1px solid var(--line); background:#fff; border-radius:12px; padding:10px; }
-    .goal-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:4px; }
+    .goal-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:4px; direction:rtl; }
     .history-block { margin-top:8px; border-top:1px dashed var(--line); padding-top:8px; }
     .history-title { font-size:12px; font-weight:800; color:var(--muted); margin-bottom:6px; }
     .history-entry { border:1px solid #dfe9f3; border-radius:10px; background:#f8fbff; padding:8px; margin-bottom:6px; }
@@ -140,7 +142,7 @@
     .nataly-input-row input { flex:1; min-width:0; }
     .nataly-input-row button { width:auto; flex:0; }
     /* KANBAN */
-    .kanban-board { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; min-height:300px; }
+    .kanban-board { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; min-height:300px; direction:rtl; }
     .kanban-col { min-width:190px; flex:1; background:#f0f6fc; border-radius:14px; padding:10px; }
     .kanban-col-title { font-weight:800; color:var(--brand); margin-bottom:8px; font-size:13px; text-align:center; padding:6px; background:#fff; border-radius:8px; border:1px solid var(--line); }
     .kanban-col-count { font-size:11px; color:var(--muted); }
@@ -166,7 +168,7 @@
     .cal-event.trip { background:var(--ok); }
     .cal-event.task-high { background:var(--danger); }
     /* TASKS */
-    .task-item { border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px; display:flex; align-items:center; gap:10px; }
+    .task-item { border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px; display:flex; align-items:center; gap:10px; direction:rtl; text-align:right; }
     .task-item.overdue { border-color:var(--danger); background:#fff5f5; }
     .task-item.done { opacity:0.55; text-decoration:line-through; }
     /* FOLDER TABS */
@@ -332,7 +334,7 @@
     .call-doc-item .call-doc-audio { margin-top:6px; }
 
     /* Quote Module Styles */
-    .quote-layout { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .quote-layout { display:grid; grid-template-columns:1fr 1fr; gap:12px; direction:rtl; }
     @media(max-width:900px){ .quote-layout { grid-template-columns:1fr; } }
     .quote-status-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
     .quote-status-chip { padding:6px 14px; border-radius:999px; font-size:12px; font-weight:700; cursor:pointer; border:1px solid var(--line); background:#fff; transition:0.15s; }
@@ -4639,7 +4641,7 @@
       const revenuePill = isCeo ? '<span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span>' : '';
       const greetingText = getTimeGreeting() + ', ' + escapeHtml(S.currentUser) + '!';
       return '<div class="shell">'
-        + '<div class="header"><div style="text-align:center;padding:8px 0 4px"><div id="hero_clock" style="font-size:20px;font-weight:800;letter-spacing:0.5px">'+escapeHtml(greetingText)+' | '+new Date().toLocaleDateString("he-IL",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+" | "+new Date().toLocaleTimeString("he-IL")+'</div></div><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><span class="small" style="color:#fff;opacity:0.8">👥 מחוברים כרגע:</span>'+onlineUsersHtml+'</div><div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">'+ (_offlineMode?'📴 לא מקוון':'☁️ מחובר') +'</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span>'+revenuePill+'</div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><div class="call-sim-input"><input placeholder="📞 מספר מתקשר..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall(\'972542233888\')" style="width:160px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:6px 10px;font-size:11px" onclick="simulateIncomingCall(\'972542233888\')" title="972542233888">📞 נייד</button><button class="btn-primary" style="width:auto;padding:6px 10px;font-size:11px" onclick="simulateIncomingCall(\'97236564488\')" title="97236564488">📞 קווי</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
+        + '<div class="header"><div style="text-align:right;padding:8px 4px 4px"><div id="hero_clock" style="font-size:20px;font-weight:800;letter-spacing:0.5px;direction:rtl">'+escapeHtml(greetingText)+' | '+new Date().toLocaleDateString("he-IL",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+" | "+new Date().toLocaleTimeString("he-IL")+'</div></div><div class="header-row"><div><h2 style="text-align:right">✈ GoTours CRM 360</h2><div style="text-align:right">מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><span class="small" style="color:#fff;opacity:0.8">👥 מחוברים כרגע:</span>'+onlineUsersHtml+'</div><div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">'+ (_offlineMode?'📴 לא מקוון':'☁️ מחובר') +'</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span>'+revenuePill+'</div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><div class="call-sim-input"><input placeholder="📞 מספר מתקשר..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall(\'972542233888\')" style="width:160px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:6px 10px;font-size:11px" onclick="simulateIncomingCall(\'972542233888\')" title="972542233888">📞 נייד</button><button class="btn-primary" style="width:auto;padding:6px 10px;font-size:11px" onclick="simulateIncomingCall(\'97236564488\')" title="97236564488">📞 קווי</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
         + '<div class="main-layout">'
         + '<div class="main-content">' + content + '</div>'
         + '<nav class="sidebar-nav" id="sidebarNav">'
