@@ -309,6 +309,29 @@
     .call-doc-item .call-doc-time { font-size:12px; color:var(--muted); }
     .call-doc-item .call-doc-content { margin-top:4px; font-size:13px; }
     .call-doc-item .call-doc-audio { margin-top:6px; }
+
+    /* Campaign Module Styles */
+    .campaign-layout { display:grid; grid-template-columns:1fr 340px; gap:12px; }
+    @media(max-width:900px){ .campaign-layout { grid-template-columns:1fr; } }
+    .campaign-col-right { display:flex; flex-direction:column; gap:12px; }
+    .campaign-col-left { display:flex; flex-direction:column; gap:12px; }
+    .campaign-channels { display:flex; gap:8px; margin-top:6px; }
+    .campaign-channel { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:12px 8px; border:2px solid #ddd; border-radius:12px; cursor:pointer; transition:all .2s; background:#fff; font-size:13px; font-weight:600; }
+    .campaign-channel:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+    .campaign-channel.active-channel { background:rgba(15,86,127,0.06); border-width:3px; }
+    .campaign-send-btn { width:100%; padding:12px; border:none; border-radius:10px; color:#fff; font-size:15px; font-weight:700; cursor:pointer; transition:opacity .2s; }
+    .campaign-send-btn:hover { opacity:0.85; }
+    .campaign-recipients-list { display:flex; flex-direction:column; gap:4px; }
+    .campaign-recipient { display:flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:#fff; transition:all .15s; }
+    .campaign-recipient:hover { background:#f0f7ff; }
+    .campaign-recipient.excluded { background:#fff5f5; border-color:#f5c6c6; opacity:0.7; }
+    .campaign-recipient.excluded .campaign-recipient-info strong { text-decoration:line-through; color:var(--muted); }
+    .campaign-recipient.no-contact { border-style:dashed; }
+    .campaign-exclude-cb { display:flex; align-items:center; gap:4px; cursor:pointer; flex-shrink:0; }
+    .campaign-exclude-cb input[type="checkbox"] { width:18px; height:18px; accent-color:var(--danger); cursor:pointer; }
+    .campaign-exclude-label { font-size:10px; color:var(--danger); font-weight:600; min-width:38px; }
+    .campaign-recipient-info { flex:1; min-width:0; }
+    .campaign-recipient-info strong { font-size:13px; }
   </style>
 </head>
 <body>
@@ -555,6 +578,7 @@
       selectedTripFolder:null,
       travelerImportMsg:"", leadImportMsg:"", contactImportMsg:"", hrImportMsg:"", orgImportMsg:"", waImportMsg:"", waImportText:"",
       mergeUrl:"", selectedBroadcastIds:[], broadcastCriteria:[], broadcastAudience:"all",
+      campaignChannel:"whatsapp", campaignAudience:"travelers", campaignSegments:[], campaignCategories:[], campaignRegions:[], campaignWalkingLevels:[], campaignAgeMin:"", campaignAgeMax:"", campaignCity:"", campaignActiveOnly:true, campaignReturningOnly:false, campaignExcluded:[], campaignMessage:"", campaignSubject:"", campaignHistory:[],
       contactCompanyFilter:"all", hrCompanyFilter:"all", contactImportCompany:"tiyoolim.com",
       aiCompanyScope:"all", weatherCompanyScope:"all", weatherCity:"", weatherTopic:WEATHER_QUICK_TOPICS[0],
       globalCountry:COUNTRY_TRAVEL_CATALOG[0].country, globalWeatherData:null, globalWeatherError:"", globalWeatherLoading:false,
@@ -985,7 +1009,7 @@
         {topic:"כספים,גבייה,חשבונית,תשלום,קבלה", answer:"להוספת רשומה כספית: לשונית 'כספים וגבייה', בחרו סוג (חשבונית/קבלה/זיכוי/הצעת מחיר), שם לקוח, סכום, מטבע, סטטוס (ממתין/שולם/באיחור/בוטל), אמצעי תשלום, תאריכים ומספר חשבונית. לסימון 'שולם' לחצו ✅."},
         {topic:"ייבוא,אקסל,Excel,CSV,ייבוא חכם", answer:"לייבוא נתונים: לשונית 'ייבוא חכם'. גררו קובץ Excel/CSV לאזור הייבוא או לחצו לבחירת קובץ. בחרו קטגוריית יעד (מטיילים/לידים/אנשי קשר/כ\"א/ארגונים). ניתן גם לייבא מוואטסאפ – הדביקו טקסט מקבוצה או העלו קובץ."},
         {topic:"לוח שנה,משימה,משימות,calendar", answer:"בלוח השנה: תצוגה חודשית, הוספת משימה עם כותרת, תאריך יעד, אחראי ועדיפות. משימות באיחור מוצגות באדום. ימי הולדת של מטיילים מופיעים אוטומטית."},
-        {topic:"הודעות קבוצתיות,broadcast,שליחה קבוצתית", answer:"להודעות קבוצתיות: לשונית 'הודעות קבוצתיות', בחרו קהל יעד (כולם/מטיילים/לידים/אנשי קשר/כוח אדם), סננו לפי סגמנטים, כתבו הודעה ולחצו שלח."},
+        {topic:"הודעות קבוצתיות,broadcast,שליחה קבוצתית,קמפיין,קמפיינים,campaign", answer:"מודול הקמפיינים המתקדם (לשונית 'קמפיינים') מאפשר שליחה קבוצתית דרך 3 ערוצים: WhatsApp, אימייל ו-SMS. בחרו ערוץ תקשורת, סננו את קהל היעד לפי סגמנטים (מיטיבי לכת, VIP, דתיים וכו'), קטגוריית טיול (טבע, אקסטרים, יוקרה...), אזורי טיול מועדפים (ירושלים, צפון, נגב...), רמת הליכה, טווח גיל, עיר, סטטוס פעילות וחוזרים בלבד. ניתן להחריג מטיילים ספציפיים מהשליחה ע\"י סימון ✓ ברשימת הנמענים – מטייל מוחרג לא יקבל את ההודעה בשום מצב. לחצו 'שלח' לשליחת ההודעה לנמענים המסוננים."},
         {topic:"יום הולדת,ברכה,ימי הולדת", answer:"מערכת ימי הולדת: זיהוי אוטומטי, תבנית הודעה מותאמת עם משתנים ({{firstName}}, {{discountLine}}), קוד קופון. לחצו 'שלח ברכות' לשליחה אוטומטית."},
         {topic:"מזג אוויר,תחזית,weather", answer:"בלשונית 'מזג אוויר': תחזית ל-30+ ערים בישראל ומדינות בעולם. בחרו עיר ונושא בדיקה. מוצגים טמפרטורה, משקעים ותנאי מזג אוויר."},
         {topic:"מדריך,מדריכים,ניהול מדריכים", answer:"להוספת מדריך: לשונית 'ניהול מדריכים', מלאו שם, התמחות, טלפון, אימייל, שנת לידה, זמינות (פנוי/תפוס/חופשה), מחיר ליום, שכר חודשי, דירוג, שפות, אזורים והסמכות."},
@@ -1321,6 +1345,99 @@
       const rows=filterBroadcastByCriteria(getBroadcastAudience());
       const withPhone=rows.filter(r=>r.phone||r.whatsapp);
       alert("נשלחה הודעה ל-"+withPhone.length+" אנשי קשר (סימולציה).\n\nהודעה:\n"+msg);
+    }
+
+    // ===== CAMPAIGN MODULE (Advanced Group Messaging) =====
+    function getCampaignAudience() {
+      const a=S.campaignAudience||"travelers";
+      if(a==="travelers") return S.travelers.slice();
+      if(a==="leads") return S.leads.slice();
+      if(a==="contacts") return S.contacts.slice();
+      if(a==="hr") return (S.hrManagers||[]).slice();
+      return [...S.travelers,...S.leads,...S.contacts,...(S.hrManagers||[])];
+    }
+    function filterCampaignAudience() {
+      var rows=getCampaignAudience();
+      var segs=S.campaignSegments||[];
+      var cats=S.campaignCategories||[];
+      var regions=S.campaignRegions||[];
+      var levels=S.campaignWalkingLevels||[];
+      var ageMin=parseInt(S.campaignAgeMin)||0;
+      var ageMax=parseInt(S.campaignAgeMax)||0;
+      var city=(S.campaignCity||"").trim();
+      var activeOnly=S.campaignActiveOnly;
+      var returningOnly=S.campaignReturningOnly;
+      var excluded=S.campaignExcluded||[];
+      if(segs.length) rows=rows.filter(function(r){ var rs=r.segments||r.interestGroups||[]; return segs.some(function(s){return rs.includes(s);}); });
+      if(cats.length) rows=rows.filter(function(r){ var rc=r.preferredCategories||[]; if(r.preferredCategory&&!rc.includes(r.preferredCategory)) rc=rc.concat(r.preferredCategory); return cats.some(function(c){return rc.includes(c);}); });
+      if(regions.length) rows=rows.filter(function(r){ var pr=r.preferredRegions||[]; if(r.region&&!pr.includes(r.region)) pr=pr.concat(r.region); return regions.some(function(reg){return pr.includes(reg);})||!pr.length; });
+      if(levels.length) rows=rows.filter(function(r){ return r.walkingLevel&&levels.includes(r.walkingLevel); });
+      if(ageMin>0) rows=rows.filter(function(r){ var a=parseInt(r.age)||0; return a>=ageMin||a===0; });
+      if(ageMax>0) rows=rows.filter(function(r){ var a=parseInt(r.age)||0; return a<=ageMax||a===0; });
+      if(city) rows=rows.filter(function(r){ return (r.city||"").includes(city); });
+      if(activeOnly) rows=rows.filter(function(r){ return r.active!==false; });
+      if(returningOnly) rows=rows.filter(function(r){ return r.returningCustomer===true; });
+      // Apply exclusions
+      if(excluded.length) rows=rows.filter(function(r){ return !excluded.includes(r.id); });
+      return rows;
+    }
+    function toggleCampaignFilter(field, value) {
+      var arr=[...(S[field]||[])];
+      var i=arr.indexOf(value);
+      if(i>=0) arr.splice(i,1); else arr.push(value);
+      var upd={}; upd[field]=arr; setState(upd,false);
+    }
+    function toggleCampaignExclude(id) {
+      var arr=[...(S.campaignExcluded||[])];
+      var i=arr.indexOf(id);
+      if(i>=0) arr.splice(i,1); else arr.push(id);
+      setState({campaignExcluded:arr},false);
+    }
+    function excludeAllCampaign() {
+      var rows=filterCampaignAudience();
+      setState({campaignExcluded:rows.map(function(r){return r.id;})},false);
+    }
+    function includeAllCampaign() {
+      setState({campaignExcluded:[]},false);
+    }
+    function clearCampaignFilters() {
+      setState({campaignSegments:[],campaignCategories:[],campaignRegions:[],campaignWalkingLevels:[],campaignAgeMin:"",campaignAgeMax:"",campaignCity:"",campaignActiveOnly:true,campaignReturningOnly:false,campaignExcluded:[]},false);
+    }
+    function getChannelLabel(ch) {
+      if(ch==="whatsapp") return "WhatsApp";
+      if(ch==="email") return "אימייל";
+      if(ch==="sms") return "SMS";
+      return ch;
+    }
+    function getChannelIcon(ch) {
+      if(ch==="whatsapp") return "💬";
+      if(ch==="email") return "📧";
+      if(ch==="sms") return "📱";
+      return "📤";
+    }
+    function getCampaignRecipientCount() {
+      var rows=filterCampaignAudience();
+      var ch=S.campaignChannel||"whatsapp";
+      if(ch==="whatsapp") return rows.filter(function(r){return r.whatsapp||r.phone;}).length;
+      if(ch==="email") return rows.filter(function(r){return r.email;}).length;
+      if(ch==="sms") return rows.filter(function(r){return r.phone;}).length;
+      return rows.length;
+    }
+    function sendCampaign() {
+      var msg=(S.campaignMessage||"").trim();
+      if(!msg) return alert("יש להזין תוכן הודעה");
+      var ch=S.campaignChannel||"whatsapp";
+      var rows=filterCampaignAudience();
+      var valid=[];
+      if(ch==="whatsapp") valid=rows.filter(function(r){return r.whatsapp||r.phone;});
+      else if(ch==="email") { if(!(S.campaignSubject||"").trim()) return alert("יש להזין נושא לאימייל"); valid=rows.filter(function(r){return r.email;}); }
+      else if(ch==="sms") valid=rows.filter(function(r){return r.phone;});
+      if(!valid.length) return alert("אין נמענים תקינים לערוץ הנבחר");
+      var entry={id:uid(),channel:ch,subject:S.campaignSubject||"",message:msg,recipientCount:valid.length,sentAt:new Date().toISOString(),sentBy:S.currentUser||"",audienceType:S.campaignAudience||"travelers"};
+      var hist=[entry].concat(S.campaignHistory||[]).slice(0,50);
+      setState({campaignHistory:hist},false);
+      logActivity("שליחת קמפיין","נשלח קמפיין "+getChannelLabel(ch)+" ל-"+valid.length+" נמענים");
+      alert(getChannelIcon(ch)+" נשלחה הודעת "+getChannelLabel(ch)+" ל-"+valid.length+" נמענים (סימולציה).\n\nהודעה:\n"+msg);
     }
 
     // ===== BIRTHDAY AUTOMATION =====
@@ -2476,23 +2593,151 @@
         + '</div>';
     }
 
-    // ===== RENDER BROADCAST =====
+    // ===== RENDER BROADCAST (Advanced Group Campaigns) =====
     function renderBroadcastTab() {
-      const audience=getBroadcastAudience();
-      const filtered=filterBroadcastByCriteria(audience);
-      return '<div class="layout-2">'
-        + '<div class="card"><div class="section-title">📲 שליחה קבוצתית</div>'
-        + '<div><label>קהל יעד</label><select onchange="setState({broadcastAudience:this.value},false)"><option value="all" '+(S.broadcastAudience==="all"?"selected":"")+'>כולם</option><option value="travelers" '+(S.broadcastAudience==="travelers"?"selected":"")+'>מטיילים</option><option value="leads" '+(S.broadcastAudience==="leads"?"selected":"")+'>לידים</option><option value="contacts" '+(S.broadcastAudience==="contacts"?"selected":"")+'>אנשי קשר</option><option value="hr" '+(S.broadcastAudience==="hr"?"selected":"")+'>כוח אדם</option></select></div>'
-        + '<div style="margin-top:10px"><label>סינון לפי קבוצה</label><div class="chips" style="margin-top:4px">'+SEGMENTS.map(s=>'<span class="chip '+((S.broadcastCriteria||[]).includes(s)?"active-chip":"")+'" onclick="toggleBroadcastCriteria(\''+escapeHtml(s)+'\')" style="cursor:pointer">'+escapeHtml(s)+'</span>').join("")+'</div></div>'
-        + '<div style="margin-top:10px"><label>הודעה</label><textarea id="broadcast_msg" placeholder="כתוב הודעה לשליחה..."></textarea></div>'
-        + '<div class="row" style="margin-top:10px">'
-        + '<button class="btn-ok" onclick="sendBroadcast(document.getElementById(\'broadcast_msg\').value)">📤 שלח ל-'+filtered.length+' אנשים</button>'
-        + '<button class="btn-soft" onclick="setState({broadcastCriteria:[]},false)">נקה סינון</button>'
-        + '</div></div>'
-        + '<div class="card"><div class="section-title">👥 נמענים ('+filtered.length+')</div><div class="list" style="max-height:400px;overflow-y:auto">'
-        + filtered.slice(0,30).map(r=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(r.fullName||r.name||"")+'</strong><div class="chips">'+((r.segments||[]).map(s=>'<span class="chip">'+escapeHtml(s)+'</span>').join(""))+'</div></div><div class="small muted">'+escapeHtml(r.phone||"")+'</div></div>').join("")
-        + (filtered.length>30?'<div class="small muted" style="text-align:center;padding:8px">ועוד '+(filtered.length-30)+' נוספים...</div>':"")
-        + '</div></div></div>';
+      var ch=S.campaignChannel||"whatsapp";
+      var filtered=filterCampaignAudience();
+      var recipientCount=getCampaignRecipientCount();
+      var excluded=S.campaignExcluded||[];
+      var segs=S.campaignSegments||[];
+      var cats=S.campaignCategories||[];
+      var regions=S.campaignRegions||[];
+      var levels=S.campaignWalkingLevels||[];
+      var hist=S.campaignHistory||[];
+      var activeFilterCount=(segs.length?1:0)+(cats.length?1:0)+(regions.length?1:0)+(levels.length?1:0)+((S.campaignAgeMin||S.campaignAgeMax)?1:0)+((S.campaignCity||"").trim()?1:0)+(S.campaignReturningOnly?1:0);
+
+      // --- Left column: Channel, Filters, Message ---
+      var html='<div class="campaign-layout">';
+
+      // Channel Selection Card
+      html+='<div class="campaign-col-right">';
+      html+='<div class="card"><div class="section-title">📡 שליחה קבוצתית מתקדמת</div>';
+      html+='<div class="sub-title">בחרו ערוץ תקשורת, סננו את קהל היעד ושלחו הודעה ממוקדת</div>';
+
+      // Channel Selector
+      html+='<div style="margin-top:12px"><label>ערוץ תקשורת</label>';
+      html+='<div class="campaign-channels">';
+      html+='<div class="campaign-channel'+(ch==="whatsapp"?" active-channel":"" )+'" onclick="setState({campaignChannel:\'whatsapp\'},false)" style="border-color:'+(ch==="whatsapp"?"#25D366":"#ddd")+'"><span style="font-size:22px">💬</span><span>WhatsApp</span></div>';
+      html+='<div class="campaign-channel'+(ch==="email"?" active-channel":"")+'" onclick="setState({campaignChannel:\'email\'},false)" style="border-color:'+(ch==="email"?"#4A90D9":"#ddd")+'"><span style="font-size:22px">📧</span><span>אימייל</span></div>';
+      html+='<div class="campaign-channel'+(ch==="sms"?" active-channel":"")+'" onclick="setState({campaignChannel:\'sms\'},false)" style="border-color:'+(ch==="sms"?"#FF9500":"#ddd")+'"><span style="font-size:22px">📱</span><span>SMS</span></div>';
+      html+='</div></div>';
+
+      // Audience Source
+      html+='<div style="margin-top:12px"><label>מאגר קהל יעד</label>';
+      html+='<select onchange="setState({campaignAudience:this.value,campaignExcluded:[]},false)">';
+      html+='<option value="travelers"'+(S.campaignAudience==="travelers"?" selected":"")+'>👥 מטיילים</option>';
+      html+='<option value="leads"'+(S.campaignAudience==="leads"?" selected":"")+'>🎯 לידים</option>';
+      html+='<option value="contacts"'+(S.campaignAudience==="contacts"?" selected":"")+'>📇 אנשי קשר</option>';
+      html+='<option value="hr"'+(S.campaignAudience==="hr"?" selected":"")+'>👔 כוח אדם</option>';
+      html+='<option value="all"'+(S.campaignAudience==="all"?" selected":"")+'>🌐 כולם</option>';
+      html+='</select></div>';
+      html+='</div>';
+
+      // Advanced Segmentation Card
+      html+='<div class="card"><div class="section-title">🎯 סינונים וחיתוכים חכמים'+(activeFilterCount?' <span class="badge b-ok">'+activeFilterCount+' פילטרים פעילים</span>':'')+'</div>';
+
+      // Segments
+      html+='<div style="margin-top:8px"><label>סגמנטים / קבוצות עניין</label>';
+      html+='<div class="chips" style="margin-top:4px">'+SEGMENTS.map(function(s){return '<span class="chip '+(segs.includes(s)?"active-chip":"")+'" onclick="toggleCampaignFilter(\'campaignSegments\',\''+escapeHtml(s)+'\')" style="cursor:pointer">'+escapeHtml(s)+'</span>';}).join("")+'</div></div>';
+
+      // Trip Categories
+      html+='<div style="margin-top:10px"><label>קטגוריית טיול מועדפת</label>';
+      html+='<div class="chips" style="margin-top:4px">'+TRIP_CATEGORIES.map(function(c){return '<span class="chip '+(cats.includes(c)?"active-chip":"")+'" onclick="toggleCampaignFilter(\'campaignCategories\',\''+escapeHtml(c)+'\')" style="cursor:pointer">'+escapeHtml(c)+'</span>';}).join("")+'</div></div>';
+
+      // Hiking Regions
+      html+='<div style="margin-top:10px"><label>אזורי טיול מועדפים</label>';
+      html+='<div class="chips" style="margin-top:4px">'+HIKING_REGIONS.map(function(r){return '<span class="chip '+(regions.includes(r)?"active-chip":"")+'" onclick="toggleCampaignFilter(\'campaignRegions\',\''+escapeHtml(r)+'\')" style="cursor:pointer">'+escapeHtml(r)+'</span>';}).join("")+'</div></div>';
+
+      // Walking Levels
+      html+='<div style="margin-top:10px"><label>רמת הליכה</label>';
+      html+='<div class="chips" style="margin-top:4px">'+LEVELS.map(function(l){return '<span class="chip '+(levels.includes(l)?"active-chip":"")+'" onclick="toggleCampaignFilter(\'campaignWalkingLevels\',\''+escapeHtml(l)+'\')" style="cursor:pointer">'+escapeHtml(l)+'</span>';}).join("")+'</div></div>';
+
+      // Age Range + City + Toggles
+      html+='<div class="row" style="margin-top:10px">';
+      html+='<div><label>גיל מינימום</label><input type="number" min="0" max="120" placeholder="למשל: 25" value="'+escapeHtml(S.campaignAgeMin||"")+'" oninput="setState({campaignAgeMin:this.value},false)"></div>';
+      html+='<div><label>גיל מקסימום</label><input type="number" min="0" max="120" placeholder="למשל: 65" value="'+escapeHtml(S.campaignAgeMax||"")+'" oninput="setState({campaignAgeMax:this.value},false)"></div>';
+      html+='<div><label>עיר</label><input placeholder="סנן לפי עיר..." value="'+escapeHtml(S.campaignCity||"")+'" oninput="setState({campaignCity:this.value},false)" list="city_list_campaign"><datalist id="city_list_campaign">'+ISRAEL_CITIES.map(function(c){return '<option value="'+escapeHtml(c)+'">';}).join("")+'</datalist></div>';
+      html+='</div>';
+
+      html+='<div class="row" style="margin-top:8px;gap:16px">';
+      html+='<label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" '+(S.campaignActiveOnly?"checked":"")+' onchange="setState({campaignActiveOnly:this.checked},false)"> פעילים בלבד</label>';
+      html+='<label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" '+(S.campaignReturningOnly?"checked":"")+' onchange="setState({campaignReturningOnly:this.checked},false)"> חוזרים בלבד</label>';
+      html+='</div>';
+
+      // Filter actions
+      html+='<div class="row" style="margin-top:10px;gap:6px">';
+      html+='<button class="btn-soft" onclick="clearCampaignFilters()" style="width:auto">🧹 נקה כל הסינונים</button>';
+      html+='<span class="small muted" style="align-self:center">נמצאו <strong>'+filtered.length+'</strong> נמענים ('+recipientCount+' עם '+getChannelLabel(ch)+' תקין)</span>';
+      html+='</div>';
+      html+='</div>';
+
+      // Message Composition Card
+      html+='<div class="card"><div class="section-title">✏️ ניסוח הודעה</div>';
+      if(ch==="email"){
+        html+='<div><label>נושא האימייל</label><input placeholder="נושא ההודעה..." value="'+escapeHtml(S.campaignSubject||"")+'" oninput="S.campaignSubject=this.value"></div>';
+      }
+      html+='<div style="margin-top:'+(ch==="email"?"8":"0")+'px"><label>תוכן ההודעה</label>';
+      html+='<textarea id="campaign_msg" rows="5" placeholder="כתבו את ההודעה לשליחה..." oninput="S.campaignMessage=this.value">'+escapeHtml(S.campaignMessage||"")+'</textarea></div>';
+      html+='<div class="row" style="margin-top:10px">';
+      html+='<button class="campaign-send-btn" style="background:'+(ch==="whatsapp"?"#25D366":ch==="email"?"#4A90D9":"#FF9500")+'" onclick="sendCampaign()">'+getChannelIcon(ch)+' שלח '+getChannelLabel(ch)+' ל-'+recipientCount+' נמענים</button>';
+      html+='</div></div>';
+
+      // Campaign History Card
+      if(hist.length){
+        html+='<div class="card"><div class="section-title">📜 היסטוריית שליחות</div>';
+        html+='<div class="list" style="max-height:200px;overflow-y:auto">';
+        hist.slice(0,10).forEach(function(h){
+          html+='<div class="item"><div class="item-head"><strong>'+getChannelIcon(h.channel)+' '+getChannelLabel(h.channel)+'</strong><span class="badge b-ok">'+h.recipientCount+' נמענים</span></div>';
+          html+='<div class="small muted">'+escapeHtml(new Date(h.sentAt).toLocaleString("he-IL"))+' | שלח: '+escapeHtml(h.sentBy||"")+'</div>';
+          html+='<div class="small" style="margin-top:2px">'+escapeHtml((h.message||"").substring(0,80))+(h.message&&h.message.length>80?"...":"")+'</div></div>';
+        });
+        html+='</div></div>';
+      }
+
+      html+='</div>'; // end campaign-col-right
+
+      // --- Right column: Recipients with Exclusion ---
+      html+='<div class="campaign-col-left">';
+      html+='<div class="card" style="position:sticky;top:10px"><div class="section-title">👥 רשימת נמענים ('+filtered.length+')'
+        +(excluded.length?' <span class="badge b-danger">'+excluded.length+' מוחרגים</span>':'')+'</div>';
+      html+='<div class="sub-title">סמנו ✓ להחרגת מטיילים מהשליחה</div>';
+
+      // Bulk exclude/include
+      html+='<div class="row" style="margin-bottom:8px;gap:6px">';
+      html+='<button class="btn-soft" onclick="includeAllCampaign()" style="width:auto;font-size:12px">✅ כלול הכל</button>';
+      html+='<button class="btn-soft" onclick="excludeAllCampaign()" style="width:auto;font-size:12px;color:var(--danger)">🚫 החרג הכל</button>';
+      html+='</div>';
+
+      // Recipients list with checkboxes
+      html+='<div class="list campaign-recipients-list" style="max-height:520px;overflow-y:auto">';
+      var displayRows=filtered.slice(0,60);
+      displayRows.forEach(function(r){
+        var isExcluded=excluded.includes(r.id);
+        var contactInfo="";
+        if(ch==="whatsapp") contactInfo=r.whatsapp||r.phone||"";
+        else if(ch==="email") contactInfo=r.email||"";
+        else if(ch==="sms") contactInfo=r.phone||"";
+        var hasContact=!!contactInfo;
+        html+='<div class="campaign-recipient'+(isExcluded?" excluded":"")+(hasContact?"":" no-contact")+'">';
+        html+='<label class="campaign-exclude-cb" title="'+(isExcluded?"לחץ לשחרור החרגה":"לחץ להחרגה מהשליחה")+'">';
+        html+='<input type="checkbox" '+(isExcluded?"checked":"")+' onchange="toggleCampaignExclude('+r.id+')">';
+        html+='<span class="campaign-exclude-label">'+(isExcluded?"מוחרג":"")+'</span></label>';
+        html+='<div class="campaign-recipient-info"><strong>'+escapeHtml(r.fullName||r.name||"ללא שם")+'</strong>';
+        if((r.segments||[]).length) html+='<div class="chips" style="margin-top:2px;gap:2px">'+r.segments.slice(0,3).map(function(s){return '<span class="chip" style="font-size:10px">'+escapeHtml(s)+'</span>';}).join("")+'</div>';
+        html+='<div class="small muted">'+(hasContact?escapeHtml(contactInfo):'<span style="color:var(--danger)">אין '+getChannelLabel(ch)+'</span>')+'</div>';
+        html+='</div></div>';
+      });
+      if(filtered.length>60){
+        html+='<div class="small muted" style="text-align:center;padding:10px">ועוד '+(filtered.length-60)+' נמענים נוספים...</div>';
+      }
+      if(!filtered.length){
+        html+='<div class="empty">אין נמענים התואמים את הסינונים שנבחרו</div>';
+      }
+      html+='</div></div>';
+      html+='</div>'; // end campaign-col-left
+
+      html+='</div>'; // end campaign-layout
+      return html;
     }
 
     // ===== RENDER REPORTS =====
@@ -3694,7 +3939,7 @@
         + '<div class="upgrade-card"><h4>🏪 ניהול ספקים (11 סוגים)</h4><p>מלון, הסעות, מדריך, ביטוח, מסעדה, אטרקציה, טיסות, ספינה, פעילות, ויזה, צלם. דירוג וניהול תשלומים.</p><div class="upgrade-badge" onclick="setState({tab:\'suppliers\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         // Communication
         + '<div class="upgrade-card"><h4>💬 מערכת תקשורת</h4><p>רישום שיחות עם מטיילים ומנהלי כ"א. 4 ערוצים: WhatsApp, טלפון, מייל, פגישה.</p><div class="upgrade-badge" onclick="setState({tab:\'conversations\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
-        + '<div class="upgrade-card"><h4>📲 שליחה קבוצתית</h4><p>Broadcast ל-WhatsApp עם סינון קהל יעד, סגמנטציה, ותצוגת נמענים.</p><div class="upgrade-badge" onclick="setState({tab:\'broadcast\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>📡 קמפיינים ושליחה קבוצתית</h4><p>שליחה מתקדמת ב-WhatsApp, אימייל ו-SMS עם סינון חכם לפי סגמנטים, אזורים, גיל, קטגוריות ורמת הליכה. כולל מנגנון החרגה מובנה.</p><div class="upgrade-badge" onclick="setState({tab:\'broadcast\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         + '<div class="upgrade-card"><h4>🎂 אוטומציית ימי הולדת</h4><p>זיהוי אוטומטי, תבנית הודעה מותאמת, קופוני הנחה, שליחה אוטומטית בWhatsApp/מייל.</p><div class="upgrade-badge" onclick="setState({tab:\'birthdays\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         // Intelligence
         + '<div class="upgrade-card"><h4>🤖 לילה AI – שותפה אסטרטגית</h4><p>ממשק צ\'אט חכם עם לילה, השותפה האסטרטגית של איציק. מנוע התאמה חכם שמתאים מטיילים לטיולים.</p><div class="upgrade-badge" onclick="setState({tab:\'matching\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
@@ -3742,7 +3987,7 @@
         {id:"finances",label:"💳 כספים וגבייה"},
         {id:"birthdays",label:"🎂 ימי הולדת"},
         {id:"alerts",label:"🔔 התראות"},
-        {id:"broadcast",label:"📲 הודעות קבוצתיות"},
+        {id:"broadcast",label:"📡 קמפיינים"},
         {id:"reports",label:"📊 דוחות"},
         {id:"weather",label:"🌍 מזג אוויר"},
         {id:"maps",label:"🗺️ מפות"},
