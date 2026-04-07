@@ -162,8 +162,39 @@
     .route-day { border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px; margin-bottom:8px; }
     .route-day-title { font-weight:800; color:var(--brand); margin-bottom:6px; }
     /* IMPORT SMART */
-    .import-zone { border:2px dashed var(--line); border-radius:12px; padding:20px; text-align:center; background:#f8fbff; cursor:pointer; transition:0.2s; }
+    .import-zone { border:2px dashed var(--line); border-radius:12px; padding:20px; text-align:center; background:#f8fbff; cursor:pointer; transition:0.2s; position:relative; }
     .import-zone:hover { border-color:var(--brand); background:#edf5fc; }
+    .import-zone.drag-over { border-color:var(--brand); background:#dbeafe; transform:scale(1.02); box-shadow:0 4px 16px rgba(59,130,246,0.15); }
+    .import-zone .iz-icon { font-size:28px; display:block; margin-bottom:6px; }
+    .import-zone .iz-label { font-size:13px; color:#666; }
+    .import-zone .iz-file-name { font-size:12px; color:var(--brand); margin-top:4px; font-weight:600; }
+    .import-card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px; transition:0.2s; }
+    .import-card:hover { box-shadow:0 4px 16px rgba(0,0,0,0.06); }
+    .import-card .import-card-head { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .import-card .import-card-head .ic-icon { font-size:32px; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:12px; }
+    .import-card .import-card-head h4 { margin:0; font-size:15px; }
+    .import-card .import-card-head .small { color:#888; margin-top:2px; }
+    .ic-trav { background:linear-gradient(135deg,#dbeafe,#eff6ff); }
+    .ic-lead { background:linear-gradient(135deg,#fef3c7,#fefce8); }
+    .ic-cont { background:linear-gradient(135deg,#d1fae5,#ecfdf5); }
+    .ic-hr { background:linear-gradient(135deg,#ede9fe,#f5f3ff); }
+    .ic-org { background:linear-gradient(135deg,#fce7f3,#fdf2f8); }
+    .wa-smart-section { background:linear-gradient(135deg,#dcfce7,#f0fdf4); border:2px solid #86efac; border-radius:16px; padding:20px; }
+    .wa-smart-section .wa-head { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .wa-smart-section .wa-head .wa-logo { font-size:36px; }
+    .wa-preview-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; }
+    .wa-preview-table th { background:#f0fdf4; padding:6px 8px; text-align:right; font-weight:600; border-bottom:2px solid #86efac; }
+    .wa-preview-table td { padding:5px 8px; border-bottom:1px solid #e5e7eb; }
+    .wa-preview-table tr:hover td { background:#f0fdf4; }
+    .wa-stats { display:flex; gap:12px; flex-wrap:wrap; margin:10px 0; }
+    .wa-stat { background:#fff; border-radius:10px; padding:8px 14px; display:flex; align-items:center; gap:6px; font-size:13px; border:1px solid #e5e7eb; }
+    .wa-stat .wa-stat-num { font-weight:700; font-size:18px; color:#22c55e; }
+    .wa-tabs { display:flex; gap:6px; margin-bottom:12px; }
+    .wa-tab { padding:6px 14px; border-radius:8px; font-size:13px; cursor:pointer; border:1px solid #d1d5db; background:#fff; transition:0.2s; }
+    .wa-tab.active { background:#25d366; color:#fff; border-color:#25d366; }
+    .wa-file-drop { border:2px dashed #86efac; border-radius:12px; padding:16px; text-align:center; background:#f0fdf4; cursor:pointer; transition:0.2s; margin-bottom:10px; }
+    .wa-file-drop:hover { border-color:#22c55e; background:#dcfce7; }
+    .wa-file-drop.drag-over { border-color:#16a34a; background:#bbf7d0; transform:scale(1.01); }
     /* SMART FOLDER */
     .smart-folder { border:1px solid var(--line); border-radius:12px; background:#fff; padding:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .smart-folder .folder-icon { font-size:28px; }
@@ -942,6 +973,119 @@
     function setSiteConnection(id,connected) { alert("עדכון חיבור אתר "+id+" – דרך שרת ה-Netlify."); }
 
     // ===== IMPORT FROM EXCEL =====
+    function handleImportDragOver(e,zoneId) { e.preventDefault(); e.stopPropagation(); document.getElementById(zoneId).classList.add('drag-over'); }
+    function handleImportDragLeave(e,zoneId) { e.preventDefault(); e.stopPropagation(); document.getElementById(zoneId).classList.remove('drag-over'); }
+    function handleImportDrop(e,zoneId,importFn,extraArg) {
+      e.preventDefault(); e.stopPropagation();
+      document.getElementById(zoneId).classList.remove('drag-over');
+      const file=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
+      if(!file) return;
+      if(!/\.(xlsx|xls|csv)$/i.test(file.name)) return alert("יש לבחור קובץ Excel או CSV");
+      const fakeInput={files:[file]};
+      if(extraArg!==undefined) importFn(fakeInput,extraArg); else importFn(fakeInput);
+      const nameEl=document.getElementById(zoneId+'_fname');
+      if(nameEl) nameEl.textContent='📎 '+file.name;
+    }
+    function handleImportFileSelect(input,zoneId) {
+      const file=input.files&&input.files[0]; if(!file) return;
+      const nameEl=document.getElementById(zoneId+'_fname');
+      if(nameEl) nameEl.textContent='📎 '+file.name;
+    }
+
+    // WhatsApp smart import state
+    if(!S.waImportMode) S.waImportMode='paste';
+    if(!S.waImportTarget) S.waImportTarget='contacts';
+    if(!S.waGroupName) S.waGroupName='';
+    if(!S.waPreviewData) S.waPreviewData=[];
+    if(!S.waPreviewReady) S.waPreviewReady=false;
+
+    function handleWaFileDrop(e) {
+      e.preventDefault(); e.stopPropagation();
+      document.getElementById('wa_file_zone').classList.remove('drag-over');
+      const file=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
+      if(!file) return;
+      const reader=new FileReader();
+      reader.onload=function(ev){ S.waImportText=ev.target.result; previewWhatsAppImport(); };
+      reader.readAsText(file);
+    }
+    function handleWaFileSelect(input) {
+      const file=input.files&&input.files[0]; if(!file) return;
+      const reader=new FileReader();
+      reader.onload=function(ev){ S.waImportText=ev.target.result; previewWhatsAppImport(); };
+      reader.readAsText(file);
+    }
+
+    function parseWhatsAppContacts(raw) {
+      const lines=raw.split(/\n/);
+      const contacts=[];
+      const seen=new Set();
+      const chatLineRe=/^\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4},?\s*\d{1,2}:\d{2}\s*-\s*(.+?):\s/;
+      const phoneRe=/((?:\+?\d{1,3}[\s\-]?)?\(?\d{2,4}\)?[\s\-]?\d{3,4}[\s\-]?\d{3,4})/;
+      const vcardNameRe=/^FN[;:](.+)/i;
+      const vcardTelRe=/^TEL[;:].*?:([\d\+\-\s]+)/i;
+      let vcardName="",vcardPhone="";
+      let msgCount=0;
+      for(let i=0;i<lines.length;i++){
+        const line=lines[i].trim(); if(!line) continue;
+        const vnm=line.match(vcardNameRe);
+        if(vnm){vcardName=vnm[1].trim();continue;}
+        const vtel=line.match(vcardTelRe);
+        if(vtel){vcardPhone=vtel[1].replace(/[\s\-]/g,"").trim();
+          if(vcardName&&vcardPhone&&!seen.has(vcardPhone)){seen.add(vcardPhone);contacts.push({fullName:vcardName,phone:normalizePhone(vcardPhone),msgCount:0});}
+          vcardName="";vcardPhone="";continue;
+        }
+        const chatMatch=line.match(chatLineRe);
+        if(chatMatch){
+          msgCount++;
+          let nameOrPhone=chatMatch[1].trim();
+          const ph=nameOrPhone.match(phoneRe);
+          if(ph){const p=normalizePhone(ph[1]);if(p&&!seen.has(p)){seen.add(p);contacts.push({fullName:nameOrPhone.replace(phoneRe,"").trim()||p,phone:p,msgCount:1});}else{const ex=contacts.find(c=>c.phone===p);if(ex)ex.msgCount++;}}
+          else if(nameOrPhone&&!seen.has(nameOrPhone)){seen.add(nameOrPhone);contacts.push({fullName:nameOrPhone,phone:"",msgCount:1});}
+          else{const ex=contacts.find(c=>c.fullName===nameOrPhone);if(ex)ex.msgCount++;}
+          continue;
+        }
+        const parts=line.split(/[\t,;\|]|\s{2,}|\s*-\s*/).map(s=>s.trim()).filter(Boolean);
+        if(parts.length>=2){
+          let name="",phone="";
+          for(const p of parts){ const pm=p.match(phoneRe); if(pm&&!phone) phone=normalizePhone(pm[1]); else if(!name) name=p; }
+          if(phone&&!seen.has(phone)){seen.add(phone);contacts.push({fullName:name||phone,phone:phone,msgCount:0});}
+        } else if(parts.length===1){
+          const pm=parts[0].match(phoneRe);
+          if(pm){const p=normalizePhone(pm[1]);if(p&&!seen.has(p)){seen.add(p);contacts.push({fullName:p,phone:p,msgCount:0});}}
+        }
+      }
+      return {contacts,totalMessages:msgCount};
+    }
+
+    function previewWhatsAppImport() {
+      const raw=String(S.waImportText||"").trim();
+      if(!raw){ S.waPreviewData=[]; S.waPreviewReady=false; render(); return; }
+      const result=parseWhatsAppContacts(raw);
+      S.waPreviewData=result.contacts;
+      S.waTotalMessages=result.totalMessages;
+      S.waPreviewReady=result.contacts.length>0;
+      render();
+    }
+
+    function confirmWhatsAppImport() {
+      if(!S.waPreviewData||S.waPreviewData.length===0) return alert("אין אנשי קשר לייבוא");
+      const groupName=S.waGroupName||"ייבוא וואטסאפ";
+      const target=S.waImportTarget||"contacts";
+      const created=[];
+      S.waPreviewData.forEach(c=>{
+        if(target==="travelers"){
+          created.push({id:uid(),fullName:c.fullName,phone:c.phone,whatsapp:c.phone,email:"",birthday:"",age:0,city:"",budgetMin:0,budgetMax:0,preferredCategory:"טבע",walkingLevel:"בינוני",religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,segments:[groupName],notes:"יובא מקבוצת וואטסאפ: "+groupName,active:true,conversationHistory:[]});
+        } else if(target==="leads"){
+          created.push({id:uid(),fullName:c.fullName,phone:c.phone,email:"",source:"וואטסאפ",status:"חדש",destinationInterest:"",budget:0,travelersCount:1,notes:"יובא מקבוצת וואטסאפ: "+groupName,assignedTo:"",createdAt:isoNow()});
+        } else {
+          created.push({id:uid(),fullName:c.fullName,phone:c.phone,email:"",role:"",company:"tiyoolim.com",organization:"",orgField:"אחר",domain:"",groupName:groupName,notes:"יובא מקבוצת וואטסאפ: "+groupName,active:true});
+        }
+      });
+      if(target==="travelers"){ S.travelers.unshift(...created); setState({travelers:S.travelers,waImportMsg:"יובאו "+created.length+" מטיילים מוואטסאפ לקבוצה: "+groupName,waImportText:"",waPreviewData:[],waPreviewReady:false}); }
+      else if(target==="leads"){ S.leads.unshift(...created); setState({leads:S.leads,waImportMsg:"יובאו "+created.length+" לידים מוואטסאפ לקבוצה: "+groupName,waImportText:"",waPreviewData:[],waPreviewReady:false}); }
+      else { S.contacts.unshift(...created); setState({contacts:S.contacts,waImportMsg:"יובאו "+created.length+" אנשי קשר מוואטסאפ לקבוצה: "+groupName,waImportText:"",waPreviewData:[],waPreviewReady:false}); }
+    }
+
     function getWorkbookRows(file) {
       return new Promise((resolve,reject)=>{
         const reader=new FileReader();
@@ -1810,23 +1954,100 @@
 
     // ===== RENDER IMPORTS =====
     function renderImportsTab() {
+      const makeImportCard=function(icon,iconClass,label,desc,inputId,zoneId,importFn,extraArg,msgKey){
+        const fnCall=extraArg!==undefined
+          ? importFn.name+"(this,"+JSON.stringify(extraArg)+")"
+          : importFn.name+"(this)";
+        const msg=S[msgKey];
+        return '<div class="import-card">'
+          + '<div class="import-card-head"><div class="ic-icon '+iconClass+'">'+icon+'</div><div><h4>'+label+'</h4><div class="small muted">'+desc+'</div></div></div>'
+          + '<div class="import-zone" id="'+zoneId+'" ondragover="handleImportDragOver(event,\''+zoneId+'\')" ondragleave="handleImportDragLeave(event,\''+zoneId+'\')" ondrop="handleImportDrop(event,\''+zoneId+'\','+importFn.name+(extraArg!==undefined?','+JSON.stringify(extraArg):'')+')\" onclick="document.getElementById(\''+inputId+'\').click()">'
+          + '<span class="iz-icon">📂</span>'
+          + '<span class="iz-label">גררו קובץ לכאן או לחצו לבחירה</span>'
+          + '<div class="iz-file-name" id="'+zoneId+'_fname"></div>'
+          + '<input id="'+inputId+'" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFileSelect(this,\''+zoneId+'\');'+fnCall+'">'
+          + '</div>'
+          + (msg?'<div class="small b-ok" style="padding:6px 10px;border-radius:8px;margin-top:6px;display:flex;align-items:center;gap:6px">✅ '+escapeHtml(msg)+'</div>':"")
+          + '</div>';
+      };
+
+      // WhatsApp section
+      const waMode=S.waImportMode||'paste';
+      const waTarget=S.waImportTarget||'contacts';
+      const waPreview=S.waPreviewData||[];
+      const waMsgs=S.waTotalMessages||0;
+      const withPhone=waPreview.filter(c=>c.phone).length;
+      const noPhone=waPreview.length-withPhone;
+
+      let waSection='<div class="wa-smart-section">'
+        + '<div class="wa-head"><span class="wa-logo">📱</span><div><h3 style="margin:0;color:#16a34a">ייבוא חכם מוואטסאפ</h3><div class="small" style="color:#4ade80">זיהוי אוטומטי של שמות, מספרים והודעות מקבוצות וואטסאפ</div></div></div>';
+
+      // Input mode tabs
+      waSection+='<div class="wa-tabs">'
+        + '<div class="wa-tab'+(waMode==='paste'?' active':'')+'" onclick="S.waImportMode=\'paste\';render()">📋 הדבקת טקסט</div>'
+        + '<div class="wa-tab'+(waMode==='file'?' active':'')+'" onclick="S.waImportMode=\'file\';render()">📁 העלאת קובץ</div>'
+        + '</div>';
+
+      if(waMode==='file'){
+        waSection+='<div class="wa-file-drop" id="wa_file_zone" ondragover="event.preventDefault();this.classList.add(\'drag-over\')" ondragleave="this.classList.remove(\'drag-over\')" ondrop="handleWaFileDrop(event)" onclick="document.getElementById(\'wa_file_input\').click()">'
+          + '<span style="font-size:24px">📤</span><br>'
+          + '<span style="font-size:13px;color:#666">גררו קובץ טקסט מיוצא וואטסאפ או לחצו לבחירה</span>'
+          + '<input id="wa_file_input" type="file" accept=".txt,.csv,.vcf" style="display:none" onchange="handleWaFileSelect(this)">'
+          + '</div>';
+      } else {
+        waSection+='<textarea placeholder="הדביקו כאן טקסט מקבוצת וואטסאפ...\n\nתומך בפורמטים:\n• ייצוא צ׳אט וואטסאפ (DD/MM/YYYY, HH:MM - שם: הודעה)\n• רשימת אנשי קשר (שם  טלפון)\n• קובץ vCard\n• טקסט חופשי עם שמות ומספרים" style="min-height:120px;font-size:13px;border:1px solid #86efac;border-radius:10px" oninput="S.waImportText=this.value">'+escapeHtml(S.waImportText||"")+'</textarea>'
+          + '<button class="btn-wa" style="margin-top:8px" onclick="previewWhatsAppImport()">🔍 סרוק וזהה אנשי קשר</button>';
+      }
+
+      // Target selection
+      waSection+='<div style="margin-top:12px"><label style="font-weight:600">🎯 ייבוא לאן?</label>'
+        + '<div class="wa-tabs" style="margin-top:6px">'
+        + '<div class="wa-tab'+(waTarget==='contacts'?' active':'')+'" onclick="S.waImportTarget=\'contacts\';render()">👔 אנשי קשר</div>'
+        + '<div class="wa-tab'+(waTarget==='travelers'?' active':'')+'" onclick="S.waImportTarget=\'travelers\';render()">👥 מטיילים</div>'
+        + '<div class="wa-tab'+(waTarget==='leads'?' active':'')+'" onclick="S.waImportTarget=\'leads\';render()">🎯 לידים</div>'
+        + '</div></div>';
+
+      // Group name
+      waSection+='<div style="margin-top:8px"><label style="font-weight:600">🏷️ שם קבוצה / תגית</label>'
+        + '<input placeholder="לדוגמה: טיול תורכיה מרץ 2026" value="'+escapeHtml(S.waGroupName||"")+'" oninput="S.waGroupName=this.value" style="border:1px solid #86efac;border-radius:8px">'
+        + '</div>';
+
+      // Preview
+      if(S.waPreviewReady && waPreview.length>0){
+        waSection+='<div style="margin-top:14px;padding-top:12px;border-top:1px solid #86efac">'
+          + '<div class="section-title" style="font-size:15px">📊 תצוגה מקדימה</div>'
+          + '<div class="wa-stats">'
+          + '<div class="wa-stat"><span class="wa-stat-num">'+waPreview.length+'</span> אנשי קשר</div>'
+          + '<div class="wa-stat"><span class="wa-stat-num">'+withPhone+'</span> עם טלפון</div>'
+          + (noPhone>0?'<div class="wa-stat"><span class="wa-stat-num" style="color:#f59e0b">'+noPhone+'</span> ללא טלפון</div>':'')
+          + (waMsgs>0?'<div class="wa-stat"><span class="wa-stat-num">'+waMsgs+'</span> הודעות נסרקו</div>':'')
+          + '</div>'
+          + '<div style="max-height:260px;overflow-y:auto;border-radius:10px;border:1px solid #e5e7eb">'
+          + '<table class="wa-preview-table"><thead><tr><th>#</th><th>שם</th><th>טלפון</th>'+(waMsgs>0?'<th>הודעות</th>':'')+'</tr></thead><tbody>'
+          + waPreview.slice(0,50).map(function(c,i){return '<tr><td>'+(i+1)+'</td><td>'+escapeHtml(c.fullName)+'</td><td style="direction:ltr;text-align:right">'+(c.phone?escapeHtml(c.phone):'<span style="color:#f59e0b">—</span>')+'</td>'+(waMsgs>0?'<td>'+c.msgCount+'</td>':'')+'</tr>';}).join("")
+          + (waPreview.length>50?'<tr><td colspan="4" style="text-align:center;color:#888">...ועוד '+(waPreview.length-50)+' נוספים</td></tr>':'')
+          + '</tbody></table></div>'
+          + '<button class="btn-wa" style="margin-top:10px;font-size:15px;padding:10px 24px" onclick="confirmWhatsAppImport()">✅ אשר ייבוא '+waPreview.length+' אנשי קשר</button>'
+          + '</div>';
+      }
+
+      if(S.waImportMsg){
+        waSection+='<div class="small b-ok" style="padding:8px 12px;border-radius:8px;margin-top:8px;display:flex;align-items:center;gap:6px">✅ '+escapeHtml(S.waImportMsg)+'</div>';
+      }
+      waSection+='</div>';
+
       return '<div class="layout-2">'
-        + '<div class="card"><div class="section-title">🧠 ייבוא חכם</div>'
-        + '<div class="sub-title">ייבוא מאקסל, CSV, או JSON חיצוני. הנתונים מסווגים אוטומטית לתיקיות.</div>'
+        + '<div class="card"><div class="section-title">📥 ייבוא מאקסל</div>'
+        + '<div class="sub-title">גררו קובץ Excel/CSV לתוך האזור או לחצו לבחירה. הנתונים מסווגים אוטומטית.</div>'
         + '<div class="grid">'
-        + '<div><label>📥 ייבוא מטיילים מאקסל</label><div class="import-zone" onclick="document.getElementById(\'imp_trav\').click()">לחץ לבחירת קובץ Excel<input id="imp_trav" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importTravelersFromExcel(this)"></div>'+(S.travelerImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.travelerImportMsg)+'</div>':"")+'</div>'
-        + '<div><label>📥 ייבוא לידים מאקסל</label><div class="import-zone" onclick="document.getElementById(\'imp_lead\').click()">לחץ לבחירת קובץ Excel<input id="imp_lead" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importLeadsFromExcel(this)"></div>'+(S.leadImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.leadImportMsg)+'</div>':"")+'</div>'
-        + '<div><label>📥 ייבוא אנשי קשר</label><div class="import-zone" onclick="document.getElementById(\'imp_cont\').click()">לחץ לבחירת קובץ Excel<input id="imp_cont" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importContactsFromExcel(this,S.contactImportCompany)"></div>'+(S.contactImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.contactImportMsg)+'</div>':"")+'</div>'
-        + '<div><label>📥 ייבוא מנהלי/ות כ"א</label><div class="import-zone" onclick="document.getElementById(\'imp_hr\').click()">לחץ לבחירת קובץ Excel<input id="imp_hr" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importHrFromExcel(this)"></div>'+(S.hrImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.hrImportMsg)+'</div>':"")+'</div>'
-        + '<div><label>📥 ייבוא ארגונים</label><div class="import-zone" onclick="document.getElementById(\'imp_org\').click()">לחץ לבחירת קובץ Excel<input id="imp_org" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importOrganizationsFromExcel(this)"></div>'+(S.orgImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:4px">'+escapeHtml(S.orgImportMsg)+'</div>':"")+'</div>'
-        + '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)"><label style="font-size:16px;color:var(--brand)">📱 ייבוא אנשי קשר מקבוצות וואטסאפ</label>'
-        + '<div class="sub-title" style="margin-top:4px">הדביקו טקסט מייצוא צ׳אט וואטסאפ, רשימת אנשי קשר, או כל טקסט הכולל שמות ומספרי טלפון. המערכת תזהה אוטומטית שמות וטלפונים.</div>'
-        + '<textarea placeholder="הדביקו כאן טקסט מקבוצת וואטסאפ...\n\nלדוגמה:\n01/04/2026, 10:30 - יוסי כהן: שלום לכולם\n01/04/2026, 10:31 - +972-50-1234567: מה שלום?\n\nאו רשימה פשוטה:\nיוסי כהן  0501234567\nדנה לוי  0521234567" style="min-height:120px;font-size:13px" oninput="S.waImportText=this.value">'+escapeHtml(S.waImportText||"")+'</textarea>'
-        + '<button class="btn-wa" style="margin-top:8px" onclick="importContactsFromWhatsApp()">📱 ייבוא אנשי קשר מוואטסאפ</button>'
-        + (S.waImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:6px;margin-top:6px">'+escapeHtml(S.waImportMsg)+'</div>':"")
-        + '</div>'
+        + makeImportCard('👥','ic-trav','ייבוא מטיילים','שם, טלפון, עיר, תקציב, קטגוריה, רמת הליכה','imp_trav','zone_trav',importTravelersFromExcel,undefined,'travelerImportMsg')
+        + makeImportCard('🎯','ic-lead','ייבוא לידים','שם, טלפון, מקור, יעד, תקציב','imp_lead','zone_lead',importLeadsFromExcel,undefined,'leadImportMsg')
+        + makeImportCard('👔','ic-cont','ייבוא אנשי קשר','שם, טלפון, אימייל, תפקיד, ארגון','imp_cont','zone_cont',importContactsFromExcel,'tiyoolim.com','contactImportMsg')
+        + makeImportCard('💼','ic-hr','ייבוא מנהלי/ות כ"א','שם, תפקיד, טלפון, חברה, צוות','imp_hr','zone_hr',importHrFromExcel,undefined,'hrImportMsg')
+        + makeImportCard('🏢','ic-org','ייבוא ארגונים','שם, עיר, מנהל, טלפון, התמחות','imp_org','zone_org',importOrganizationsFromExcel,undefined,'orgImportMsg')
         + '</div></div>'
-        + '<div class="card"><div class="section-title">🔗 מיזוג ממערכת חיצונית</div>'
+        + '<div class="card">' + waSection + '</div>'
+        + '<div class="card" style="margin-top:0"><div class="section-title">🔗 מיזוג ממערכת חיצונית</div>'
         + '<div class="sub-title">הזן URL שמחזיר JSON עם מטיילים, לידים, או ספקים.</div>'
         + '<div><label>URL מקור JSON</label><input placeholder="https://example.com/data.json" value="'+escapeHtml(S.mergeUrl||"")+'" oninput="S.mergeUrl=this.value"></div>'
         + '<button class="btn-primary" style="margin-top:10px" onclick="mergeDataFromUrl()">🔄 מיזוג נתונים</button>'
