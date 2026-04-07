@@ -479,7 +479,7 @@
 
     // ===== STATE =====
     const seed = {
-      isAuthenticated:false, authError:"", loading:true, syncError:"", syncOkAt:"",
+      isAuthenticated:false, authError:"", loading:true, syncError:"", syncOkAt:"", cloudVersion:"0",
       currentUser:"", currentUserRole:"",
       passwordChangeOld:"", passwordChangeNew:"", passwordChangeMsg:"",
       tab:"dashboard", search:"", activeFolder:"all",
@@ -541,7 +541,8 @@
       autocompleteField:"", autocompleteQuery:"", autocompleteResults:[],
       travelerForm:{id:null,fullName:"",phone:"",whatsapp:"",email:"",birthday:"",age:"",city:"",budgetMin:"",budgetMax:"",preferredCategory:"טבע",walkingLevel:"בינוני",religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,preferredSeason:"",notes:"",segments:[],currentTripId:null,active:true,lastConversation:null},
       leadForm:{id:null,fullName:"",phone:"",email:"",source:"אתר",status:"חדש",destinationInterest:"",budget:"",travelersCount:"",notes:"",assignedTo:"",createdAt:""},
-      tripForm:{id:null,title:"",destination:"",category:"טבע",difficulty:"בינוני",price:"",durationDays:"",season:"",religiousFriendly:false,kashrutAvailable:false,shabbatOptions:false,notes:"",capacity:20,enrolled:0},
+      tripForm:{id:null,title:"",destination:"",departureDate:"",returnDate:"",category:"טבע",difficulty:"בינוני",price:"",durationDays:"",season:"",religiousFriendly:false,kashrutAvailable:false,shabbatOptions:false,notes:"",capacity:20,enrolled:0,assignedGuide:"",travelersData:{}},
+      tripImportSearch:"",
       agencyForm:{id:null,name:"",city:"",managerName:"",phone:"",email:"",specialization:"",active:true,notes:""},
       supplierForm:{id:null,name:"",type:"מלון",city:"",contactName:"",phone:"",email:"",rating:"",terms:"",notes:"",active:true,taxId:"",paymentTerms:""},
       contactForm:{id:null,fullName:"",role:"",phone:"",email:"",company:"tiyoolim.com",organization:"",orgField:"אחר",domain:"",groupName:"",notes:"",active:true},
@@ -571,9 +572,9 @@
         {id:uid()+17,fullName:"מרים שלום",phone:"0531112222",whatsapp:"0531112222",email:"miriam@example.com",birthday:"1958-12-01",age:66,city:"ירושלים",budgetMin:2000,budgetMax:4000,preferredCategory:"תרבות",walkingLevel:"קל",religiousNeeds:true,kashrutRequired:true,shabbatFriendly:true,preferredSeason:"קיץ",notes:"גיל שלישי, צריכה עזרה בהתארגנות",segments:["גיל שלישי","דתיים"],currentTripId:null,active:true,lastConversation:null,conversationHistory:[]}
       ],
       trips:[
-        {id:uid()+6,title:"טרק הרי האלפים",destination:"שווייץ",category:"טבע",difficulty:"מיטיבי לכת",price:4900,durationDays:7,season:"קיץ",religiousFriendly:true,kashrutAvailable:true,shabbatOptions:true,notes:"לינה בכפרי הרים",capacity:20,enrolled:14},
-        {id:uid()+7,title:"ערים קלאסיות באירופה",destination:"איטליה",category:"תרבות",difficulty:"קל",price:3100,durationDays:5,season:"אביב",religiousFriendly:false,kashrutAvailable:false,shabbatOptions:false,notes:"סיורי מוזיאונים וקולינריה",capacity:30,enrolled:22},
-        {id:uid()+18,title:"ים המלח ומסע בנגב",destination:"ישראל",category:"טבע",difficulty:"בינוני",price:1200,durationDays:2,season:"חורף",religiousFriendly:true,kashrutAvailable:true,shabbatOptions:false,notes:"טיול ישראלי מרגש",capacity:25,enrolled:18}
+        {id:uid()+6,title:"טרק הרי האלפים",destination:"שווייץ",departureDate:"",returnDate:"",category:"טבע",difficulty:"מיטיבי לכת",price:4900,durationDays:7,season:"קיץ",religiousFriendly:true,kashrutAvailable:true,shabbatOptions:true,notes:"לינה בכפרי הרים",capacity:20,enrolled:14,assignedGuide:"",travelersData:{}},
+        {id:uid()+7,title:"ערים קלאסיות באירופה",destination:"איטליה",departureDate:"",returnDate:"",category:"תרבות",difficulty:"קל",price:3100,durationDays:5,season:"אביב",religiousFriendly:false,kashrutAvailable:false,shabbatOptions:false,notes:"סיורי מוזיאונים וקולינריה",capacity:30,enrolled:22,assignedGuide:"",travelersData:{}},
+        {id:uid()+18,title:"ים המלח ומסע בנגב",destination:"ישראל",departureDate:"",returnDate:"",category:"טבע",difficulty:"בינוני",price:1200,durationDays:2,season:"חורף",religiousFriendly:true,kashrutAvailable:true,shabbatOptions:false,notes:"טיול ישראלי מרגש",capacity:25,enrolled:18,assignedGuide:"",travelersData:{}}
       ],
       suppliers:[
         {id:uid()+8,name:"SkyRoad Transfers",type:"הסעות",city:"תל אביב",contactName:"אילן מזרחי",phone:"0529112233",email:"ops@skyroad.co.il",rating:4.7,terms:"תשלום שוטף+30",notes:"זמין 24/7",active:true,taxId:"514123456",paymentTerms:"שוטף+30"},
@@ -592,10 +593,82 @@
     function setState(patch, doSave=true) {
       Object.assign(S, patch);
       render();
-      if (doSave) saveLocal();
+      if (doSave) { saveLocal(); saveToCloud(); }
     }
     function saveLocal() {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch(_) {}
+    }
+
+    // ===== CLOUD SYNC =====
+    let _syncTimer = null;
+    let _isSaving = false;
+    const DATA_FIELDS = ["travelers","leads","suppliers","trips","agencies","contacts","hrManagers","guides","finances","hikingTrails","socialPosts","tasks","callLog"];
+    function extractDataForCloud() {
+      const d = {};
+      DATA_FIELDS.forEach(k => { d[k] = S[k]; });
+      return d;
+    }
+    function applyCloudData(d) {
+      if (!d) return;
+      DATA_FIELDS.forEach(k => { if (Array.isArray(d[k])) S[k] = d[k]; });
+    }
+    async function saveToCloud() {
+      if (_isSaving) return;
+      _isSaving = true;
+      try {
+        const resp = await fetch(API_URL, {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({data: extractDataForCloud()})
+        });
+        const json = await resp.json();
+        if (json.ok) {
+          S.cloudVersion = json.version;
+          S.syncOkAt = new Date().toLocaleTimeString("he-IL");
+          S.syncError = "";
+        }
+      } catch(e) {
+        S.syncError = "שגיאת סנכרון: " + (e.message||"");
+      }
+      _isSaving = false;
+      renderSyncMeta();
+    }
+    async function loadFromCloud() {
+      try {
+        const resp = await fetch(API_URL + "?v=" + (S.cloudVersion||"0"));
+        const json = await resp.json();
+        if (json.ok && !json.unchanged && json.data) {
+          applyCloudData(json.data);
+          S.cloudVersion = json.version || "0";
+          S.syncOkAt = new Date().toLocaleTimeString("he-IL");
+          S.syncError = "";
+          normalizeStateShape();
+          saveLocal();
+          render();
+          renderSyncMeta();
+        } else if (json.ok && json.unchanged) {
+          // data unchanged, no update needed
+        }
+      } catch(e) {
+        // silent fail, use local data
+      }
+    }
+    async function pollCloud() {
+      if (_isSaving || !S.isAuthenticated) return;
+      try {
+        const resp = await fetch(API_URL + "?check=1");
+        const json = await resp.json();
+        if (json.ok && json.version !== S.cloudVersion) {
+          await loadFromCloud();
+        }
+      } catch(_) {}
+    }
+    function startCloudSync() {
+      if (_syncTimer) clearInterval(_syncTimer);
+      _syncTimer = setInterval(pollCloud, 3000);
+    }
+    function stopCloudSync() {
+      if (_syncTimer) { clearInterval(_syncTimer); _syncTimer = null; }
     }
     function loadFallback() {
       try {
@@ -639,12 +712,19 @@
       if (!S.currentUserRole) S.currentUserRole = "";
       if (!Array.isArray(S.duplicateResults)) S.duplicateResults = [];
       if (!S.guideForm) S.guideForm = structuredClone(seed.guideForm);
+      // Normalize trip fields
+      if (Array.isArray(S.trips)) S.trips.forEach(t => {
+        if (!t.travelersData) t.travelersData = {};
+        if (t.departureDate === undefined) t.departureDate = "";
+        if (t.returnDate === undefined) t.returnDate = "";
+        if (t.assignedGuide === undefined) t.assignedGuide = "";
+      });
     }
     function renderSyncMeta() {
       const el = document.getElementById("sync_meta");
       if (!el) return;
       if (S.syncError) el.innerHTML = '<span style="color:#ffb3b3">⚠ ' + escapeHtml(S.syncError) + '</span>';
-      else if (S.syncOkAt) el.innerHTML = '<span style="opacity:0.7">☁️ נשמר: ' + escapeHtml(S.syncOkAt) + '</span>';
+      else if (S.syncOkAt) el.innerHTML = '<span style="opacity:0.7">☁️ סנכרון ענן: ' + escapeHtml(S.syncOkAt) + '</span>';
     }
 
     // ===== AUTH =====
@@ -657,12 +737,14 @@
         markOnline(found.username);
         logActivity("כניסה למערכת", found.username + " (" + found.role + ")");
         setState({ isAuthenticated:true, authError:"", loginUser:"", loginPass:"", currentUser:found.username, currentUserRole:found.role });
+        loadFromCloud().then(()=>startCloudSync());
       } else {
         setState({ authError:"שם משתמש או סיסמה שגויים" }, false);
       }
     }
     function logout() {
       logActivity("יציאה מהמערכת", S.currentUser);
+      stopCloudSync();
       try { const data=JSON.parse(localStorage.getItem(ONLINE_STORAGE_KEY)||"{}"); delete data[S.currentUser]; localStorage.setItem(ONLINE_STORAGE_KEY, JSON.stringify(data)); } catch(_) {}
       setState({ isAuthenticated:false, currentUser:"", currentUserRole:"" });
     }
@@ -1285,17 +1367,19 @@
     // ===== REMOTE SAVE/LOAD =====
     async function loadRemote() {
       try {
-        const res=await fetch(API_URL+"?action=load");
+        const res=await fetch(API_URL);
         if(!res.ok) return;
         const d=await res.json();
-        if(d&&d.travelers){Object.assign(S,d); normalizeStateShape(); render();}
+        if(d&&d.ok&&d.data){
+          applyCloudData(d.data); S.cloudVersion=d.version||"0";
+          normalizeStateShape(); render();
+          S.syncOkAt=new Date().toLocaleTimeString("he-IL"); renderSyncMeta();
+          if(S.isAuthenticated) startCloudSync();
+        }
       } catch(_) {}
     }
     async function saveRemote() {
-      try {
-        const res=await fetch(API_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"save",data:{travelers:S.travelers,leads:S.leads,suppliers:S.suppliers,trips:S.trips,agencies:S.agencies,contacts:S.contacts,hrManagers:S.hrManagers,tasks:S.tasks}})});
-        if(res.ok){S.syncOkAt=new Date().toLocaleTimeString("he-IL"); renderSyncMeta();}
-      } catch(_) {}
+      await saveToCloud();
     }
 
     // ===== AI WIDGET =====
@@ -1712,10 +1796,13 @@
       const selectedTrip=selectedTripId?S.trips.find(t=>t.id==selectedTripId):null;
       const tripTravelers=selectedTrip?S.travelers.filter(t=>t.currentTripId==selectedTripId):[];
       const unassigned=S.travelers.filter(t=>!t.currentTripId);
-      return '<div class="card" style="margin-bottom:12px"><div class="section-title">'+escapeHtml(f.id?"עריכת תיק טיול":"תיק טיול חדש")+'</div>'
+      // Trip form with departure/return dates
+      let html = '<div class="card" style="margin-bottom:12px"><div class="section-title">'+escapeHtml(f.id?"עריכת תיק טיול":"תיק טיול חדש")+'</div>'
         + '<div class="grid">'
-        + '<div class="row"><div><label>כותרת</label><input value="'+escapeHtml(f.title)+'" oninput="S.tripForm.title=this.value" placeholder="טרק הרי האלפים..."></div>'
-        + '<div><label>יעד</label><input value="'+escapeHtml(f.destination)+'" oninput="S.tripForm.destination=this.value" list="dest_list"><datalist id="dest_list">'+COUNTRY_TRAVEL_CATALOG.map(c=>'<option value="'+escapeHtml(c.country)+'">').join("")+'</datalist></div></div>'
+        + '<div class="row"><div><label>שם הטיול</label><input value="'+escapeHtml(f.title)+'" oninput="S.tripForm.title=this.value" placeholder="טרק הרי האלפים..."></div>'
+        + '<div><label>שם המטייל / יעד</label><input value="'+escapeHtml(f.destination)+'" oninput="S.tripForm.destination=this.value" placeholder="הקלד יעד חופשי..."></div></div>'
+        + '<div class="row"><div><label>תאריך יציאה</label><input type="date" value="'+escapeHtml(f.departureDate||"")+'" oninput="S.tripForm.departureDate=this.value"></div>'
+        + '<div><label>תאריך חזרה</label><input type="date" value="'+escapeHtml(f.returnDate||"")+'" oninput="S.tripForm.returnDate=this.value"></div></div>'
         + '<div class="row"><div><label>קטגוריה</label><select onchange="S.tripForm.category=this.value">'+TRIP_CATEGORIES.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.category===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
         + '<div><label>רמה</label><select onchange="S.tripForm.difficulty=this.value">'+LEVELS.map(l=>'<option value="'+escapeHtml(l)+'" '+(f.difficulty===l?"selected":"")+'>'+escapeHtml(l)+'</option>').join("")+'</select></div></div>'
         + '<div class="row"><div><label>מחיר ₪</label><input type="number" value="'+escapeHtml(f.price)+'" oninput="S.tripForm.price=this.value"></div>'
@@ -1731,8 +1818,10 @@
         + '</div>'
         + '<div><label>הערות</label><textarea oninput="S.tripForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:8px"><button class="btn-ok" onclick="saveTrip()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetTripForm();render()">ביטול</button>':"")+'</div>'
-        + '</div></div>'
-        + '<div class="layout-2">'
+        + '</div></div>';
+
+      // Trip list
+      html += '<div class="layout-2">'
         + '<div><div class="section-title">📋 תיקי מטיילים ('+rows.length+')</div><div class="list">'
         + (rows.length?rows.map(t=>{
           const pct=t.capacity?Math.round((t.enrolled||0)/t.capacity*100):0;
@@ -1741,6 +1830,7 @@
           return '<div class="item" style="'+(isSelected?"border-color:var(--brand);background:#edf5fc;":"")+'cursor:pointer" onclick="setState({selectedTripFolder:'+t.id+'},false)">'
             + '<div class="item-head"><strong>'+escapeHtml(t.title)+'</strong><span class="badge b-ok">'+escapeHtml(t.destination)+'</span></div>'
             + '<div class="small">'+escapeHtml(t.category||"")+" | "+escapeHtml(t.difficulty||"")+(t.durationDays?" | "+t.durationDays+" ימים":"")+(t.price?" | ₪"+t.price:"")+(t.assignedGuide?" | 🧭 "+escapeHtml(t.assignedGuide):"")+'</div>'
+            + (t.departureDate||t.returnDate?'<div class="small">📅 '+(t.departureDate?escapeHtml(fmtDateShort(t.departureDate)):"?")+" → "+(t.returnDate?escapeHtml(fmtDateShort(t.returnDate)):"?")+'</div>':'')
             + '<div class="small">קיבולת: '+escapeHtml(String(t.enrolled||0))+"/"+escapeHtml(String(t.capacity||0))+' | 👥 רשומים בתיק: '+travelersInTrip.length+'</div>'
             + '<div class="meter"><span style="width:'+pct+'%"></span></div>'
             + '<div class="row" style="margin-top:6px;gap:4px">'
@@ -1749,29 +1839,147 @@
             + '<button class="btn-primary" style="width:auto;font-size:12px" onclick="event.stopPropagation();setState({selectedTripFolder:'+t.id+'},false)">📂 פתח תיק</button>'
             + '</div></div>';
         }).join(""):'<div class="empty">אין תיקי טיולים</div>')
-        + '</div></div>'
-        + '<div>'
-        + (selectedTrip
-          ? '<div class="card"><div class="section-title">📂 תיק: '+escapeHtml(selectedTrip.title)+' – '+escapeHtml(selectedTrip.destination)+'</div>'
-            + '<div class="sub-title">מטיילים רשומים בטיול זה ('+tripTravelers.length+')</div>'
-            + (tripTravelers.length
-              ? '<div class="list">'+tripTravelers.map(t=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><span class="badge b-ok">מטייל</span></div>'
-                + '<div class="small">📞 '+escapeHtml(t.phone||"")+(t.email?" | 📧 "+escapeHtml(t.email):"")+(t.city?" | 📍 "+escapeHtml(t.city):"")+'</div>'
-                + '<div class="small muted">'+(t.walkingLevel?"🥾 "+escapeHtml(t.walkingLevel):"")+(t.preferredCategory?" | ✈ "+escapeHtml(t.preferredCategory):"")+(t.segments&&t.segments.length?" | 🏷 "+escapeHtml(t.segments.join(", ")):"")+'</div>'
-                + (t.religiousNeeds?'<div class="small" style="color:var(--warn)">🕊 דרישות דתיות'+(t.kashrutRequired?" | כשרות":"")+(t.shabbatFriendly?" | שבת":"")+'</div>':'')
-                + (t.notes?'<div class="small muted">📝 '+escapeHtml(t.notes)+'</div>':'')
-                + '<button class="btn-soft" style="width:auto;font-size:11px;margin-top:4px" onclick="unassignTravelerFromTrip('+t.id+')">❌ הסר מהטיול</button>'
-                + '</div>').join('')+'</div>'
-              : '<div class="empty" style="margin-bottom:8px">אין מטיילים רשומים לטיול זה</div>')
-            + '<div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:12px">'
-            + '<div class="small" style="font-weight:700;margin-bottom:6px">➕ הוסף מטייל לטיול:</div>'
-            + (unassigned.length
-              ? '<select id="addTravToTrip" style="margin-bottom:6px"><option value="">-- בחר מטייל --</option>'+unassigned.map(t=>'<option value="'+t.id+'">'+escapeHtml(t.fullName)+' ('+escapeHtml(t.phone||"")+')</option>').join('')+'</select>'
-                + '<button class="btn-ok" style="font-size:12px" onclick="const sel=document.getElementById(\'addTravToTrip\');if(sel.value)assignTravelerToTrip(Number(sel.value),'+selectedTrip.id+')">הוסף לטיול</button>'
-              : '<div class="small muted">כל המטיילים כבר משויכים לטיולים</div>')
-            + '</div></div>'
-          : '<div class="card"><div class="empty">בחר תיק טיול מהרשימה כדי לראות את המטיילים הרשומים</div></div>')
         + '</div></div>';
+
+      // Trip folder detail panel
+      if (selectedTrip) {
+        html += '<div><div class="card">'
+          + '<div class="section-title">📂 תיק: '+escapeHtml(selectedTrip.title)+' – '+escapeHtml(selectedTrip.destination)+'</div>'
+          + (selectedTrip.departureDate||selectedTrip.returnDate?'<div class="sub-title">📅 '+(selectedTrip.departureDate?escapeHtml(fmtDateShort(selectedTrip.departureDate)):"?")+" → "+(selectedTrip.returnDate?escapeHtml(fmtDateShort(selectedTrip.returnDate)):"?")+'</div>':'')
+
+          // Group action buttons
+          + '<div class="row" style="margin-bottom:12px;gap:6px">'
+          + '<button class="btn-wa" style="width:auto;font-size:13px;padding:8px 14px" onclick="tripGroupWhatsApp('+selectedTrip.id+')">📱 שלח וואטסאפ לכולם</button>'
+          + '<button class="btn-primary" style="width:auto;font-size:13px;padding:8px 14px" onclick="tripGroupEmail('+selectedTrip.id+')">📧 שלח מייל לכולם (BCC)</button>'
+          + '</div>'
+
+          // Smart import search
+          + '<div style="margin-bottom:12px;border:1px solid var(--line);border-radius:12px;padding:10px;background:#f8fbff">'
+          + '<div class="small" style="font-weight:700;margin-bottom:6px">🔍 ייבוא חכם – חפש מטייל מהמאגר הכללי:</div>'
+          + '<div class="autocomplete-wrap">'
+          + '<input value="'+escapeHtml(S.tripImportSearch||"")+'" oninput="S.tripImportSearch=this.value;doTripImportSearch('+selectedTrip.id+')" placeholder="חפש לפי שם או מספר טלפון..." style="margin-bottom:0">'
+          + '<div id="tripImportResults" class="autocomplete-list" style="display:block;position:relative;max-height:180px"></div>'
+          + '</div></div>'
+
+          + '<div class="sub-title">מטיילים רשומים בטיול זה ('+tripTravelers.length+')</div>';
+
+        // Traveler cards with all extended fields
+        if (tripTravelers.length) {
+          html += '<div class="list">';
+          tripTravelers.forEach(t => {
+            const td = getTripTravelerData(selectedTrip.id, t.id) || ensureTripTravelerData(selectedTrip.id, t.id) || {};
+            const waNum = phoneForWa(t.whatsapp||t.phone);
+            html += '<div class="item" style="border-radius:14px;padding:12px">'
+              // Header row with name and quick actions
+              + '<div class="item-head" style="margin-bottom:8px"><strong style="font-size:15px">'+escapeHtml(t.fullName)+'</strong>'
+              + '<div class="row" style="width:auto;gap:4px;flex-wrap:nowrap">'
+              + (waNum?'<button class="btn-wa" style="width:auto;font-size:11px;padding:4px 10px" onclick="window.open(\'https://wa.me/'+escapeHtml(waNum)+'\',\'_blank\')">💬 וואטסאפ</button>':'')
+              + (t.email?'<button class="btn-primary" style="width:auto;font-size:11px;padding:4px 10px" onclick="window.location.href=\'mailto:'+escapeHtml(t.email)+'\'">📧 מייל</button>':'')
+              + '<button class="btn-soft" style="width:auto;font-size:11px;padding:4px 10px" onclick="unassignTravelerFromTrip('+t.id+')">❌ הסר</button>'
+              + '</div></div>'
+
+              // Basic info
+              + '<div class="row" style="gap:6px;margin-bottom:6px">'
+              + '<div class="small">📞 '+escapeHtml(t.phone||"")+'</div>'
+              + (t.email?'<div class="small">📧 '+escapeHtml(t.email)+'</div>':'')
+              + (t.city?'<div class="small">📍 '+escapeHtml(t.city)+'</div>':'')
+              + '</div>'
+
+              // Editable fields grid
+              + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)">'
+
+              // Room type
+              + '<div><label style="font-size:11px">🛏 סוג חדר</label>'
+              + '<select style="font-size:12px;padding:6px" onchange="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'roomType\',this.value)">'
+              + '<option value="">-- בחר --</option>'
+              + ROOM_TYPES.map(rt=>'<option value="'+escapeHtml(rt)+'" '+(td.roomType===rt?"selected":"")+'>'+escapeHtml(rt)+'</option>').join("")
+              + '</select></div>'
+
+              // Passport number
+              + '<div><label style="font-size:11px">🛂 מספר דרכון</label>'
+              + '<input style="font-size:12px;padding:6px" value="'+escapeHtml(td.passportNumber||"")+'" onchange="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'passportNumber\',this.value)" placeholder="מספר דרכון"></div>'
+
+              // Passport expiry
+              + '<div><label style="font-size:11px">📅 תוקף דרכון</label>'
+              + '<input type="date" style="font-size:12px;padding:6px" value="'+escapeHtml(td.passportExpiry||"")+'" onchange="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'passportExpiry\',this.value)"></div>'
+
+              // Insurance
+              + '<div><label style="font-size:11px">🛡 ביטוח נסיעות</label>'
+              + '<div class="row" style="gap:4px">'
+              + '<button class="'+(td.hasInsurance==="yes"?"btn-ok":"btn-soft")+'" style="width:auto;font-size:11px;padding:4px 10px" onclick="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'hasInsurance\',\'yes\')">יש ביטוח</button>'
+              + '<button class="'+(td.hasInsurance==="no"?"btn-danger":"btn-soft")+'" style="width:auto;font-size:11px;padding:4px 10px" onclick="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'hasInsurance\',\'no\')">אין ביטוח</button>'
+              + '</div></div>'
+
+              // Dietary preference
+              + '<div><label style="font-size:11px">🍽 העדפות תזונה</label>'
+              + '<select style="font-size:12px;padding:6px" onchange="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'dietaryPreference\',this.value)">'
+              + DIETARY_OPTIONS.map(d=>'<option value="'+escapeHtml(d)+'" '+(td.dietaryPreference===d?"selected":"")+'>'+escapeHtml(d)+'</option>').join("")
+              + '</select></div>'
+
+              // Payment status
+              + '<div><label style="font-size:11px">💰 סטטוס תשלום</label>'
+              + '<select style="font-size:12px;padding:6px" onchange="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'paymentStatus\',this.value)">'
+              + PAYMENT_STATUSES.map(ps=>'<option value="'+escapeHtml(ps)+'" '+(td.paymentStatus===ps?"selected":"")+'>'+escapeHtml(ps)+'</option>').join("")
+              + '</select></div>'
+
+              + '</div>'
+
+              // Second row - text fields
+              + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;margin-top:6px">'
+
+              // Medical condition
+              + '<div><label style="font-size:11px">🏥 מצב בריאותי</label>'
+              + '<input style="font-size:12px;padding:6px" value="'+escapeHtml(td.medicalCondition||"")+'" onchange="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'medicalCondition\',this.value)" placeholder="מצב בריאותי"></div>'
+
+              // Allergies - highlighted visually
+              + '<div><label style="font-size:11px;color:var(--danger);font-weight:800">⚠ רגישויות / אלרגיות</label>'
+              + '<input style="font-size:12px;padding:6px;border-color:'+(td.allergies?"var(--danger)":"var(--line)")+';background:'+(td.allergies?"#fff5f5":"#fff")+'" value="'+escapeHtml(td.allergies||"")+'" onchange="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'allergies\',this.value)" placeholder="אלרגיות / רגישויות"></div>'
+
+              // Emergency contact
+              + '<div><label style="font-size:11px">🚨 איש קשר חירום</label>'
+              + '<input style="font-size:12px;padding:6px" value="'+escapeHtml(td.emergencyContactName||"")+'" onchange="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'emergencyContactName\',this.value)" placeholder="שם איש קשר"></div>'
+
+              // Emergency phone
+              + '<div><label style="font-size:11px">📞 טלפון חירום</label>'
+              + '<input style="font-size:12px;padding:6px" value="'+escapeHtml(td.emergencyContactPhone||"")+'" onchange="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'emergencyContactPhone\',this.value)" placeholder="טלפון חירום"></div>'
+
+              // Payment notes
+              + '<div><label style="font-size:11px">📝 הערות תשלום</label>'
+              + '<input style="font-size:12px;padding:6px" value="'+escapeHtml(td.paymentNotes||"")+'" onchange="updateTripTravelerField('+selectedTrip.id+','+t.id+',\'paymentNotes\',this.value)" placeholder="הערות תשלום"></div>'
+
+              + '</div>'
+
+              // Status badges row
+              + '<div class="row" style="margin-top:6px;gap:4px">'
+              + (td.paymentStatus?'<span class="badge '+(td.paymentStatus==="שילם במלואו"?"b-ok":td.paymentStatus==="שילם מקדמה"?"b-warn":"b-danger")+'">'+escapeHtml(td.paymentStatus)+'</span>':'')
+              + (td.hasInsurance==="yes"?'<span class="badge b-ok">מבוטח</span>':'')
+              + (td.hasInsurance==="no"?'<span class="badge b-danger">לא מבוטח</span>':'')
+              + (td.allergies?'<span class="badge b-danger">⚠ אלרגיות</span>':'')
+              + (td.dietaryPreference&&td.dietaryPreference!=="ללא הגבלה"?'<span class="badge b-warn">🍽 '+escapeHtml(td.dietaryPreference)+'</span>':'')
+              + (td.roomType?'<span class="badge b-purple">🛏 '+escapeHtml(td.roomType)+'</span>':'')
+              + '</div>'
+
+              + '</div>';
+          });
+          html += '</div>';
+        } else {
+          html += '<div class="empty" style="margin-bottom:8px">אין מטיילים רשומים לטיול זה</div>';
+        }
+
+        // Add traveler via dropdown (legacy method kept)
+        html += '<div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:12px">'
+          + '<div class="small" style="font-weight:700;margin-bottom:6px">➕ הוסף מטייל לטיול (מהרשימה):</div>'
+          + (unassigned.length
+            ? '<select id="addTravToTrip" style="margin-bottom:6px"><option value="">-- בחר מטייל --</option>'+unassigned.map(t=>'<option value="'+t.id+'">'+escapeHtml(t.fullName)+' ('+escapeHtml(t.phone||"")+')</option>').join('')+'</select>'
+              + '<button class="btn-ok" style="font-size:12px" onclick="const sel=document.getElementById(\'addTravToTrip\');if(sel.value)assignTravelerToTrip(Number(sel.value),'+selectedTrip.id+')">הוסף לטיול</button>'
+            : '<div class="small muted">כל המטיילים כבר משויכים לטיולים</div>')
+          + '</div></div></div>';
+      } else {
+        html += '<div><div class="card"><div class="empty">בחר תיק טיול מהרשימה כדי לראות את המטיילים הרשומים</div></div></div>';
+      }
+
+      html += '</div>';
+      return html;
     }
 
     // ===== RENDER AGENCIES =====
@@ -2485,6 +2693,145 @@
     function unassignTravelerFromTrip(travelerId) {
       const i=S.travelers.findIndex(t=>t.id==travelerId);
       if(i>=0) { logActivity("הסרת מטייל מטיול", S.travelers[i].fullName); S.travelers[i].currentTripId=null; setState({travelers:S.travelers}); }
+    }
+
+    // ===== TRIP TRAVELER EXTENDED DATA =====
+    const ROOM_TYPES = ["חדר יחיד","חדר זוגי","אחר"];
+    const DIETARY_OPTIONS = ["ללא הגבלה","צמחוני","טבעוני","כשר","ללא גלוטן"];
+    const PAYMENT_STATUSES = ["שילם מקדמה","שילם במלואו","יתרת חובה"];
+
+    function getTripTravelerData(tripId, travelerId) {
+      const trip = S.trips.find(t=>t.id==tripId);
+      if (!trip || !trip.travelersData) return null;
+      return trip.travelersData[travelerId] || null;
+    }
+    function ensureTripTravelerData(tripId, travelerId) {
+      const ti = S.trips.findIndex(t=>t.id==tripId);
+      if (ti<0) return;
+      if (!S.trips[ti].travelersData) S.trips[ti].travelersData = {};
+      if (!S.trips[ti].travelersData[travelerId]) {
+        S.trips[ti].travelersData[travelerId] = {
+          roomType:"", passportNumber:"", passportExpiry:"",
+          hasInsurance:"", medicalCondition:"", allergies:"",
+          dietaryPreference:"ללא הגבלה", emergencyContactName:"",
+          emergencyContactPhone:"", paymentStatus:"יתרת חובה", paymentNotes:""
+        };
+      }
+      return S.trips[ti].travelersData[travelerId];
+    }
+    function updateTripTravelerField(tripId, travelerId, field, value) {
+      ensureTripTravelerData(tripId, travelerId);
+      const ti = S.trips.findIndex(t=>t.id==tripId);
+      if (ti<0) return;
+      S.trips[ti].travelersData[travelerId][field] = value;
+      setState({trips:S.trips});
+    }
+    function importTravelerToTrip(travelerId, tripId) {
+      const ti = S.travelers.findIndex(t=>t.id==travelerId);
+      if (ti<0) return;
+      S.travelers[ti].currentTripId = tripId;
+      ensureTripTravelerData(tripId, travelerId);
+      logActivity("ייבוא מטייל לתיק", S.travelers[ti].fullName);
+      setState({travelers:S.travelers, trips:S.trips});
+    }
+    function importContactAsTravelerToTrip(contactId, tripId) {
+      // Find contact in contacts, leads, or hrManagers
+      let source = S.contacts.find(c=>c.id==contactId);
+      let srcType = "contact";
+      if (!source) { source = S.leads.find(l=>l.id==contactId); srcType = "lead"; }
+      if (!source) return;
+      // Check if already exists as traveler by phone
+      const phone = normalizePhone(source.phone);
+      let traveler = phone ? S.travelers.find(t=>normalizePhone(t.phone)===phone) : null;
+      if (!traveler) {
+        // Create new traveler from contact/lead
+        traveler = {
+          ...structuredClone(seed.travelerForm),
+          id: uid(),
+          fullName: source.fullName || "",
+          phone: source.phone || "",
+          whatsapp: source.phone || "",
+          email: source.email || "",
+          city: source.city || "",
+          currentTripId: tripId,
+          conversationHistory: [],
+          active: true
+        };
+        S.travelers.unshift(traveler);
+        logActivity("ייבוא "+srcType+" כמטייל לתיק", traveler.fullName);
+      } else {
+        traveler.currentTripId = tripId;
+        logActivity("שיוך מטייל קיים לתיק", traveler.fullName);
+      }
+      ensureTripTravelerData(tripId, traveler.id);
+      setState({travelers:S.travelers, trips:S.trips});
+    }
+    function searchCRMForImport(query) {
+      if (!query || query.length < 2) return [];
+      const q = query.toLowerCase();
+      const results = [];
+      // Search travelers
+      S.travelers.forEach(t => {
+        if ((t.fullName||"").toLowerCase().includes(q) || normalizePhone(t.phone).includes(q.replace(/\D/g,"")))
+          results.push({id:t.id, name:t.fullName, phone:t.phone, email:t.email, type:"traveler", assigned:!!t.currentTripId});
+      });
+      // Search contacts
+      S.contacts.forEach(c => {
+        if ((c.fullName||"").toLowerCase().includes(q) || normalizePhone(c.phone).includes(q.replace(/\D/g,"")))
+          results.push({id:c.id, name:c.fullName, phone:c.phone, email:c.email, type:"contact"});
+      });
+      // Search leads
+      S.leads.forEach(l => {
+        if ((l.fullName||"").toLowerCase().includes(q) || normalizePhone(l.phone).includes(q.replace(/\D/g,"")))
+          results.push({id:l.id, name:l.fullName, phone:l.phone, email:l.email, type:"lead"});
+      });
+      return results.slice(0, 15);
+    }
+    function doTripImportSearch(tripId) {
+      const q = S.tripImportSearch || "";
+      const results = searchCRMForImport(q);
+      const container = document.getElementById("tripImportResults");
+      if (!container) return;
+      if (!q || q.length < 2) { container.innerHTML = ""; return; }
+      if (!results.length) { container.innerHTML = '<div class="small muted" style="padding:8px">לא נמצאו תוצאות</div>'; return; }
+      container.innerHTML = results.map(r => {
+        const typeLabel = r.type==="traveler"?"👥 מטייל":r.type==="contact"?"👔 איש קשר":"🎯 ליד";
+        const isAssigned = r.type==="traveler" && r.assigned;
+        return '<div class="autocomplete-item" onclick="'
+          + (r.type==="traveler" ? 'importTravelerToTrip('+r.id+','+tripId+')' : 'importContactAsTravelerToTrip('+r.id+','+tripId+')')
+          + ';S.tripImportSearch=String();doTripImportSearch('+tripId+')">'
+          + '<div><strong>'+escapeHtml(r.name)+'</strong> <span class="chip" style="font-size:10px">'+typeLabel+'</span>'
+          + (isAssigned?' <span class="chip" style="font-size:10px;background:#fff2dd">משויך לטיול</span>':'')+'</div>'
+          + '<div class="ac-sub">📞 '+escapeHtml(r.phone||"אין")+(r.email?' | 📧 '+escapeHtml(r.email):'')+'</div>'
+          + '</div>';
+      }).join("");
+    }
+    function tripGroupWhatsApp(tripId) {
+      const travelers = S.travelers.filter(t=>t.currentTripId==tripId);
+      const phones = travelers.map(t=>phoneForWa(t.whatsapp||t.phone)).filter(Boolean);
+      if (!phones.length) return alert("אין מטיילים עם מספר טלפון בתיק זה");
+      // WhatsApp doesn't support true group messaging via URL, open individual chats
+      // Best approach: copy all numbers for group creation
+      const trip = tripById(tripId);
+      const msg = encodeURIComponent("שלום! הודעה מ-GoTours בנוגע לטיול: " + (trip?trip.title:""));
+      // Open WhatsApp with first number and message, show all numbers
+      const allNumbers = phones.join(", ");
+      if (confirm("מספרי הטלפון של כל המטיילים:\n" + allNumbers + "\n\nלפתוח וואטסאפ עם ההודעה?")) {
+        phones.forEach((p,i) => {
+          if (i === 0) window.open("https://wa.me/"+p+"?text="+msg, "_blank");
+        });
+        // Copy all numbers to clipboard
+        try { navigator.clipboard.writeText(allNumbers); } catch(_) {}
+      }
+    }
+    function tripGroupEmail(tripId) {
+      const travelers = S.travelers.filter(t=>t.currentTripId==tripId);
+      const emails = travelers.map(t=>t.email).filter(Boolean);
+      if (!emails.length) return alert("אין מטיילים עם כתובת אימייל בתיק זה");
+      const trip = tripById(tripId);
+      const subject = encodeURIComponent("הודעה מ-GoTours – " + (trip?trip.title:""));
+      const bcc = emails.join(",");
+      window.location.href = "mailto:?bcc=" + bcc + "&subject=" + subject;
     }
 
     // ===== PASSWORD CHANGE =====
