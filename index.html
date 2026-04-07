@@ -603,6 +603,42 @@
       if (!S.activityLog) S.activityLog = [];
       S.activityLog = log.slice(0,500);
     }
+    // ===== CHANGE LOG (Audit Trail) =====
+    function logChange(entityType, entityId, entityName, action, details) {
+      if (!S.changeLog) S.changeLog = [];
+      S.changeLog.unshift({
+        id: uid(),
+        user: S.currentUser || "מערכת",
+        entityType: entityType,
+        entityId: entityId,
+        entityName: entityName || "",
+        action: action,
+        details: details || "",
+        at: isoNow()
+      });
+      if (S.changeLog.length > 2000) S.changeLog = S.changeLog.slice(0, 2000);
+    }
+    // ===== CARD DOCUMENTATION =====
+    function addCardDoc(entityType, entityId, content) {
+      if (!content || !content.trim()) return alert("נא למלא תוכן תיעוד");
+      const entry = { id: uid(), user: S.currentUser || "מערכת", content: content.trim(), at: isoNow() };
+      let entity = null;
+      if (entityType === "traveler") { entity = S.travelers.find(t => t.id == entityId); if (entity) { if (!Array.isArray(entity.cardDocs)) entity.cardDocs = []; entity.cardDocs.unshift(entry); setState({travelers: S.travelers}); } }
+      else if (entityType === "lead") { entity = S.leads.find(l => l.id == entityId); if (entity) { if (!Array.isArray(entity.cardDocs)) entity.cardDocs = []; entity.cardDocs.unshift(entry); setState({leads: S.leads}); } }
+      else if (entityType === "supplier") { entity = S.suppliers.find(s => s.id == entityId); if (entity) { if (!Array.isArray(entity.cardDocs)) entity.cardDocs = []; entity.cardDocs.unshift(entry); setState({suppliers: S.suppliers}); } }
+      else if (entityType === "contact") { entity = S.contacts.find(c => c.id == entityId); if (entity) { if (!Array.isArray(entity.cardDocs)) entity.cardDocs = []; entity.cardDocs.unshift(entry); setState({contacts: S.contacts}); } }
+      else if (entityType === "hr") { entity = S.hrManagers.find(h => h.id == entityId); if (entity) { if (!Array.isArray(entity.cardDocs)) entity.cardDocs = []; entity.cardDocs.unshift(entry); setState({hrManagers: S.hrManagers}); } }
+      if (entity) { logActivity("תיעוד בכרטיס", (entity.fullName || entity.name || "") + " (" + entityType + ")"); logChange(entityType, entityId, entity.fullName || entity.name || "", "תיעוד", content.trim()); }
+    }
+    function renderCardDocs(entityType, entityId, docs) {
+      if (!Array.isArray(docs)) docs = [];
+      let h = '<div class="history-block"><div class="history-title">📋 תיעוד כרטיס</div>';
+      h += '<div style="margin-bottom:8px;display:flex;gap:6px"><textarea id="newCardDoc_'+entityType+'_'+entityId+'" placeholder="הוסף תיעוד חדש..." style="min-height:50px;flex:1"></textarea><button class="btn-primary" style="width:auto;padding:8px 14px" onclick="addCardDoc(\''+entityType+'\',\''+entityId+'\',document.getElementById(\'newCardDoc_'+entityType+'_'+entityId+'\').value)">💾 שמור</button></div>';
+      if (docs.length === 0) { h += '<div class="empty small">אין תיעודים עדיין</div>'; }
+      else { docs.forEach(d => { h += '<div class="history-entry"><div class="small" style="display:flex;justify-content:space-between;align-items:center"><strong>'+escapeHtml(d.user||"")+'</strong><span class="muted">'+escapeHtml(fmtDateShort(d.at))+'</span></div><div class="small" style="margin-top:4px">'+escapeHtml(d.content||"")+'</div></div>'; }); }
+      h += '</div>';
+      return h;
+    }
 
     // ===== STATE =====
     const seed = {
@@ -623,9 +659,9 @@
       routeCountry:COUNTRY_TRAVEL_CATALOG[0].country, routeDays:5, routeStyle:ROUTE_STYLES[1], routePlan:"",
       integrationsStatus:null, integrationsLoading:false, integrationsError:"",
       // שיחות נכנסות
-      incomingCallOpen:false, incomingCallNumber:"", incomingCallMatch:null, incomingCallNote:"", incomingCallRecording:false, incomingCallRecorded:false,
+      incomingCallOpen:false, incomingCallNumber:"", incomingCallMatch:null, incomingCallNote:"", incomingCallRecording:false, incomingCallRecorded:false, incomingCallReceivedAt:"",
       callLog:[],
-      // הצעות מחיר
+      changeLog:[],
       quotes:[],
       quoteForm:{id:null,clientName:"",clientPhone:"",clientEmail:"",tripTitle:"",destination:"",departureDate:"",returnDate:"",items:[{description:"",qty:1,unitPrice:0}],currency:"ILS",cancellationPolicy:"",notes:"",status:"טיוטה",signature:null,signatureTimestamp:null,signatureIP:null,createdAt:"",sentAt:"",signedAt:"",coverImage:"",introText:"",itinerary:[],addons:[]},
       quoteViewId:null,
@@ -804,7 +840,7 @@
     // ===== CLOUD SYNC =====
     let _syncTimer = null;
     let _isSaving = false;
-    const DATA_FIELDS = ["travelers","leads","suppliers","trips","agencies","contacts","hrManagers","guides","finances","hikingTrails","socialPosts","tasks","callLog","activityLog","quotes"];
+    const DATA_FIELDS = ["travelers","leads","suppliers","trips","agencies","contacts","hrManagers","guides","finances","hikingTrails","socialPosts","tasks","callLog","activityLog","quotes","changeLog"];
     function extractDataForCloud() {
       const d = {};
       DATA_FIELDS.forEach(k => { d[k] = S[k]; });
@@ -937,6 +973,7 @@
       if (!S.socialForm) S.socialForm = structuredClone(seed.socialForm);
       if (!Array.isArray(S.guides)) S.guides = seed.guides;
       if (!Array.isArray(S.callLog)) S.callLog = [];
+      if (!Array.isArray(S.changeLog)) S.changeLog = [];
       if (!S.currentUser) S.currentUser = "";
       if (!S.currentUserRole) S.currentUserRole = "";
       if (!Array.isArray(S.duplicateResults)) S.duplicateResults = [];
@@ -951,7 +988,16 @@
         if (t.returningCustomer === undefined) t.returningCustomer = false;
         if (t.pastTrips === undefined) t.pastTrips = "";
         if (!Array.isArray(t.callDocs)) t.callDocs = [];
+        if (!Array.isArray(t.cardDocs)) t.cardDocs = [];
       });
+      // Normalize lead fields
+      if (Array.isArray(S.leads)) S.leads.forEach(l => { if (!Array.isArray(l.cardDocs)) l.cardDocs = []; });
+      // Normalize supplier fields
+      if (Array.isArray(S.suppliers)) S.suppliers.forEach(s => { if (!Array.isArray(s.cardDocs)) s.cardDocs = []; });
+      // Normalize contact fields
+      if (Array.isArray(S.contacts)) S.contacts.forEach(c => { if (!Array.isArray(c.cardDocs)) c.cardDocs = []; });
+      // Normalize HR fields
+      if (Array.isArray(S.hrManagers)) S.hrManagers.forEach(h => { if (!Array.isArray(h.cardDocs)) h.cardDocs = []; });
       // Normalize trip fields
       if (Array.isArray(S.trips)) S.trips.forEach(t => {
         if (!t.travelersData) t.travelersData = {};
@@ -997,11 +1043,11 @@
     function tripById(id) { return S.trips.find(t=>t.id==id)||null; }
     function resetTravelerForm() { S.travelerForm = structuredClone(seed.travelerForm); }
     function editTraveler(id) { const t=travelerById(id); if(!t) return; S.travelerForm=structuredClone(t); S.tab="travelers"; render(); }
-    function deleteTraveler(id) { if(!confirm("למחוק מטייל?")) return; S.travelers=S.travelers.filter(t=>t.id!=id); setState({travelers:S.travelers}); }
+    function deleteTraveler(id) { if(!confirm("למחוק מטייל?")) return; const t=S.travelers.find(x=>x.id==id); logChange("traveler",id,t?t.fullName:"","מחיקה","מטייל נמחק"); S.travelers=S.travelers.filter(t=>t.id!=id); setState({travelers:S.travelers}); }
     function saveTraveler() {
       const f=S.travelerForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
-      if (f.id) { const i=S.travelers.findIndex(t=>t.id==f.id); if(i>=0) S.travelers[i]={...S.travelers[i],...f}; logActivity("עדכון מטייל", f.fullName); }
-      else { S.travelers.unshift({...structuredClone(seed.travelerForm),...f,id:uid(),conversationHistory:[],callDocs:[],active:true}); logActivity("הוספת מטייל", f.fullName); }
+      if (f.id) { const i=S.travelers.findIndex(t=>t.id==f.id); if(i>=0) S.travelers[i]={...S.travelers[i],...f}; logActivity("עדכון מטייל", f.fullName); logChange("traveler",f.id,f.fullName,"עדכון","עדכון פרטי מטייל"); }
+      else { const newId=uid(); S.travelers.unshift({...structuredClone(seed.travelerForm),...f,id:newId,conversationHistory:[],callDocs:[],cardDocs:[],active:true}); logActivity("הוספת מטייל", f.fullName); logChange("traveler",newId,f.fullName,"הוספה","מטייל חדש נוסף למערכת"); }
       resetTravelerForm(); setState({travelers:S.travelers});
     }
     function toggleSegment(seg) {
@@ -1059,7 +1105,8 @@
         {topic:"מדריך,מדריכים,ניהול מדריכים", answer:"להוספת מדריך: לשונית 'ניהול מדריכים', מלאו שם, התמחות, טלפון, אימייל, שנת לידה, זמינות (פנוי/תפוס/חופשה), מחיר ליום, שכר חודשי, דירוג, שפות, אזורים והסמכות."},
         {topic:"רשתות חברתיות,פוסט,פייסבוק,אינסטגרם,social", answer:"ליצירת פוסט: לשונית 'רשתות חברתיות', בחרו פלטפורמה (7 רשתות), כתבו תוכן, בחרו סטטוס ותאריך. סטטוסים: טיוטה → מתוזמן → פורסם → ארכיון."},
         {topic:"מסלול,הליכה,טרק,hiking", answer:"להוספת מסלול: לשונית 'מסלולי הליכה', מלאו שם, אזור, רמת קושי, מרחק, משך זמן, הפרש גובה, עונה מומלצת ודירוג."},
-        {topic:"שיחה,תיעוד שיחה,הקלטה", answer:"לתיעוד שיחה: ערכו כרטיס מטייל, גללו מטה ל'תיעוד שיחות'. כתבו סיכום, העלו קובץ אודיו או הדביקו קישור. חותמת זמן נרשמת אוטומטית."},
+        {topic:"שיחה,תיעוד שיחה,הקלטה,שיחה נכנסת,ליד משיחה", answer:"לתיעוד שיחה: ערכו כרטיס מטייל, גללו מטה ל'תיעוד שיחות'. כתבו סיכום, העלו קובץ אודיו או הדביקו קישור. חותמת זמן נרשמת אוטומטית. המערכת תומכת בשיחות נכנסות לשני מספרים: 972542233888 (נייד) ו-97236564488 (קווי). כשמתקשר מזוהה – הכרטיסיה שלו עולה אוטומטית. מתקשר שלא מוכר נרשם אוטומטית כליד חדש."},
+        {topic:"תיעוד כרטיס,תיעוד,לוג שינויים,מעקב שינויים", answer:"בכל כרטיס (מטייל, ליד, ספק, איש קשר, כח אדם) יש אזור 'תיעוד כרטיס' בתחתית הטופס. שם ניתן להוסיף תיעוד עם תאריך, שעה ושם המשתמש שתיעד. כל שינוי במערכת מתועד אוטומטית עם שם המשתמש, התאריך והשעה ביומן השינויים."},
         {topic:"tooltip,סימן שאלה,עזרה", answer:"ליד כל שדה בטפסי המערכת מופיע סימן שאלה (?). רחפו מעליו כדי לקרוא הסבר קצר על מטרת השדה."},
         {topic:"חיפוש,search", answer:"שדה החיפוש בראש העמוד עובד על כל המודולים. הקלידו שם, טלפון או מילת מפתח."},
         {topic:"סנכרון,ענן,cloud,גיבוי", answer:"הנתונים נשמרים אוטומטית ב-localStorage ובענן (Netlify Blobs). הסנכרון מתבצע כל 3 שניות. שינויים מכל מחשב מתעדכנים בזמן אמת."},
@@ -1151,11 +1198,11 @@
     function leadById(id) { return S.leads.find(l=>l.id==id)||null; }
     function resetLeadForm() { S.leadForm=structuredClone(seed.leadForm); }
     function editLead(id) { const l=leadById(id); if(!l) return; S.leadForm=structuredClone(l); S.tab="leads"; render(); }
-    function deleteLead(id) { if(!confirm("למחוק ליד?")) return; S.leads=S.leads.filter(l=>l.id!=id); setState({leads:S.leads}); }
+    function deleteLead(id) { if(!confirm("למחוק ליד?")) return; const l=S.leads.find(x=>x.id==id); logChange("lead",id,l?l.fullName:"","מחיקה","ליד נמחק"); S.leads=S.leads.filter(l=>l.id!=id); setState({leads:S.leads}); }
     function saveLead() {
       const f=S.leadForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
-      if (f.id) { const i=S.leads.findIndex(l=>l.id==f.id); if(i>=0) S.leads[i]={...S.leads[i],...f}; logActivity("עדכון ליד", f.fullName); }
-      else { S.leads.unshift({...structuredClone(seed.leadForm),...f,id:uid(),createdAt:isoNow()}); logActivity("הוספת ליד", f.fullName); }
+      if (f.id) { const i=S.leads.findIndex(l=>l.id==f.id); if(i>=0) S.leads[i]={...S.leads[i],...f}; logActivity("עדכון ליד", f.fullName); logChange("lead",f.id,f.fullName,"עדכון","עדכון פרטי ליד"); }
+      else { const newId=uid(); S.leads.unshift({...structuredClone(seed.leadForm),...f,id:newId,createdAt:isoNow(),cardDocs:[]}); logActivity("הוספת ליד", f.fullName); logChange("lead",newId,f.fullName,"הוספה","ליד חדש נוסף למערכת"); }
       resetLeadForm(); setState({leads:S.leads});
     }
     function updateLeadStatus(id, status) {
@@ -1168,22 +1215,22 @@
     function supplierById(id) { return S.suppliers.find(s=>s.id==id)||null; }
     function resetSupplierForm() { S.supplierForm=structuredClone(seed.supplierForm); }
     function editSupplier(id) { const s=supplierById(id); if(!s) return; S.supplierForm=structuredClone(s); S.tab="suppliers"; render(); }
-    function deleteSupplier(id) { if(!confirm("למחוק ספק?")) return; S.suppliers=S.suppliers.filter(s=>s.id!=id); setState({suppliers:S.suppliers}); }
+    function deleteSupplier(id) { if(!confirm("למחוק ספק?")) return; const s=S.suppliers.find(x=>x.id==id); logChange("supplier",id,s?s.name:"","מחיקה","ספק נמחק"); S.suppliers=S.suppliers.filter(s=>s.id!=id); setState({suppliers:S.suppliers}); }
     function saveSupplier() {
       const f=S.supplierForm; if(!f.name) return alert("שם ספק חובה");
-      if (f.id) { const i=S.suppliers.findIndex(s=>s.id==f.id); if(i>=0) S.suppliers[i]={...S.suppliers[i],...f}; }
-      else { S.suppliers.unshift({...structuredClone(seed.supplierForm),...f,id:uid(),active:true}); }
+      if (f.id) { const i=S.suppliers.findIndex(s=>s.id==f.id); if(i>=0) S.suppliers[i]={...S.suppliers[i],...f}; logActivity("עדכון ספק", f.name); logChange("supplier",f.id,f.name,"עדכון","עדכון פרטי ספק"); }
+      else { const newId=uid(); S.suppliers.unshift({...structuredClone(seed.supplierForm),...f,id:newId,active:true,cardDocs:[]}); logActivity("הוספת ספק", f.name); logChange("supplier",newId,f.name,"הוספה","ספק חדש נוסף למערכת"); }
       resetSupplierForm(); setState({suppliers:S.suppliers});
     }
 
     // ===== CRUD TRIPS =====
     function resetTripForm() { S.tripForm=structuredClone(seed.tripForm); }
     function editTrip(id) { const t=S.trips.find(x=>x.id==id); if(!t) return; S.tripForm=structuredClone(t); S.tab="trips"; render(); }
-    function deleteTrip(id) { if(!confirm("למחוק טיול?")) return; S.trips=S.trips.filter(t=>t.id!=id); setState({trips:S.trips}); }
+    function deleteTrip(id) { if(!confirm("למחוק טיול?")) return; const t=S.trips.find(x=>x.id==id); logChange("trip",id,t?t.title:"","מחיקה","תיק טיול נמחק"); S.trips=S.trips.filter(t=>t.id!=id); setState({trips:S.trips}); }
     function saveTrip() {
       const f=S.tripForm; if(!f.title||!f.destination) return alert("כותרת ויעד חובה");
-      if (f.id) { const i=S.trips.findIndex(t=>t.id==f.id); if(i>=0) S.trips[i]={...S.trips[i],...f}; logActivity("עדכון תיק טיול", f.title); }
-      else { S.trips.unshift({...structuredClone(seed.tripForm),...f,id:uid()}); logActivity("יצירת תיק טיול", f.title); }
+      if (f.id) { const i=S.trips.findIndex(t=>t.id==f.id); if(i>=0) S.trips[i]={...S.trips[i],...f}; logActivity("עדכון תיק טיול", f.title); logChange("trip",f.id,f.title,"עדכון","עדכון תיק טיול"); }
+      else { const newId=uid(); S.trips.unshift({...structuredClone(seed.tripForm),...f,id:newId}); logActivity("יצירת תיק טיול", f.title); logChange("trip",newId,f.title,"הוספה","תיק טיול חדש"); }
       resetTripForm(); setState({trips:S.trips});
     }
 
@@ -1216,22 +1263,22 @@
     // ===== CRUD CONTACTS =====
     function resetContactForm() { S.contactForm=structuredClone(seed.contactForm); }
     function editContact(id) { const c=S.contacts.find(x=>x.id==id); if(!c) return; S.contactForm=structuredClone(c); S.tab="contacts"; render(); }
-    function deleteContact(id) { if(!confirm("למחוק איש קשר?")) return; S.contacts=S.contacts.filter(c=>c.id!=id); setState({contacts:S.contacts}); }
+    function deleteContact(id) { if(!confirm("למחוק איש קשר?")) return; const c=S.contacts.find(x=>x.id==id); logChange("contact",id,c?c.fullName:"","מחיקה","איש קשר נמחק"); S.contacts=S.contacts.filter(c=>c.id!=id); setState({contacts:S.contacts}); }
     function saveContact() {
       const f=S.contactForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
-      if (f.id) { const i=S.contacts.findIndex(c=>c.id==f.id); if(i>=0) S.contacts[i]={...S.contacts[i],...f}; logActivity("עדכון איש קשר", f.fullName); }
-      else { S.contacts.unshift({...structuredClone(seed.contactForm),...f,id:uid(),active:true}); logActivity("הוספת איש קשר", f.fullName); }
+      if (f.id) { const i=S.contacts.findIndex(c=>c.id==f.id); if(i>=0) S.contacts[i]={...S.contacts[i],...f}; logActivity("עדכון איש קשר", f.fullName); logChange("contact",f.id,f.fullName,"עדכון","עדכון פרטי איש קשר"); }
+      else { const newId=uid(); S.contacts.unshift({...structuredClone(seed.contactForm),...f,id:newId,active:true,cardDocs:[]}); logActivity("הוספת איש קשר", f.fullName); logChange("contact",newId,f.fullName,"הוספה","איש קשר חדש נוסף"); }
       resetContactForm(); setState({contacts:S.contacts});
     }
 
     // ===== CRUD HR =====
     function resetHrForm() { S.hrForm=structuredClone(seed.hrForm); }
     function editHrManager(id) { const h=S.hrManagers.find(x=>x.id==id); if(!h) return; S.hrForm=structuredClone(h); S.tab="hr"; render(); }
-    function deleteHrManager(id) { if(!confirm("למחוק?")) return; S.hrManagers=S.hrManagers.filter(h=>h.id!=id); setState({hrManagers:S.hrManagers}); }
+    function deleteHrManager(id) { if(!confirm("למחוק?")) return; const h=S.hrManagers.find(x=>x.id==id); logChange("hr",id,h?h.fullName:"","מחיקה","רשומת כח אדם נמחקה"); S.hrManagers=S.hrManagers.filter(h=>h.id!=id); setState({hrManagers:S.hrManagers}); }
     function saveHrManager() {
       const f=S.hrForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
-      if (f.id) { const i=S.hrManagers.findIndex(h=>h.id==f.id); if(i>=0) S.hrManagers[i]={...S.hrManagers[i],...f}; }
-      else { S.hrManagers.unshift({...structuredClone(seed.hrForm),...f,id:uid(),active:true,correspondenceHistory:[]}); }
+      if (f.id) { const i=S.hrManagers.findIndex(h=>h.id==f.id); if(i>=0) S.hrManagers[i]={...S.hrManagers[i],...f}; logActivity("עדכון כח אדם", f.fullName); logChange("hr",f.id,f.fullName,"עדכון","עדכון פרטי כח אדם"); }
+      else { const newId=uid(); S.hrManagers.unshift({...structuredClone(seed.hrForm),...f,id:newId,active:true,correspondenceHistory:[],cardDocs:[]}); logActivity("הוספת כח אדם", f.fullName); logChange("hr",newId,f.fullName,"הוספה","רשומת כח אדם חדשה"); }
       resetHrForm(); setState({hrManagers:S.hrManagers});
     }
 
@@ -1529,12 +1576,13 @@
       } catch(err) { alert("חיבור Google נכשל: "+(err?.message||"")); }
     }
     // ===== INCOMING CALL SYSTEM =====
+    const GOTOURS_PHONES = ["972542233888","97236564488"];
     const GOTOURS_PHONE = "972542233888";
-    function simulateIncomingCall() {
+    function simulateIncomingCall(receivedAtPhone) {
       const num = String(S.incomingCallNumber||"").replace(/[\s\-\(\)]/g,"");
       if(!num) { alert("הזן מספר טלפון של המתקשר"); return; }
       const normalized = normalizePhone(num);
-      // Search travelers and contacts for matching phone
+      // Search travelers, contacts, leads, suppliers, and HR for matching phone
       let match = null;
       const traveler = S.travelers.find(t => normalizePhone(t.phone) === normalized || normalizePhone(t.whatsapp) === normalized);
       if(traveler) { match = {type:"traveler", data:traveler}; }
@@ -1544,35 +1592,69 @@
         else {
           const lead = S.leads.find(l => normalizePhone(l.phone) === normalized);
           if(lead) { match = {type:"lead", data:lead}; }
+          else {
+            const supplier = S.suppliers.find(s => normalizePhone(s.phone) === normalized);
+            if(supplier) { match = {type:"supplier", data:supplier}; }
+            else {
+              const hr = S.hrManagers.find(h => normalizePhone(h.phone) === normalized);
+              if(hr) { match = {type:"hr", data:hr}; }
+            }
+          }
         }
       }
-      setState({incomingCallOpen:true, incomingCallMatch:match, incomingCallNote:"", incomingCallRecording:true, incomingCallRecorded:false});
+      setState({incomingCallOpen:true, incomingCallMatch:match, incomingCallNote:"", incomingCallRecording:true, incomingCallRecorded:false, incomingCallReceivedAt: receivedAtPhone || GOTOURS_PHONE});
+    }
+    function createLeadFromCall() {
+      const phone = String(S.incomingCallNumber||"").trim();
+      const note = String(S.incomingCallNote||"").trim();
+      const newId = uid();
+      const newLead = {...structuredClone(seed.leadForm), id: newId, phone: phone, fullName: "ליד חדש - " + phone, source: "שיחה נכנסת", status: "חדש", notes: note ? "תיעוד שיחה: " + note : "", createdAt: isoNow(), cardDocs: []};
+      S.leads.unshift(newLead);
+      logActivity("הוספת ליד משיחה", phone);
+      logChange("lead", newId, newLead.fullName, "הוספה", "ליד נוצר אוטומטית משיחה נכנסת למספר " + (S.incomingCallReceivedAt || GOTOURS_PHONE));
+      S.incomingCallMatch = {type: "lead", data: newLead};
+      setState({leads: S.leads, incomingCallMatch: S.incomingCallMatch});
     }
     function endIncomingCall() {
       const note = String(S.incomingCallNote||"").trim();
       const match = S.incomingCallMatch;
+      const receivedAt = S.incomingCallReceivedAt || GOTOURS_PHONE;
+      // If no match found, auto-create a lead
+      if (!match) {
+        const phone = String(S.incomingCallNumber||"").trim();
+        const newId = uid();
+        const newLead = {...structuredClone(seed.leadForm), id: newId, phone: phone, fullName: "ליד חדש - " + phone, source: "שיחה נכנסת", status: "חדש", notes: note ? "תיעוד שיחה: " + note : "", createdAt: isoNow(), cardDocs: []};
+        S.leads.unshift(newLead);
+        logActivity("הוספת ליד משיחה", phone);
+        logChange("lead", newId, newLead.fullName, "הוספה", "ליד נוצר אוטומטית משיחה נכנסת למספר " + receivedAt);
+      }
       const callEntry = {
         id: uid(),
         phone: String(S.incomingCallNumber||"").trim(),
-        matchType: match ? match.type : "unknown",
-        matchName: match ? (match.data.fullName || match.data.name || "") : "לא מוכר",
+        matchType: match ? match.type : "lead",
+        matchName: match ? (match.data.fullName || match.data.name || "") : "ליד חדש",
         note: note,
         recorded: true,
         at: new Date().toISOString(),
-        receivedAt: GOTOURS_PHONE
+        receivedAt: receivedAt
       };
       const newLog = [callEntry, ...S.callLog];
       // Save conversation to the matched record
       if(match && note) {
         if(match.type === "traveler") {
           const t = S.travelers.find(x=>x.id===match.data.id);
-          if(t) { t.lastConversation = {channel:"טלפון נכנס",summary:note,at:new Date().toISOString()}; }
+          if(t) { t.lastConversation = {channel:"טלפון נכנס ("+receivedAt+")",summary:note,at:new Date().toISOString()}; }
+        }
+        if(match.type === "lead") {
+          const l = S.leads.find(x=>x.id===match.data.id);
+          if(l) { if(!Array.isArray(l.cardDocs)) l.cardDocs=[]; l.cardDocs.unshift({id:uid(),user:S.currentUser||"מערכת",content:"שיחה נכנסת: "+note,at:isoNow()}); }
         }
       }
-      setState({callLog:newLog, incomingCallOpen:false, incomingCallNumber:"", incomingCallMatch:null, incomingCallNote:"", incomingCallRecording:false, incomingCallRecorded:true});
+      logActivity("שיחה נכנסת", (match?(match.data.fullName||match.data.name):"מספר לא מוכר") + " | " + receivedAt);
+      setState({callLog:newLog, leads:S.leads, incomingCallOpen:false, incomingCallNumber:"", incomingCallMatch:null, incomingCallNote:"", incomingCallRecording:false, incomingCallRecorded:true, incomingCallReceivedAt:""});
     }
     function dismissIncomingCall() {
-      setState({incomingCallOpen:false, incomingCallNumber:"", incomingCallMatch:null, incomingCallNote:"", incomingCallRecording:false});
+      setState({incomingCallOpen:false, incomingCallNumber:"", incomingCallMatch:null, incomingCallNote:"", incomingCallRecording:false, incomingCallReceivedAt:""});
     }
 
     function connectAllSites() { alert("מחבר את כל 3 האתרים... הפונקציה זמינה דרך שרת ה-Netlify."); }
@@ -2057,6 +2139,7 @@
         + '</div>'
         + '<div style="margin-top:8px">'+tip("הערות","מידע נוסף – פרטים ייחודיים, דרישות מיוחדות, הערות")+'<textarea oninput="S.leadForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveLead()">'+escapeHtml(f.id?"עדכון":"שמירה")+'</button>'+(f.id?'<button class="btn-soft" onclick="resetLeadForm();render()">ביטול</button>':'')+'</div>'
+        + (f.id ? renderCardDocs("lead", f.id, (S.leads.find(l=>l.id==f.id)||{}).cardDocs) : '')
         + (S.leadImportMsg?'<div class="small b-ok" style="margin-top:8px;padding:6px;border-radius:8px">'+escapeHtml(S.leadImportMsg)+'</div>':"")
         + '</div>'
         // לוח קנבן
@@ -2134,6 +2217,7 @@
                 + '</div>';
             }).join("")+'</div>' : '<div class="small muted" style="margin-top:8px">אין תיעודי שיחה עדיין</div>')
           + '</div>' : '')
+        + (f.id && editingTraveler ? renderCardDocs("traveler", f.id, editingTraveler.cardDocs) : '')
         + '</div>'
         + '<div><div class="folder-tabs"><div class="folder-tab '+(folder==="all"?"active":"")+'" onclick="setState({activeFolder:\'all\'},false)">כולם ('+S.travelers.length+')</div>'+SEGMENTS.map(s=>'<div class="folder-tab '+(folder===s?"active":"")+'" onclick="setState({activeFolder:\''+escapeHtml(s)+'\'},false)">'+escapeHtml(s)+' ('+S.travelers.filter(t=>(t.segments||[]).includes(s)).length+')</div>').join("")+'</div>'
         + '<div class="list">'+(rows.length?rows.map(t=>{
@@ -2240,6 +2324,7 @@
         + '</div>'
         + '<div style="margin-top:8px">'+tip("הערות","מידע נוסף על הספק – זמינות, הנחות, התמחות")+'<textarea oninput="S.supplierForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveSupplier()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetSupplierForm();render()">ביטול</button>':"")+'</div>'
+        + (f.id ? renderCardDocs("supplier", f.id, (S.suppliers.find(s=>s.id==f.id)||{}).cardDocs) : '')
         + '</div>'
         + '<div><div class="section-title">ספקים ('+rows.length+')</div><div class="list">'
         + (rows.length?rows.map(s=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(s.name)+'</strong><span class="badge b-ok">'+escapeHtml(s.type)+'</span></div>'
@@ -2275,6 +2360,7 @@
         + '</div>'
         + '<div style="margin-top:8px">'+tip("הערות","מידע נוסף – תחומי עניין, היסטוריית שיתוף פעולה")+'<textarea oninput="S.contactForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveContact()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetContactForm();render()">ביטול</button>':"")+'</div>'
+        + (f.id ? renderCardDocs("contact", f.id, (S.contacts.find(c=>c.id==f.id)||{}).cardDocs) : '')
         + '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-weight:700;color:var(--brand);font-size:13px">📥 ייבוא מאקסל</span><button class="btn-soft" style="width:auto;font-size:12px;padding:5px 10px" onclick="document.getElementById(\'imp_contacts_tab\').click()">📂 בחר קובץ</button><input id="imp_contacts_tab" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importContactsFromExcel(this)"></div>'
         + (S.contactImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:8px;margin-top:6px">✅ '+escapeHtml(S.contactImportMsg)+'</div>':"")
         + '</div>'
@@ -2311,6 +2397,7 @@
         + '</div>'
         + '<div style="margin-top:8px">'+tip("הערות","מידע נוסף – היסטוריית קשר, עדכונים")+'<textarea oninput="S.hrForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveHrManager()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetHrForm();render()">ביטול</button>':"")+'</div>'
+        + (f.id ? renderCardDocs("hr", f.id, (S.hrManagers.find(h=>h.id==f.id)||{}).cardDocs) : '')
         + '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-weight:700;color:var(--brand);font-size:13px">📥 ייבוא מאקסל</span><button class="btn-soft" style="width:auto;font-size:12px;padding:5px 10px" onclick="document.getElementById(\'imp_hr_tab\').click()">📂 בחר קובץ</button><input id="imp_hr_tab" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importHrFromExcel(this)"></div>'
         + (S.hrImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:8px;margin-top:6px">✅ '+escapeHtml(S.hrImportMsg)+'</div>':"")
         + '</div>'
@@ -4250,7 +4337,7 @@
 
         // INCOMING CALLS GUIDE
         + '<div class="guide-section" id="guide-incomingcall"><h3>📞 שיחות נכנסות</h3>'
-        + '<p>מערכת שיחות נכנסות למספר '+GOTOURS_PHONE+' עם זיהוי מתקשר, פתיחת כרטיסיה, רישום ידני והקלטה.</p>'
+        + '<p>מערכת שיחות נכנסות למספרים '+GOTOURS_PHONES.join(" / ")+' עם זיהוי מתקשר, פתיחת כרטיסיה, רישום ידני והקלטה. מספר לא מוכר נרשם אוטומטית כליד חדש.</p>'
         + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>סימולציית שיחה</strong> – בסרגל העליון, הזינו מספר טלפון של מתקשר בשדה "סמלץ שיחה נכנסת" ולחצו על כפתור 📞.</div></div>'
         + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>זיהוי אוטומטי</strong> – המערכת מחפשת את המספר בין המטיילים, אנשי הקשר והלידים. אם נמצאת כרטיסיה – היא נפתחת מיידית.</div></div>'
         + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>הקלטת שיחה</strong> – השיחה מוקלטת אוטומטית (אינדיקציה אדומה). ההקלטה נשמרת בכרטיסיית המתקשר.</div></div>'
@@ -4451,7 +4538,7 @@
         // Platform
         + '<div class="upgrade-card"><h4>📱 עיצוב רספונסיבי מלא</h4><p>התאמה מושלמת למחשב, טאבלט ונייד. קנבן, לוח שנה וטפסים מותאמים לכל מסך.</p><div class="upgrade-badge">פעיל ✓</div></div>'
         + '<div class="upgrade-card"><h4>☁️ שמירה בענן</h4><p>Netlify Blobs לשמירה אמינה בענן + localStorage כגיבוי מקומי.</p><div class="upgrade-badge">פעיל ✓</div></div>'
-        + '<div class="upgrade-card"><h4>📞 שיחות נכנסות</h4><p>מערכת שיחות נכנסות למספר '+GOTOURS_PHONE+' עם זיהוי מתקשר, פתיחת כרטיסיה אוטומטית, רישום ידני והקלטת שיחה.</p><div class="upgrade-badge" style="cursor:pointer">חדש ✨</div></div>'
+        + '<div class="upgrade-card"><h4>📞 שיחות נכנסות</h4><p>מערכת שיחות נכנסות למספרים '+GOTOURS_PHONES.join(" / ")+' עם זיהוי מתקשר, פתיחת כרטיסיה אוטומטית, רישום ידני והקלטת שיחה. מתקשר לא מוכר נרשם אוטומטית כליד חדש.</p><div class="upgrade-badge" style="cursor:pointer">חדש ✨</div></div>'
         + '<div class="upgrade-card"><h4>🌐 אתרי החברה + מפות</h4><p>קישורים ישירים ל-3 אתרי החברה, Google Maps, Waze, עמודענן, שבילי עולם (Wikiloc), היק ישראל ומערכת מצלמות Hik-Connect בענן.</p><div class="upgrade-badge" onclick="setState({tab:\'maps\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         + '</div>';
     }
@@ -4531,7 +4618,7 @@
       const revenuePill = isCeo ? '<span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span>' : '';
       const greetingText = getTimeGreeting() + ', ' + escapeHtml(S.currentUser) + '!';
       return '<div class="shell">'
-        + '<div class="header"><div style="text-align:center;padding:8px 0 4px"><div id="hero_clock" style="font-size:20px;font-weight:800;letter-spacing:0.5px">'+escapeHtml(greetingText)+' | '+new Date().toLocaleDateString("he-IL",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+" | "+new Date().toLocaleTimeString("he-IL")+'</div></div><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><span class="small" style="color:#fff;opacity:0.8">👥 מחוברים כרגע:</span>'+onlineUsersHtml+'</div><div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">'+ (_offlineMode?'📴 לא מקוון':'☁️ מחובר') +'</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span>'+revenuePill+'</div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center"><div class="call-sim-input"><input placeholder="📞 סמלץ שיחה נכנסת..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall()" style="width:180px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:8px 12px;font-size:12px" onclick="simulateIncomingCall()">📞</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
+        + '<div class="header"><div style="text-align:center;padding:8px 0 4px"><div id="hero_clock" style="font-size:20px;font-weight:800;letter-spacing:0.5px">'+escapeHtml(greetingText)+' | '+new Date().toLocaleDateString("he-IL",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+" | "+new Date().toLocaleTimeString("he-IL")+'</div></div><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><span class="small" style="color:#fff;opacity:0.8">👥 מחוברים כרגע:</span>'+onlineUsersHtml+'</div><div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">'+ (_offlineMode?'📴 לא מקוון':'☁️ מחובר') +'</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span>'+revenuePill+'</div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><div class="call-sim-input"><input placeholder="📞 מספר מתקשר..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall(\'972542233888\')" style="width:160px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:6px 10px;font-size:11px" onclick="simulateIncomingCall(\'972542233888\')" title="972542233888">📞 נייד</button><button class="btn-primary" style="width:auto;padding:6px 10px;font-size:11px" onclick="simulateIncomingCall(\'97236564488\')" title="97236564488">📞 קווי</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
         + '<div class="tabs">'+tabs.map(t=>'<button class="'+(S.tab===t.id?"active":"")+'" onclick="setState({tab:\''+t.id+'\'},false)">'+t.label+'</button>').join("")+'</div>'
         + content
         + renderAiWidget()
@@ -4546,7 +4633,8 @@
       const m = S.incomingCallMatch;
       const avatar = m ? (m.data.fullName||m.data.name||"?").charAt(0) : "?";
       const name = m ? escapeHtml(m.data.fullName||m.data.name||"לא ידוע") : "מספר לא מוכר";
-      const typeLabel = m ? (m.type==="traveler"?"מטייל":m.type==="contact"?"איש קשר":m.type==="lead"?"ליד":"") : "";
+      const typeLabel = m ? (m.type==="traveler"?"מטייל":m.type==="contact"?"איש קשר":m.type==="lead"?"ליד":m.type==="supplier"?"ספק":m.type==="hr"?"כח אדם":"") : "";
+      const receivedAtPhone = S.incomingCallReceivedAt || GOTOURS_PHONE;
       let cardInfo = "";
       if(m) {
         const d = m.data;
@@ -4566,13 +4654,13 @@
       }
       return '<div class="call-overlay" onclick="if(event.target===this)dismissIncomingCall()">'
         + '<div class="call-panel">'
-        + '<div class="call-header"><div class="call-avatar">'+escapeHtml(avatar)+'</div><div><h3>📞 שיחה נכנסת למספר '+escapeHtml(GOTOURS_PHONE)+'</h3><div class="small muted">מתקשר: '+escapeHtml(String(S.incomingCallNumber||""))+'</div>'+(m?'<div class="small" style="color:var(--ok);font-weight:700">✅ נמצאה כרטיסיה – '+escapeHtml(typeLabel)+'</div>':'<div class="small" style="color:var(--warn);font-weight:700">⚠ לא נמצאה כרטיסיה במערכת</div>')+'</div></div>'
+        + '<div class="call-header"><div class="call-avatar">'+escapeHtml(avatar)+'</div><div><h3>📞 שיחה נכנסת למספר '+escapeHtml(receivedAtPhone)+'</h3><div class="small muted">מתקשר: '+escapeHtml(String(S.incomingCallNumber||""))+'</div>'+(m?'<div class="small" style="color:var(--ok);font-weight:700">✅ נמצאה כרטיסיה – '+escapeHtml(typeLabel)+'</div>':'<div class="small" style="color:var(--warn);font-weight:700">⚠ לא נמצאה כרטיסיה במערכת – יירשם כליד חדש</div>')+'</div></div>'
         + '<div class="call-recording"><div class="call-rec-dot"></div><strong style="color:#c62828">● מקליט שיחה</strong><span class="small muted">השיחה מוקלטת ותישמר בכרטיסיית המתקשר</span></div>'
         + cardInfo
         + '<div style="margin-bottom:12px"><label style="font-weight:700;color:var(--brand)">📝 רישום ידני – תיעוד השיחה</label><textarea placeholder="רשום כאן סיכום השיחה, בקשות, הערות..." oninput="S.incomingCallNote=this.value" style="min-height:100px">'+escapeHtml(S.incomingCallNote||"")+'</textarea></div>'
-        + (!m?'<div style="margin-bottom:12px;padding:10px;background:#fffbf0;border:1px solid #ffd54f;border-radius:10px"><div class="small"><strong>💡 טיפ:</strong> המספר לא קיים במערכת. תוכל להוסיף את המתקשר כמטייל חדש או איש קשר לאחר סיום השיחה.</div></div>':"")
-        + '<div class="row" style="gap:8px"><button class="btn-ok" onclick="endIncomingCall()">✅ סיום שיחה ושמירה</button><button class="btn-danger" onclick="dismissIncomingCall()">❌ ביטול</button>'+(m&&m.type==="traveler"?'<button class="btn-primary" onclick="dismissIncomingCall();editTraveler('+m.data.id+');setState({tab:\'travelers\'},false)">✏️ פתח כרטיסיה</button>':'')+(m&&m.type==="lead"?'<button class="btn-primary" onclick="dismissIncomingCall();editLead('+m.data.id+');setState({tab:\'leads\'},false)">✏️ פתח ליד</button>':'')+'</div>'
-        + (S.callLog.length?'<div style="margin-top:16px;border-top:1px dashed var(--line);padding-top:12px"><div class="section-title" style="font-size:15px">📞 יומן שיחות אחרונות</div><div class="list">'+S.callLog.slice(0,5).map(c=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(c.matchName)+'</strong><span class="badge b-ok">'+escapeHtml(c.matchType==="traveler"?"מטייל":c.matchType==="contact"?"איש קשר":c.matchType==="lead"?"ליד":"לא מוכר")+'</span></div><div class="small">📞 '+escapeHtml(c.phone)+' | '+escapeHtml(fmtDateShort(c.at))+(c.recorded?' | 🔴 הוקלט':'')+'</div>'+(c.note?'<div class="small muted">📝 '+escapeHtml(c.note)+'</div>':'')+'</div>').join("")+'</div></div>':"")
+        + (!m?'<div style="margin-bottom:12px;padding:10px;background:#fffbf0;border:1px solid #ffd54f;border-radius:10px"><div class="small"><strong>💡 שיחה ממספר לא מוכר:</strong> בסיום השיחה המתקשר יירשם אוטומטית כליד חדש. ניתן גם ליצור ליד עכשיו:</div><button class="btn-warn" style="margin-top:6px;font-size:13px" onclick="createLeadFromCall()">➕ צור ליד חדש עכשיו</button></div>':"")
+        + '<div class="row" style="gap:8px"><button class="btn-ok" onclick="endIncomingCall()">✅ סיום שיחה ושמירה</button><button class="btn-danger" onclick="dismissIncomingCall()">❌ ביטול</button>'+(m&&m.type==="traveler"?'<button class="btn-primary" onclick="dismissIncomingCall();editTraveler('+m.data.id+');setState({tab:\'travelers\'},false)">✏️ פתח כרטיסיה</button>':'')+(m&&m.type==="lead"?'<button class="btn-primary" onclick="dismissIncomingCall();editLead('+m.data.id+');setState({tab:\'leads\'},false)">✏️ פתח ליד</button>':'')+(m&&m.type==="supplier"?'<button class="btn-primary" onclick="dismissIncomingCall();editSupplier('+m.data.id+');setState({tab:\'suppliers\'},false)">✏️ פתח ספק</button>':'')+(m&&m.type==="hr"?'<button class="btn-primary" onclick="dismissIncomingCall();editHrManager('+m.data.id+');setState({tab:\'hr\'},false)">✏️ פתח כח אדם</button>':'')+'</div>'
+        + (S.callLog.length?'<div style="margin-top:16px;border-top:1px dashed var(--line);padding-top:12px"><div class="section-title" style="font-size:15px">📞 יומן שיחות אחרונות</div><div class="list">'+S.callLog.slice(0,5).map(c=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(c.matchName)+'</strong><span class="badge b-ok">'+escapeHtml(c.matchType==="traveler"?"מטייל":c.matchType==="contact"?"איש קשר":c.matchType==="lead"?"ליד":c.matchType==="supplier"?"ספק":c.matchType==="hr"?"כח אדם":"לא מוכר")+'</span></div><div class="small">📞 '+escapeHtml(c.phone)+' | '+escapeHtml(fmtDateShort(c.at))+(c.receivedAt?' | למספר: '+escapeHtml(c.receivedAt):'')+(c.recorded?' | 🔴 הוקלט':'')+'</div>'+(c.note?'<div class="small muted">📝 '+escapeHtml(c.note)+'</div>':'')+'</div>').join("")+'</div></div>':"")
         + '</div></div>';
     }
 
