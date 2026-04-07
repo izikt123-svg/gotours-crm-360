@@ -157,6 +157,66 @@
     .smart-folder .folder-icon { font-size:28px; }
     .smart-folder .folder-info { flex:1; }
     .smart-folder .folder-count { font-size:22px; font-weight:800; color:var(--brand); }
+    /* ===== PRO CARD MODAL ===== */
+    .pro-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:100; opacity:0; pointer-events:none; transition:opacity 0.3s ease; }
+    .pro-overlay.open { opacity:1; pointer-events:auto; }
+    .pro-card { position:fixed; top:0; left:0; width:min(640px,100vw); height:100vh; background:var(--card); z-index:101; transform:translateX(-100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); overflow-y:auto; box-shadow:8px 0 40px rgba(0,0,0,0.2); display:flex; flex-direction:column; }
+    .pro-card.open { transform:translateX(0); }
+    .pro-card-header { background:linear-gradient(135deg,#0f567f,#1777ab 60%,#1fa3bb); color:#fff; padding:18px 20px; flex-shrink:0; }
+    .pro-card-close { position:absolute; top:14px; left:14px; width:36px; height:36px; border-radius:50%; border:none; background:rgba(255,255,255,0.18); color:#fff; font-size:20px; cursor:pointer; display:grid; place-items:center; padding:0; }
+    .pro-card-close:hover { background:rgba(255,255,255,0.3); transform:none; }
+    .pro-card-name { font-size:24px; font-weight:800; margin-bottom:2px; }
+    .pro-card-phone { font-size:15px; opacity:0.85; margin-bottom:4px; }
+    .pro-card-status-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+    .pro-card-status { border-radius:999px; padding:4px 12px; font-size:12px; font-weight:800; }
+    .pro-card-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+    .pro-action-btn { display:flex; align-items:center; gap:5px; padding:9px 14px; border-radius:12px; border:none; font-weight:700; font-size:13px; cursor:pointer; transition:0.15s; }
+    .pro-action-btn:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+    .pro-action-call { background:#fff; color:var(--brand); }
+    .pro-action-wa { background:#25d366; color:#fff; }
+    .pro-action-sms { background:#ff9500; color:#fff; }
+    .pro-action-record { background:#e91e63; color:#fff; }
+    .pro-action-upload { background:#7c3aed; color:#fff; }
+    .pro-card-tabs { display:flex; gap:0; border-bottom:2px solid var(--line); flex-shrink:0; background:#f8fbff; overflow-x:auto; }
+    .pro-tab { padding:12px 16px; font-size:13px; font-weight:700; color:var(--muted); border:none; background:transparent; cursor:pointer; white-space:nowrap; border-bottom:3px solid transparent; margin-bottom:-2px; transition:0.15s; }
+    .pro-tab:hover { color:var(--brand); background:#edf5fc; transform:none; }
+    .pro-tab.active { color:var(--brand); border-bottom-color:var(--brand); background:#edf5fc; }
+    .pro-card-body { flex:1; overflow-y:auto; padding:16px 20px; }
+    .pro-section { margin-bottom:16px; }
+    .pro-section-title { font-size:15px; font-weight:800; color:var(--brand); margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+    .pro-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .pro-info-item { background:#f8fbff; border:1px solid var(--line); border-radius:10px; padding:10px; }
+    .pro-info-label { font-size:11px; color:var(--muted); font-weight:700; margin-bottom:2px; }
+    .pro-info-value { font-size:14px; font-weight:600; color:var(--text); }
+    .pro-timeline { display:grid; gap:8px; }
+    .pro-timeline-item { border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px 12px; position:relative; border-right:4px solid var(--brand-2); }
+    .pro-timeline-item.wa { border-right-color:#25d366; }
+    .pro-timeline-item.phone { border-right-color:var(--brand); }
+    .pro-timeline-item.email { border-right-color:#ff9500; }
+    .pro-timeline-item.meeting { border-right-color:#7c3aed; }
+    .pro-timeline-date { font-size:11px; color:var(--muted); }
+    .pro-timeline-channel { font-size:11px; font-weight:800; border-radius:999px; padding:2px 8px; display:inline-block; }
+    .pro-doc-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .pro-doc-card { border:1px solid var(--line); border-radius:10px; background:#f8fbff; padding:12px; text-align:center; cursor:pointer; transition:0.15s; }
+    .pro-doc-card:hover { border-color:var(--brand); background:#edf5fc; }
+    .pro-doc-icon { font-size:28px; margin-bottom:4px; }
+    .pro-doc-name { font-size:12px; font-weight:700; color:var(--text); }
+    .pro-doc-count { font-size:11px; color:var(--muted); }
+    .pro-pay-row { border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px 12px; display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+    .pro-task-item { border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px 12px; display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .pro-task-item.overdue { border-color:var(--danger); background:#fff5f5; }
+    .pro-task-item.done { opacity:0.5; }
+    .pro-empty { text-align:center; color:var(--muted); padding:24px; border:1px dashed var(--line); border-radius:12px; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+    .pro-trip-card { border:1px solid var(--line); border-radius:12px; background:#fff; padding:12px; margin-bottom:8px; }
+    .pro-trip-card .trip-title { font-weight:800; color:var(--brand); font-size:15px; }
+    .pro-trip-card .trip-meta { font-size:12px; color:var(--muted); margin-top:4px; }
+    .pro-score { display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:800; }
+    .pro-score-hot { color:#e53e3e; }
+    .pro-score-warm { color:#dd6b20; }
+    .pro-score-cold { color:#3182ce; }
+    .pro-quick-note { margin-top:12px; }
+    .pro-quick-note textarea { min-height:60px; font-size:13px; }
     @media (max-width:1120px) {
       .kpis { grid-template-columns:repeat(3,minmax(0,1fr)); }
       .layout-2,.layout-3 { grid-template-columns:1fr; }
@@ -332,6 +392,10 @@
       birthdayAutomationEnabled:true, birthdayAutomationChannel:"whatsapp",
       birthdayAutomationTimezone:"Asia/Jerusalem", birthdayAutomationWebhookUrl:"",
       birthdayAutoStatusLoading:false, birthdayAutoStatusError:"", birthdayAutoStatus:null, birthdayAutoDispatchLoading:false,
+      // PRO CARD STATE
+      proCardOpen:false, proCardTravelerId:null, proCardTab:"details",
+      proCardDocuments:[], proCardPayments:[], proCardRecordingActive:false,
+      proCardNewNote:"", proCardNewTaskTitle:"", proCardNewTaskDate:"",
       natalyOpen:false, natalyHistory:[], natalyInput:"", natalyLoading:false,
       calendarMonth:new Date().getMonth(), calendarYear:new Date().getFullYear(),
       tasks:[
@@ -429,6 +493,9 @@
       if (!S.hrForm) S.hrForm = structuredClone(seed.hrForm);
       if (!S.conversationForm) S.conversationForm = structuredClone(seed.conversationForm);
       if (!S.hrConversationForm) S.hrConversationForm = structuredClone(seed.hrConversationForm);
+      // PRO CARD
+      if (!Array.isArray(S.proCardDocuments)) S.proCardDocuments = [];
+      if (!Array.isArray(S.proCardPayments)) S.proCardPayments = [];
     }
     function renderSyncMeta() {
       const el = document.getElementById("sync_meta");
@@ -1071,16 +1138,17 @@
         + '<div><div class="folder-tabs"><div class="folder-tab '+(folder==="all"?"active":"")+'" onclick="setState({activeFolder:\'all\'},false)">כולם ('+S.travelers.length+')</div>'+SEGMENTS.map(s=>'<div class="folder-tab '+(folder===s?"active":"")+'" onclick="setState({activeFolder:\''+escapeHtml(s)+'\'},false)">'+escapeHtml(s)+' ('+S.travelers.filter(t=>(t.segments||[]).includes(s)).length+')</div>').join("")+'</div>'
         + '<div class="list">'+(rows.length?rows.map(t=>{
           const trip=tripById(t.currentTripId);
-          return '<div class="item '+(( t.segments||[]).includes("VIP")?"priority":"")+'">'
-            + '<div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><div class="chips">'+((t.segments||[]).map(s=>'<span class="chip">'+escapeHtml(s)+'</span>').join(""))+'</div></div>'
+          return '<div class="item '+(( t.segments||[]).includes("VIP")?"priority":"")+'" style="cursor:pointer" onclick="openProCard('+t.id+')">'
+            + '<div class="item-head"><strong style="color:var(--brand)">'+escapeHtml(t.fullName)+'</strong><div class="chips">'+((t.segments||[]).map(s=>'<span class="chip">'+escapeHtml(s)+'</span>').join(""))+'</div></div>'
             + '<div class="small">📞 '+escapeHtml(t.phone||"")+(t.city?" | "+escapeHtml(t.city):"")+(t.birthday?" | יום הולדת: "+escapeHtml(fmtDateShort(t.birthday)):"")+'</div>'
             + (trip?'<div class="small b-ok" style="padding:3px 8px;border-radius:6px;display:inline-block;margin-top:4px">✈ '+escapeHtml(trip.title)+'</div>':"")
             + (t.lastConversation?'<div class="small muted" style="margin-top:4px">שיחה אחרונה: '+escapeHtml(t.lastConversation.channel)+" – "+escapeHtml(fmtDateShort(t.lastConversation.at))+'</div>':"")
             + '<div class="row" style="margin-top:8px;gap:4px">'
-            + '<button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 WA</button>'
-            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="callTraveler('+t.id+')">📞</button>'
-            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editTraveler('+t.id+')">✏️</button>'
-            + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteTraveler('+t.id+')">🗑</button>'
+            + '<button class="btn-primary" style="width:auto;font-size:12px" onclick="event.stopPropagation();openProCard('+t.id+')">🧠 כרטיס PRO</button>'
+            + '<button class="btn-wa" style="width:auto;font-size:12px" onclick="event.stopPropagation();messageTraveler('+t.id+')">💬 WA</button>'
+            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="event.stopPropagation();callTraveler('+t.id+')">📞</button>'
+            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="event.stopPropagation();editTraveler('+t.id+')">✏️</button>'
+            + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="event.stopPropagation();deleteTraveler('+t.id+')">🗑</button>'
             + '</div></div>';
         }).join(""):'<div class="empty">אין מטיילים בתיקייה זו</div>')
         + '</div></div></div>';
@@ -1586,6 +1654,336 @@
       return panel+'<button class="nataly-fab" onclick="toggleNataly()" title="נטלי – בוט חכם">💬</button>';
     }
 
+    // ===== PRO CARD — SMART TRAVELER CARD =====
+    function openProCard(id) {
+      S.proCardTravelerId=id; S.proCardOpen=true; S.proCardTab="details"; S.proCardNewNote=""; S.proCardNewTaskTitle=""; S.proCardNewTaskDate="";
+      render();
+    }
+    function closeProCard() { S.proCardOpen=false; S.proCardTravelerId=null; render(); }
+    function setProTab(tab) { S.proCardTab=tab; render(); }
+
+    function getProTraveler() { return S.proCardTravelerId ? travelerById(S.proCardTravelerId) : null; }
+
+    function proCallTraveler() { const t=getProTraveler(); if(t&&t.phone) window.location.href="tel:"+t.phone; }
+    function proWaTraveler() { const t=getProTraveler(); if(!t) return; const wa=phoneForWa(t.whatsapp||t.phone); if(wa) window.open("https://wa.me/"+wa,"_blank"); }
+    function proSmsTraveler() { const t=getProTraveler(); if(t&&t.phone) window.location.href="sms:"+t.phone; }
+
+    function proToggleRecording() {
+      S.proCardRecordingActive=!S.proCardRecordingActive;
+      if(S.proCardRecordingActive) {
+        const t=getProTraveler();
+        if(t) {
+          const conv={at:isoNow(),channel:"הקלטה",summary:"הקלטת שיחה התחילה",nextStep:""};
+          if(!t.conversationHistory) t.conversationHistory=[];
+          t.conversationHistory.unshift(conv);
+          t.lastConversation=conv;
+        }
+      } else {
+        const t=getProTraveler();
+        if(t&&t.conversationHistory&&t.conversationHistory.length) {
+          t.conversationHistory[0].summary="הקלטת שיחה הסתיימה";
+        }
+      }
+      setState({travelers:S.travelers});
+    }
+
+    function proAddDocument(category) {
+      const input=document.createElement("input"); input.type="file"; input.accept="*/*";
+      input.onchange=function() {
+        if(!input.files.length) return;
+        const file=input.files[0];
+        const doc={id:uid(),travelerId:S.proCardTravelerId,name:file.name,category:category,size:file.size,addedAt:isoNow(),url:URL.createObjectURL(file)};
+        S.proCardDocuments.push(doc);
+        // Also store on traveler
+        const t=getProTraveler();
+        if(t) { if(!t.documents) t.documents=[]; t.documents.push(doc); }
+        setState({proCardDocuments:S.proCardDocuments,travelers:S.travelers});
+      };
+      input.click();
+    }
+
+    function proUploadGeneral() { proAddDocument("כללי"); }
+
+    function proAddQuickNote() {
+      const t=getProTraveler(); if(!t||!S.proCardNewNote.trim()) return;
+      const conv={at:isoNow(),channel:"הערה",summary:S.proCardNewNote.trim(),nextStep:""};
+      if(!t.conversationHistory) t.conversationHistory=[];
+      t.conversationHistory.unshift(conv);
+      t.lastConversation=conv;
+      S.proCardNewNote="";
+      setState({travelers:S.travelers});
+    }
+
+    function proAddTask() {
+      const t=getProTraveler(); if(!t||!S.proCardNewTaskTitle.trim()) return;
+      const task={id:uid(),title:S.proCardNewTaskTitle.trim()+" – "+t.fullName,dueDate:S.proCardNewTaskDate||"",assignedTo:"איציק",done:false,priority:"בינונית",relatedType:"traveler",relatedId:t.id};
+      S.tasks.push(task);
+      S.proCardNewTaskTitle=""; S.proCardNewTaskDate="";
+      setState({tasks:S.tasks});
+    }
+
+    function proToggleTask(taskId) {
+      const task=S.tasks.find(t=>t.id==taskId);
+      if(task) task.done=!task.done;
+      setState({tasks:S.tasks});
+    }
+
+    function proAddPayment() {
+      const t=getProTraveler(); if(!t) return;
+      const amount=prompt("סכום תשלום (₪):");
+      if(!amount) return;
+      const desc=prompt("תיאור (טיול, מקדמה וכו'):")||"תשלום";
+      const pay={id:uid(),travelerId:t.id,amount:Number(amount)||0,description:desc,date:isoNow(),status:"שולם"};
+      S.proCardPayments.push(pay);
+      if(!t.payments) t.payments=[];
+      t.payments.push(pay);
+      setState({proCardPayments:S.proCardPayments,travelers:S.travelers});
+    }
+
+    function getTravelerLeadScore(t) {
+      let score=0;
+      if(t.lastConversation) score+=30;
+      if((t.conversationHistory||[]).length>=3) score+=20;
+      if((t.segments||[]).includes("VIP")) score+=20;
+      if(t.currentTripId) score+=15;
+      if(t.budgetMax&&Number(t.budgetMax)>=5000) score+=15;
+      return Math.min(score,100);
+    }
+
+    function renderProCardDetailsTab(t) {
+      const score=getTravelerLeadScore(t);
+      const scoreClass=score>=60?"pro-score-hot":score>=30?"pro-score-warm":"pro-score-cold";
+      const scoreLabel=score>=60?"חם 🔥":score>=30?"חמים":"קר ❄";
+      return '<div class="pro-section">'
+        + '<div class="pro-section-title">📊 ציון לקוח</div>'
+        + '<div class="pro-score '+scoreClass+'">'+scoreLabel+' ('+score+'/100)</div>'
+        + '<div class="meter" style="margin-top:6px;height:10px"><span style="width:'+score+'%"></span></div>'
+        + '</div>'
+        + '<div class="pro-section">'
+        + '<div class="pro-section-title">👤 פרטים אישיים</div>'
+        + '<div class="pro-info-grid">'
+        + '<div class="pro-info-item"><div class="pro-info-label">טלפון</div><div class="pro-info-value">'+escapeHtml(t.phone||"—")+'</div></div>'
+        + '<div class="pro-info-item"><div class="pro-info-label">וואטסאפ</div><div class="pro-info-value">'+escapeHtml(t.whatsapp||t.phone||"—")+'</div></div>'
+        + '<div class="pro-info-item"><div class="pro-info-label">אימייל</div><div class="pro-info-value">'+escapeHtml(t.email||"—")+'</div></div>'
+        + '<div class="pro-info-item"><div class="pro-info-label">עיר</div><div class="pro-info-value">'+escapeHtml(t.city||"—")+'</div></div>'
+        + '<div class="pro-info-item"><div class="pro-info-label">יום הולדת</div><div class="pro-info-value">'+escapeHtml(t.birthday?fmtDateShort(t.birthday):"—")+'</div></div>'
+        + '<div class="pro-info-item"><div class="pro-info-label">תקציב</div><div class="pro-info-value">'+(t.budgetMin||t.budgetMax?'₪'+escapeHtml(String(t.budgetMin||0))+' – ₪'+escapeHtml(String(t.budgetMax||0)):"—")+'</div></div>'
+        + '<div class="pro-info-item"><div class="pro-info-label">קטגוריה</div><div class="pro-info-value">'+escapeHtml(t.preferredCategory||"—")+'</div></div>'
+        + '<div class="pro-info-item"><div class="pro-info-label">רמת הליכה</div><div class="pro-info-value">'+escapeHtml(t.walkingLevel||"—")+'</div></div>'
+        + '</div></div>'
+        + '<div class="pro-section">'
+        + '<div class="pro-section-title">🏷 קבוצות</div>'
+        + '<div class="chips">'+((t.segments||[]).map(s=>'<span class="chip active-chip">'+escapeHtml(s)+'</span>').join("")||'<span class="muted small">אין קבוצות</span>')+'</div>'
+        + '</div>'
+        + (t.religiousNeeds||t.kashrutRequired||t.shabbatFriendly?'<div class="pro-section"><div class="pro-section-title">✡ דרישות מיוחדות</div><div class="chips">'
+          + (t.religiousNeeds?'<span class="chip active-chip">דתי/ה</span>':"")
+          + (t.kashrutRequired?'<span class="chip active-chip">כשרות</span>':"")
+          + (t.shabbatFriendly?'<span class="chip active-chip">שבת</span>':"")
+          + '</div></div>':"")
+        + (t.notes?'<div class="pro-section"><div class="pro-section-title">📝 הערות</div><div class="small">'+escapeHtml(t.notes)+'</div></div>':"")
+        + '<div class="pro-quick-note">'
+        + '<div class="pro-section-title">✍ הערה מהירה</div>'
+        + '<textarea placeholder="כתוב הערה..." oninput="S.proCardNewNote=this.value">'+escapeHtml(S.proCardNewNote)+'</textarea>'
+        + '<button class="btn-ok" style="margin-top:6px" onclick="proAddQuickNote()">שמור הערה</button>'
+        + '</div>';
+    }
+
+    function renderProCardTripsTab(t) {
+      const currentTrip=t.currentTripId?tripById(t.currentTripId):null;
+      const allTrips=S.trips||[];
+      // Find trips matching traveler preferences
+      const matching=allTrips.filter(tr=>{
+        if(t.preferredCategory&&tr.category===t.preferredCategory) return true;
+        if(t.walkingLevel&&tr.difficulty===t.walkingLevel) return true;
+        return false;
+      }).slice(0,5);
+      return (currentTrip?'<div class="pro-section"><div class="pro-section-title">✈ טיול נוכחי</div>'
+        + '<div class="pro-trip-card" style="border-color:var(--ok);background:#f0fff4">'
+        + '<div class="trip-title">'+escapeHtml(currentTrip.title)+'</div>'
+        + '<div class="trip-meta">'+escapeHtml(currentTrip.destination)+' | '+escapeHtml(currentTrip.category)+' | '+currentTrip.durationDays+' ימים | ₪'+currentTrip.price+'</div>'
+        + '<div class="meter" style="margin-top:8px"><span style="width:'+Math.round(currentTrip.enrolled/currentTrip.capacity*100)+'%"></span></div>'
+        + '<div class="small muted" style="margin-top:4px">'+currentTrip.enrolled+'/'+currentTrip.capacity+' נרשמו</div>'
+        + '</div></div>':"")
+        + '<div class="pro-section"><div class="pro-section-title">🎯 טיולים מומלצים</div>'
+        + (matching.length?matching.map(tr=>'<div class="pro-trip-card">'
+          + '<div class="trip-title">'+escapeHtml(tr.title)+'</div>'
+          + '<div class="trip-meta">'+escapeHtml(tr.destination)+' | '+escapeHtml(tr.category)+' | '+tr.durationDays+' ימים | ₪'+tr.price+'</div>'
+          + '<div class="row" style="margin-top:8px;gap:4px">'
+          + '<button class="btn-ok" style="width:auto;font-size:12px" onclick="assignTripToTraveler('+t.id+','+tr.id+')">שייך לטיול</button>'
+          + '<button class="btn-wa" style="width:auto;font-size:12px" onclick="proWaTraveler()">שלח הצעה</button>'
+          + '</div></div>').join(""):'<div class="pro-empty">אין טיולים תואמים כרגע</div>')
+        + '</div>';
+    }
+
+    function assignTripToTraveler(travelerId,tripId) {
+      const t=travelerById(travelerId);
+      if(t) { t.currentTripId=tripId; setState({travelers:S.travelers}); }
+    }
+
+    function renderProCardCommTab(t) {
+      const history=(t.conversationHistory||[]).slice(0,20);
+      const channelColors={"ווטסאפ":"wa","טלפון":"phone","מייל":"email","פגישה":"meeting","הקלטה":"phone","הערה":""};
+      return '<div class="pro-section">'
+        + '<div class="pro-section-title">💬 היסטוריית תקשורת ('+history.length+')</div>'
+        + (history.length?'<div class="pro-timeline">'+history.map(c=>{
+          const cls=channelColors[c.channel]||"";
+          return '<div class="pro-timeline-item '+cls+'">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+            + '<span class="pro-timeline-channel" style="background:'+(c.channel==="ווטסאפ"?"#dcf8c6":c.channel==="טלפון"?"#e3f2fd":c.channel==="מייל"?"#fff3e0":c.channel==="הקלטה"?"#fce4ec":"#f3e5f5")+'">'+escapeHtml(c.channel)+'</span>'
+            + '<span class="pro-timeline-date">'+escapeHtml(fmtDateShort(c.at))+'</span>'
+            + '</div>'
+            + '<div class="small" style="margin-top:4px">'+escapeHtml(c.summary||"")+'</div>'
+            + (c.nextStep?'<div class="small" style="color:var(--warn);margin-top:4px">▶ '+escapeHtml(c.nextStep)+'</div>':"")
+            + '</div>';
+        }).join("")+'</div>':'<div class="pro-empty">אין שיחות רשומות עדיין</div>')
+        + '</div>'
+        + '<div class="pro-section">'
+        + '<div class="pro-section-title">✍ הוסף שיחה</div>'
+        + '<div class="grid" style="gap:8px">'
+        + '<div><label>ערוץ</label><select id="pro_conv_channel"><option>ווטסאפ</option><option>טלפון</option><option>מייל</option><option>פגישה</option></select></div>'
+        + '<div><label>סיכום</label><textarea id="pro_conv_summary" placeholder="מה דובר..."></textarea></div>'
+        + '<div><label>צעד הבא</label><input id="pro_conv_next" placeholder="מה צריך לעשות..."></div>'
+        + '</div>'
+        + '<button class="btn-ok" style="margin-top:8px" onclick="proSaveConversation()">שמור שיחה</button>'
+        + '</div>';
+    }
+
+    function proSaveConversation() {
+      const t=getProTraveler(); if(!t) return;
+      const channel=document.getElementById("pro_conv_channel")?.value||"ווטסאפ";
+      const summary=document.getElementById("pro_conv_summary")?.value||"";
+      const nextStep=document.getElementById("pro_conv_next")?.value||"";
+      if(!summary.trim()) return alert("יש להזין סיכום שיחה");
+      const conv={at:isoNow(),channel:channel,summary:summary.trim(),nextStep:nextStep.trim()};
+      if(!t.conversationHistory) t.conversationHistory=[];
+      t.conversationHistory.unshift(conv);
+      t.lastConversation=conv;
+      setState({travelers:S.travelers});
+    }
+
+    function renderProCardDocsTab(t) {
+      const docs=(t.documents||[]);
+      const categories=[
+        {key:"דרכון",icon:"🛂",label:"דרכון"},
+        {key:"ביטוח",icon:"🛡",label:"ביטוח"},
+        {key:"טופס רפואי",icon:"🏥",label:"טופס רפואי"},
+        {key:"קבלה",icon:"🧾",label:"קבלה"},
+        {key:"הקלטות",icon:"🎙",label:"הקלטות"},
+        {key:"כללי",icon:"📄",label:"כללי"}
+      ];
+      return '<div class="pro-section">'
+        + '<div class="pro-section-title">📂 העלאת מסמכים לפי קטגוריה</div>'
+        + '<div class="pro-doc-grid">'+categories.map(cat=>{
+          const catDocs=docs.filter(d=>d.category===cat.key);
+          return '<div class="pro-doc-card" onclick="proAddDocument(\''+escapeHtml(cat.key)+'\')">'
+            + '<div class="pro-doc-icon">'+cat.icon+'</div>'
+            + '<div class="pro-doc-name">'+escapeHtml(cat.label)+'</div>'
+            + '<div class="pro-doc-count">'+catDocs.length+' קבצים</div>'
+            + '<div class="small" style="color:var(--brand);margin-top:4px">+ העלה</div>'
+            + '</div>';
+        }).join("")+'</div>'
+        + '</div>'
+        + (docs.length?'<div class="pro-section"><div class="pro-section-title">📋 קבצים שהועלו ('+docs.length+')</div>'
+          + '<div class="list">'+docs.map(d=>'<div class="item" style="display:flex;align-items:center;justify-content:space-between">'
+            + '<div><strong class="small">'+escapeHtml(d.name)+'</strong><div class="small muted">'+escapeHtml(d.category)+' | '+escapeHtml(fmtDateShort(d.addedAt))+'</div></div>'
+            + (d.url?'<a href="'+escapeHtml(d.url)+'" target="_blank" class="btn-soft" style="width:auto;font-size:11px;padding:4px 10px;text-decoration:none">הורד</a>':"")
+            + '</div>').join("")+'</div></div>':"");
+    }
+
+    function renderProCardPaymentsTab(t) {
+      const payments=(t.payments||[]);
+      const totalPaid=payments.reduce((s,p)=>s+(Number(p.amount)||0),0);
+      const tripPrice=t.currentTripId?((tripById(t.currentTripId)||{}).price||0):0;
+      const remaining=tripPrice-totalPaid;
+      return '<div class="pro-section">'
+        + '<div class="pro-section-title">💰 סיכום תשלומים</div>'
+        + '<div class="pro-info-grid">'
+        + '<div class="pro-info-item" style="border-color:var(--ok)"><div class="pro-info-label">שולם</div><div class="pro-info-value" style="color:var(--ok)">₪'+totalPaid.toLocaleString("he-IL")+'</div></div>'
+        + '<div class="pro-info-item" style="border-color:'+(remaining>0?"var(--danger)":"var(--ok)")+'"><div class="pro-info-label">נותר</div><div class="pro-info-value" style="color:'+(remaining>0?"var(--danger)":"var(--ok)")+'">₪'+(remaining>0?remaining:0).toLocaleString("he-IL")+'</div></div>'
+        + (tripPrice?'<div class="pro-info-item"><div class="pro-info-label">מחיר טיול</div><div class="pro-info-value">₪'+tripPrice.toLocaleString("he-IL")+'</div></div>':'')
+        + '<div class="pro-info-item"><div class="pro-info-label">מס תשלומים</div><div class="pro-info-value">'+payments.length+'</div></div>'
+        + '</div></div>'
+        + (tripPrice?'<div class="meter" style="margin-bottom:12px;height:12px"><span style="width:'+Math.min(100,Math.round(totalPaid/tripPrice*100))+'%;background:'+(totalPaid>=tripPrice?"var(--ok)":"linear-gradient(90deg,#1675a7,#27a2be)")+'"></span></div>':'')
+        + (payments.length?'<div class="pro-section"><div class="pro-section-title">📋 פירוט תשלומים</div>'
+          + payments.map(p=>'<div class="pro-pay-row">'
+            + '<div><strong class="small">'+escapeHtml(p.description||"תשלום")+'</strong><div class="small muted">'+escapeHtml(fmtDateShort(p.date))+'</div></div>'
+            + '<div><span class="badge '+(p.status==="שולם"?"b-ok":"b-warn")+'">'+escapeHtml(p.status||"")+'</span></div>'
+            + '<strong style="color:var(--ok)">₪'+(Number(p.amount)||0).toLocaleString("he-IL")+'</strong>'
+            + '</div>').join("")+'</div>':"")
+        + '<div class="pro-section">'
+        + '<button class="btn-ok" onclick="proAddPayment()">+ רשום תשלום חדש</button>'
+        + '</div>';
+    }
+
+    function renderProCardTasksTab(t) {
+      const myTasks=(S.tasks||[]).filter(task=>task.relatedId==t.id||((task.title||"").includes(t.fullName)));
+      const today=new Date(); today.setHours(0,0,0,0);
+      const overdue=myTasks.filter(task=>!task.done&&task.dueDate&&new Date(task.dueDate)<today);
+      const active=myTasks.filter(task=>!task.done&&(!task.dueDate||new Date(task.dueDate)>=today));
+      const done=myTasks.filter(task=>task.done);
+      return (overdue.length?'<div class="pro-section"><div class="pro-section-title" style="color:var(--danger)">⚠ באיחור ('+overdue.length+')</div>'
+        + overdue.map(task=>'<div class="pro-task-item overdue"><input type="checkbox" onchange="proToggleTask('+task.id+')" style="width:20px;flex:0"><div style="flex:1"><strong class="small">'+escapeHtml(task.title)+'</strong><div class="small muted">'+escapeHtml(task.dueDate)+'</div></div></div>').join("")+'</div>':"")
+        + '<div class="pro-section"><div class="pro-section-title">📋 משימות פתוחות ('+active.length+')</div>'
+        + (active.length?active.map(task=>'<div class="pro-task-item"><input type="checkbox" onchange="proToggleTask('+task.id+')" style="width:20px;flex:0"><div style="flex:1"><strong class="small">'+escapeHtml(task.title)+'</strong><div class="small muted">'+escapeHtml(task.dueDate||"ללא תאריך")+' | '+escapeHtml(task.priority||"")+'</div></div></div>').join(""):'<div class="pro-empty">אין משימות פתוחות</div>')
+        + '</div>'
+        + (done.length?'<div class="pro-section"><div class="pro-section-title" style="opacity:0.6">✅ הושלמו ('+done.length+')</div>'
+          + done.slice(0,5).map(task=>'<div class="pro-task-item done"><div style="flex:1"><strong class="small">'+escapeHtml(task.title)+'</strong></div></div>').join("")+'</div>':"")
+        + '<div class="pro-section">'
+        + '<div class="pro-section-title">+ משימה חדשה</div>'
+        + '<div class="grid" style="gap:8px">'
+        + '<div><input placeholder="תיאור המשימה..." value="'+escapeHtml(S.proCardNewTaskTitle)+'" oninput="S.proCardNewTaskTitle=this.value"></div>'
+        + '<div><input type="date" value="'+escapeHtml(S.proCardNewTaskDate)+'" oninput="S.proCardNewTaskDate=this.value"></div>'
+        + '</div>'
+        + '<button class="btn-ok" style="margin-top:8px" onclick="proAddTask()">הוסף משימה</button>'
+        + '</div>';
+    }
+
+    function renderProCard() {
+      if(!S.proCardOpen) return '<div class="pro-overlay"></div><div class="pro-card"></div>';
+      const t=getProTraveler();
+      if(!t) return '<div class="pro-overlay"></div><div class="pro-card"></div>';
+
+      const score=getTravelerLeadScore(t);
+      const scoreLabel=score>=60?"🔥 חם":score>=30?"🌤 חמים":"❄ קר";
+      const tabs=[
+        {id:"details",icon:"🟦",label:"פרטים"},
+        {id:"trips",icon:"🟩",label:"טיולים"},
+        {id:"comm",icon:"🟨",label:"תקשורת"},
+        {id:"docs",icon:"🟪",label:"מסמכים"},
+        {id:"payments",icon:"🟥",label:"תשלומים"},
+        {id:"tasks",icon:"⚫",label:"משימות"}
+      ];
+      let body="";
+      if(S.proCardTab==="details") body=renderProCardDetailsTab(t);
+      else if(S.proCardTab==="trips") body=renderProCardTripsTab(t);
+      else if(S.proCardTab==="comm") body=renderProCardCommTab(t);
+      else if(S.proCardTab==="docs") body=renderProCardDocsTab(t);
+      else if(S.proCardTab==="payments") body=renderProCardPaymentsTab(t);
+      else if(S.proCardTab==="tasks") body=renderProCardTasksTab(t);
+      else body=renderProCardDetailsTab(t);
+
+      return '<div class="pro-overlay open" onclick="closeProCard()"></div>'
+        + '<div class="pro-card open" onclick="event.stopPropagation()">'
+        + '<div class="pro-card-header">'
+        + '<button class="pro-card-close" onclick="closeProCard()">✕</button>'
+        + '<div class="pro-card-name">'+escapeHtml(t.fullName)+'</div>'
+        + '<div class="pro-card-phone">📞 '+escapeHtml(t.phone||"")+(t.city?' | 📍 '+escapeHtml(t.city):"")+'</div>'
+        + '<div class="pro-card-status-row">'
+        + ((t.segments||[]).map(s=>'<span class="pro-card-status" style="background:rgba(255,255,255,0.18);color:#fff">'+escapeHtml(s)+'</span>').join(""))
+        + '<span class="pro-card-status" style="background:rgba(255,255,255,0.25);color:#fff">'+scoreLabel+'</span>'
+        + '</div>'
+        + '<div class="pro-card-actions">'
+        + '<button class="pro-action-btn pro-action-call" onclick="proCallTraveler()">📞 התקשר</button>'
+        + '<button class="pro-action-btn pro-action-wa" onclick="proWaTraveler()">💬 וואטסאפ</button>'
+        + '<button class="pro-action-btn pro-action-sms" onclick="proSmsTraveler()">✉ SMS</button>'
+        + '<button class="pro-action-btn pro-action-record" onclick="proToggleRecording()" style="'+(S.proCardRecordingActive?"animation:pulse 1s infinite":"")+'">🎤 '+(S.proCardRecordingActive?"עוצר...":"הקלט")+'</button>'
+        + '<button class="pro-action-btn pro-action-upload" onclick="proUploadGeneral()">📎 קובץ</button>'
+        + '</div></div>'
+        + '<div class="pro-card-tabs">'+tabs.map(tab=>'<button class="pro-tab '+(S.proCardTab===tab.id?"active":"")+'" onclick="setProTab(\''+tab.id+'\')">'+tab.icon+' '+escapeHtml(tab.label)+'</button>').join("")+'</div>'
+        + '<div class="pro-card-body">'+body+'</div>'
+        + '</div>';
+    }
+
     // ===== RENDER MAIN =====
     function renderMain() {
       const tabs=[
@@ -1634,6 +2032,7 @@
         + '<div class="header"><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div class="top-meta"><span class="meta-pill">☁️ מחובר</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span><span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span></div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש לקוח, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
         + '<div class="tabs">'+tabs.map(t=>'<button class="'+(S.tab===t.id?"active":"")+'" onclick="setState({tab:\''+t.id+'\'},false)">'+t.label+'</button>').join("")+'</div>'
         + content
+        + renderProCard()
         + renderAiWidget()
         + renderNatalyWidget()
         + '</div>';
