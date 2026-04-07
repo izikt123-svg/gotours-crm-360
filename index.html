@@ -69,7 +69,7 @@
     .top-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
     .meta-pill { background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.28); border-radius:999px; padding:4px 10px; font-size:12px; font-weight:700; }
     .dashboard-flow { display:grid; gap:12px; }
-    .module-grid { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+    .module-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
     .module { border:1px solid var(--line); border-radius:12px; background:#f8fbff; padding:10px; font-weight:700; color:var(--text); display:flex; align-items:center; justify-content:space-between; gap:8px; }
     .module .count { color:#fff; background:linear-gradient(120deg,#0f567f,#1f89aa); border-radius:999px; min-width:24px; text-align:center; font-size:12px; padding:2px 7px; }
     .kpi-note { font-size:12px; color:var(--muted); }
@@ -157,15 +157,71 @@
     .smart-folder .folder-icon { font-size:28px; }
     .smart-folder .folder-info { flex:1; }
     .smart-folder .folder-count { font-size:22px; font-weight:800; color:var(--brand); }
+    /* QUOTE BUILDER */
+    .quote-items { display:grid; gap:6px; }
+    .quote-item { display:flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:10px; background:#fff; padding:8px; }
+    .quote-item input { flex:1; min-width:80px; }
+    .quote-summary { background:linear-gradient(135deg,#edf5fc,#f0f8ff); border:1px solid #c8ddf0; border-radius:12px; padding:14px; margin-top:10px; }
+    .quote-summary strong { color:var(--brand); font-size:20px; }
+    /* FINANCE */
+    .finance-kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+    .finance-kpi { background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px; text-align:center; }
+    .finance-kpi .amount { font-size:22px; font-weight:800; }
+    .finance-kpi .label { font-size:12px; color:var(--muted); }
+    .finance-kpi.paid { border-color:var(--ok); }
+    .finance-kpi.pending { border-color:var(--warn); }
+    /* CAMPAIGN */
+    .campaign-card { border:1px solid var(--line); border-radius:12px; background:#fff; padding:12px; }
+    .campaign-metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:8px; }
+    .campaign-metric { text-align:center; background:#f8fbff; border-radius:8px; padding:6px; }
+    .campaign-metric .val { font-size:18px; font-weight:800; color:var(--brand); }
+    .campaign-metric .lbl { font-size:11px; color:var(--muted); }
+    /* TRAILS */
+    .trail-card { border:1px solid var(--line); border-radius:12px; background:#fff; padding:12px; }
+    .trail-card .trail-header { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+    .trail-details { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:6px; }
+    .trail-detail { text-align:center; background:#f8fbff; border-radius:8px; padding:4px 6px; font-size:12px; }
+    /* ANALYTICS */
+    .analytics-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+    .analytics-chart { border:1px solid var(--line); border-radius:12px; background:#fff; padding:14px; }
+    .bar-chart { display:flex; align-items:flex-end; gap:6px; height:140px; padding-top:10px; }
+    .bar { flex:1; background:linear-gradient(to top,#0f567f,#1f89aa); border-radius:6px 6px 0 0; min-width:20px; position:relative; }
+    .bar-label { position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); font-size:10px; color:var(--muted); white-space:nowrap; }
+    .bar-val { position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:10px; font-weight:700; color:var(--brand); white-space:nowrap; }
+    /* SETTINGS */
+    .settings-section { border:1px solid var(--line); border-radius:12px; background:#fff; padding:14px; margin-bottom:10px; }
+    .settings-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eef3f8; }
+    .settings-row:last-child { border-bottom:none; }
+    .toggle-switch { width:44px; height:24px; border-radius:999px; background:#ccd5df; cursor:pointer; position:relative; transition:0.2s; border:none; }
+    .toggle-switch.on { background:var(--ok); }
+    .toggle-switch::after { content:""; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#fff; transition:0.2s; }
+    .toggle-switch.on::after { left:22px; }
+    /* ACTIVITY LOG */
+    .log-entry { display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; background:#fff; padding:8px 10px; }
+    .log-icon { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+    .log-icon.add { background:#dcf4e7; }
+    .log-icon.edit { background:#edf5fc; }
+    .log-icon.delete { background:#ffe7e7; }
+    .log-content { flex:1; }
+    .log-time { font-size:11px; color:var(--muted); white-space:nowrap; }
+    /* DUPLICATES */
+    .dup-pair { border:1px solid var(--warn); border-radius:12px; background:#fffaf1; padding:12px; display:flex; gap:12px; align-items:center; }
+    .dup-record { flex:1; background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px; }
+    .dup-arrow { font-size:24px; color:var(--warn); flex-shrink:0; }
     @media (max-width:1120px) {
       .kpis { grid-template-columns:repeat(3,minmax(0,1fr)); }
       .layout-2,.layout-3 { grid-template-columns:1fr; }
       .module-grid,.site-live,.quick-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .analytics-grid { grid-template-columns:1fr; }
+      .finance-kpis { grid-template-columns:repeat(2,1fr); }
+      .trail-details { grid-template-columns:repeat(2,1fr); }
     }
     @media (max-width:640px) {
       .kpis { grid-template-columns:1fr 1fr; }
       .module-grid,.site-live,.quick-actions { grid-template-columns:1fr; }
       .feed-row,.goal-head { flex-direction:column; align-items:flex-start; }
+      .analytics-grid { grid-template-columns:1fr; }
+      .finance-kpis { grid-template-columns:1fr; }
     }
   </style>
 </head>
@@ -194,6 +250,69 @@
     const WEATHER_QUICK_TOPICS = ["מזג אוויר עכשיו","תחזית שבועית","סיכוי גשם","מהירות רוח","לחות","מדד UV","איכות אוויר"];
     const ROUTE_STYLES = ["רגוע","מאוזן","אינטנסיבי"];
     const FX_BASE_OPTIONS = ["ILS","USD","EUR","GBP","AED","JPY"];
+    const INVOICE_STATUSES = ["ממתין","שולם","חלקי","בוטל"];
+    const INVOICE_METHODS = ["אשראי","העברה","מזומן","צ'ק"];
+    const CAMPAIGN_CHANNELS = ["פייסבוק","אינסטגרם","גוגל","וואטסאפ","מייל","טיקטוק"];
+    const CAMPAIGN_STATUSES = ["מתוכנן","פעיל","הושלם","מושהה"];
+    const DOC_CATEGORIES = ["חוזה","ביטוח","חשבונית","דרכון","אחר"];
+    const SOCIAL_PLATFORMS = ["facebook","instagram","linkedin","tiktok"];
+    const QUOTE_STATUSES = ["טיוטה","נשלחה","אושרה","בוטלה"];
+
+    // Hiking trails database - 50+ Israeli trails
+    const HIKING_TRAILS = [
+      {id:1,name:"נחל דוד",region:"דרום",difficulty:"קל",distance:3,duration:2,season:"חורף-אביב",suitability:["משפחות","גיל שלישי"],description:"מסלול קל ויפהפה בעין גדי עם מפלים ובריכות טבעיות"},
+      {id:2,name:"מצדה – שביל הנחש",region:"דרום",difficulty:"קשה",distance:3.5,duration:2,season:"חורף",suitability:["מיטיבי לכת"],description:"עלייה תלולה למצודת מצדה דרך שביל הנחש"},
+      {id:3,name:"נחל ערוגות",region:"דרום",difficulty:"בינוני",distance:7,duration:4,season:"חורף-אביב",suitability:["מיטיבי לכת"],description:"מסלול מדברי מרהיב עם מפלים עונתיים"},
+      {id:4,name:"הר שלמה",region:"דרום",difficulty:"קשה",distance:12,duration:6,season:"חורף",suitability:["מיטיבי לכת"],description:"הפסגה הגבוהה ביותר בהרי אילת עם נוף מרהיב"},
+      {id:5,name:"עמוד הענן",region:"דרום",difficulty:"בינוני",distance:5,duration:3,season:"חורף",suitability:["מיטיבי לכת"],description:"עמוד סלע ייחודי במכתש רמון"},
+      {id:6,name:"המכתש הגדול",region:"דרום",difficulty:"בינוני",distance:8,duration:5,season:"חורף-אביב",suitability:["מיטיבי לכת"],description:"מסלול מעגלי סביב המכתש הגדול"},
+      {id:7,name:"נחל פרצים",region:"דרום",difficulty:"קל",distance:4,duration:2.5,season:"חורף",suitability:["משפחות"],description:"קניון מדברי מרשים עם תצורות סלע"},
+      {id:8,name:"הר כרכום",region:"דרום",difficulty:"בינוני",distance:6,duration:4,season:"חורף",suitability:["מיטיבי לכת"],description:"אתר ארכיאולוגי עם ציורי סלע קדומים"},
+      {id:9,name:"נחל יהודיה",region:"צפון",difficulty:"קשה",distance:8,duration:6,season:"קיץ",suitability:["מיטיבי לכת"],description:"מסלול מים מאתגר עם גלישות סנפלינג ובריכות"},
+      {id:10,name:"נחל זויתן",region:"צפון",difficulty:"בינוני",distance:5,duration:3,season:"קיץ",suitability:["מיטיבי לכת","משפחות"],description:"מסלול מים יפהפה ברמת הגולן"},
+      {id:11,name:"נחל עיט",region:"צפון",difficulty:"קל",distance:2,duration:1.5,season:"כל השנה",suitability:["משפחות","גיל שלישי"],description:"מסלול קצר ונגיש עם מפל יפה"},
+      {id:12,name:"הר מירון",region:"צפון",difficulty:"בינוני",distance:6,duration:4,season:"אביב",suitability:["מיטיבי לכת","דתיים"],description:"הפסגה הגבוהה ביותר בגליל עם פריחה מרהיבה באביב"},
+      {id:13,name:"נחל עמוד",region:"צפון",difficulty:"בינוני",distance:10,duration:5,season:"חורף-אביב",suitability:["מיטיבי לכת"],description:"שמורת טבע מרשימה עם מפלים וצוקים"},
+      {id:14,name:"מצוק הארבל",region:"צפון",difficulty:"בינוני",distance:4,duration:2.5,season:"כל השנה",suitability:["מיטיבי לכת","משפחות"],description:"נוף פנורמי על הכנרת ורמת הגולן"},
+      {id:15,name:"נחל חרמון (בניאס)",region:"צפון",difficulty:"קל",distance:3,duration:2,season:"כל השנה",suitability:["משפחות","גיל שלישי","דתיים"],description:"מסלול נהר קסום עם מפל הבניאס"},
+      {id:16,name:"שמורת החולה",region:"צפון",difficulty:"קל",distance:4,duration:2,season:"חורף",suitability:["משפחות","גיל שלישי"],description:"צפרות ושביל אופניים סביב אגמון החולה"},
+      {id:17,name:"נחל כזיב",region:"צפון",difficulty:"קל",distance:5,duration:3,season:"אביב-קיץ",suitability:["משפחות"],description:"נחל זורם עם בריכות שחייה טבעיות"},
+      {id:18,name:"הר תבור",region:"צפון",difficulty:"בינוני",distance:5,duration:3,season:"אביב",suitability:["מיטיבי לכת","דתיים"],description:"הר בעל חשיבות היסטורית ודתית עם נוף 360"},
+      {id:19,name:"נחל שניר (חצבני)",region:"צפון",difficulty:"קל",distance:3,duration:2,season:"קיץ",suitability:["משפחות"],description:"מסלול מים קל ומרענן בצפון"},
+      {id:20,name:"מצפה נפתוח",region:"ירושלים",difficulty:"קל",distance:2,duration:1,season:"כל השנה",suitability:["משפחות","גיל שלישי"],description:"נקודת תצפית מרהיבה על ירושלים"},
+      {id:21,name:"עין חמד",region:"ירושלים",difficulty:"קל",distance:3,duration:2,season:"קיץ",suitability:["משפחות","גיל שלישי"],description:"מעיין טבעי ושרידי מבצר צלבני"},
+      {id:22,name:"נחל קטלב",region:"ירושלים",difficulty:"בינוני",distance:6,duration:3.5,season:"חורף-אביב",suitability:["מיטיבי לכת","משפחות"],description:"מסלול יפה בהרי ירושלים עם שלולית חורף"},
+      {id:23,name:"שביל סטף",region:"ירושלים",difficulty:"קל",distance:4,duration:2,season:"אביב",suitability:["משפחות","דתיים"],description:"מסלול מעגלי נוח עם פריחה עשירה באביב"},
+      {id:24,name:"הר הרצל – הר הזיכרון",region:"ירושלים",difficulty:"קל",distance:3,duration:2,season:"כל השנה",suitability:["משפחות","גיל שלישי","דתיים"],description:"מסלול הנצחה משמעותי עם גנים ואנדרטאות"},
+      {id:25,name:"מעיין הלילית",region:"ירושלים",difficulty:"קל",distance:2.5,duration:1.5,season:"כל השנה",suitability:["משפחות"],description:"מעיין קסום ביער ירושלים"},
+      {id:26,name:"נחל אוג",region:"דרום",difficulty:"בינוני",distance:9,duration:5,season:"חורף",suitability:["מיטיבי לכת"],description:"קניון מדברי עמוק עם מפלים עונתיים"},
+      {id:27,name:"עין עבדת",region:"דרום",difficulty:"קל",distance:2,duration:1.5,season:"כל השנה",suitability:["משפחות","גיל שלישי"],description:"מפל מרהיב בלב המדבר"},
+      {id:28,name:"נחל בוקק",region:"דרום",difficulty:"קל",distance:3,duration:2,season:"חורף",suitability:["משפחות"],description:"קניון קצר ונגיש ליד ים המלח"},
+      {id:29,name:"הר צין",region:"דרום",difficulty:"קשה",distance:10,duration:6,season:"חורף",suitability:["מיטיבי לכת"],description:"מסלול מאתגר עם נופים מדבריים מרהיבים"},
+      {id:30,name:"נחל חווה",region:"דרום",difficulty:"בינוני",distance:5,duration:3,season:"חורף",suitability:["מיטיבי לכת"],description:"מסלול מדברי עם תצורות סלע ייחודיות"},
+      {id:31,name:"פארק הירדן",region:"צפון",difficulty:"קל",distance:4,duration:2,season:"קיץ",suitability:["משפחות","גיל שלישי"],description:"שביל על גדות הירדן עם אטרקציות מים"},
+      {id:32,name:"נחל גלבוע",region:"צפון",difficulty:"בינוני",distance:7,duration:4,season:"אביב",suitability:["מיטיבי לכת"],description:"מסלול עם אירוסים סגולים באביב"},
+      {id:33,name:"שביל הגולן",region:"צפון",difficulty:"קשה",distance:15,duration:8,season:"אביב-סתיו",suitability:["מיטיבי לכת"],description:"שביל ארוך ומאתגר ברמת הגולן"},
+      {id:34,name:"נחל דישון",region:"צפון",difficulty:"בינוני",distance:6,duration:3.5,season:"אביב",suitability:["מיטיבי לכת","משפחות"],description:"מסלול ירוק ויפהפה בגליל העליון"},
+      {id:35,name:"מערת קשת",region:"צפון",difficulty:"קל",distance:1.5,duration:1,season:"כל השנה",suitability:["משפחות","גיל שלישי"],description:"גשר סלע טבעי מרהיב"},
+      {id:36,name:"נחל עורבים",region:"מרכז",difficulty:"בינוני",distance:5,duration:3,season:"חורף-אביב",suitability:["מיטיבי לכת"],description:"קניון מרשים בשפלת יהודה"},
+      {id:37,name:"תל גזר",region:"מרכז",difficulty:"קל",distance:3,duration:1.5,season:"כל השנה",suitability:["משפחות","דתיים"],description:"אתר ארכיאולוגי חשוב עם ממצאים מקראיים"},
+      {id:38,name:"פארק אלונה",region:"מרכז",difficulty:"קל",distance:4,duration:2,season:"אביב",suitability:["משפחות","גיל שלישי"],description:"יער גדול עם שבילים מסומנים ופריחה"},
+      {id:39,name:"נחל תנינים",region:"מרכז",difficulty:"קל",distance:3,duration:2,season:"כל השנה",suitability:["משפחות","גיל שלישי"],description:"שמורת טבע עם מים זורמים ושרידי סכר עתיק"},
+      {id:40,name:"גבעת התיתורה",region:"מרכז",difficulty:"קל",distance:3,duration:1.5,season:"אביב",suitability:["משפחות"],description:"פריחת כלניות אדומות מרהיבה"},
+      {id:41,name:"נחל שורק",region:"מרכז",difficulty:"בינוני",distance:7,duration:4,season:"חורף-אביב",suitability:["מיטיבי לכת"],description:"מסלול ארוך עם מפלים ובריכות"},
+      {id:42,name:"יער בן שמן",region:"מרכז",difficulty:"קל",distance:5,duration:2.5,season:"כל השנה",suitability:["משפחות","גיל שלישי"],description:"יער אורנים עם שבילים נוחים"},
+      {id:43,name:"מכתש רמון",region:"דרום",difficulty:"בינוני",distance:10,duration:5,season:"חורף-אביב",suitability:["מיטיבי לכת"],description:"המכתש הגדול בעולם – מסלול מעגלי"},
+      {id:44,name:"הר אביטל",region:"צפון",difficulty:"קל",distance:2,duration:1,season:"כל השנה",suitability:["משפחות","גיל שלישי"],description:"תצפית 360 מעל רמת הגולן"},
+      {id:45,name:"עין גדי – מעיין חמים",region:"דרום",difficulty:"קל",distance:2,duration:1.5,season:"חורף",suitability:["משפחות","גיל שלישי"],description:"טבילה במעיין חם ליד ים המלח"},
+      {id:46,name:"נחל מערערות",region:"מרכז",difficulty:"בינוני",distance:6,duration:3,season:"חורף",suitability:["מיטיבי לכת"],description:"קניון מרשים עם מערות"},
+      {id:47,name:"הר ארדון",region:"דרום",difficulty:"קשה",distance:8,duration:5,season:"חורף",suitability:["מיטיבי לכת"],description:"צבעי אדמה מרהיבים במכתש רמון"},
+      {id:48,name:"נחל חילזון",region:"צפון",difficulty:"קל",distance:4,duration:2.5,season:"אביב",suitability:["משפחות"],description:"מסלול ירוק עם מפלים בגליל"},
+      {id:49,name:"שביל ישראל – קטע הר מירון",region:"צפון",difficulty:"קשה",distance:18,duration:9,season:"אביב-סתיו",suitability:["מיטיבי לכת"],description:"קטע מאתגר בשביל ישראל"},
+      {id:50,name:"נחל אל על",region:"צפון",difficulty:"בינוני",distance:5,duration:3,season:"כל השנה",suitability:["מיטיבי לכת","משפחות"],description:"מסלול מים עם מפל מרשים ברמת הגולן"},
+      {id:51,name:"נחל גדור",region:"דרום",difficulty:"קשה",distance:9,duration:5,season:"חורף",suitability:["מיטיבי לכת"],description:"מסלול מדברי מאתגר במדבר יהודה"},
+      {id:52,name:"הר סדום",region:"דרום",difficulty:"בינוני",distance:5,duration:3,season:"חורף",suitability:["מיטיבי לכת"],description:"מערות מלח ותצפית על ים המלח"}
+    ];
 
     // קטלוג מדינות מורחב - 45+ מדינות בכל היבשות
     const COUNTRY_TRAVEL_CATALOG = [
@@ -280,6 +399,8 @@
     };
 
     // ===== UTILITY FUNCTIONS =====
+    let _saveTimer=null;
+    function debouncedSaveRemote(){clearTimeout(_saveTimer);_saveTimer=setTimeout(()=>{saveRemote();},1200);}
     function uid() { return Date.now() + Math.floor(Math.random()*99999); }
     function isoNow() { return new Date().toISOString(); }
     function escapeHtml(s) {
@@ -341,15 +462,71 @@
       ],
       taskForm:{id:null,title:"",dueDate:"",assignedTo:"איציק",priority:"בינונית",relatedType:"כללי",done:false},
       autocompleteField:"", autocompleteQuery:"", autocompleteResults:[],
-      travelerForm:{id:null,fullName:"",phone:"",whatsapp:"",email:"",birthday:"",age:"",city:"",budgetMin:"",budgetMax:"",preferredCategory:"טבע",walkingLevel:"בינוני",religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,preferredSeason:"",notes:"",segments:[],currentTripId:null,active:true,lastConversation:null},
+      travelerForm:{id:null,fullName:"",phone:"",whatsapp:"",email:"",birthday:"",age:"",city:"",budgetMin:"",budgetMax:"",preferredCategory:"טבע",walkingLevel:"בינוני",religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,preferredSeason:"",notes:"",segments:[],currentTripId:null,active:true,lastConversation:null,travelHistory:[],conversationHistory:[]},
       leadForm:{id:null,fullName:"",phone:"",email:"",source:"אתר",status:"חדש",destinationInterest:"",budget:"",travelersCount:"",notes:"",assignedTo:"",createdAt:""},
       tripForm:{id:null,title:"",destination:"",category:"טבע",difficulty:"בינוני",price:"",durationDays:"",season:"",religiousFriendly:false,kashrutAvailable:false,shabbatOptions:false,notes:"",capacity:20,enrolled:0},
       agencyForm:{id:null,name:"",city:"",managerName:"",phone:"",email:"",specialization:"",active:true,notes:""},
-      supplierForm:{id:null,name:"",type:"מלון",city:"",contactName:"",phone:"",email:"",rating:"",terms:"",notes:"",active:true,taxId:"",paymentTerms:""},
+      supplierForm:{id:null,name:"",type:"מלון",city:"",contactName:"",phone:"",email:"",rating:"",terms:"",notes:"",active:true,taxId:"",paymentTerms:"",jobHistory:[]},
       contactForm:{id:null,fullName:"",role:"",phone:"",email:"",company:"tiyoolim.com",organization:"",orgField:"אחר",domain:"",groupName:"",notes:"",active:true},
       hrForm:{id:null,fullName:"",role:"מנהלת גיוס",phone:"",email:"",site:"GoTours",groupName:"",team:"תפעול",employeesCount:"",skills:"",needs:"",active:true,notes:"",correspondenceHistory:[]},
       conversationForm:{travelerId:"",channel:"ווטסאפ",summary:"",nextStep:""},
       hrConversationForm:{hrManagerId:"",channel:"מייל",summary:"",nextStep:""},
+      // === NEW MODULES STATE ===
+      // Quotes
+      quotes:[
+        {id:90001,clientName:"עידו ברק",destination:"איטליה",items:[{desc:"טיסות הלוך חזור",qty:2,price:2800},{desc:"מלון 4 כוכבים – 5 לילות",qty:1,price:3500},{desc:"סיורים מודרכים",qty:2,price:600}],totalPrice:9700,status:"נשלחה",cancellationPolicy:"ביטול עד 30 יום לפני – החזר מלא. 14 יום – 50%. פחות מ-14 יום – ללא החזר.",notes:"זוג יוקרתי, מבקשים חדר עם נוף",createdAt:isoNow(),validUntil:"2026-05-15"},
+        {id:90002,clientName:"אביגיל כהן",destination:"גאורגיה",items:[{desc:"טיסות קבוצתיות",qty:6,price:1800},{desc:"מלון כשר – 4 לילות",qty:1,price:2400},{desc:"הסעות",qty:1,price:1200},{desc:"מדריך דובר עברית",qty:1,price:2000}],totalPrice:18200,status:"טיוטה",cancellationPolicy:"ביטול עד 45 יום – החזר מלא. פחות מ-30 יום – 50%.",notes:"קבוצה דתית, כשרות מלאה",createdAt:isoNow(),validUntil:"2026-04-30"},
+        {id:90003,clientName:"דניאל לוי",destination:"יפן",items:[{desc:"טיסות ישירות",qty:2,price:4500},{desc:"מלון 5 כוכבים – 10 לילות",qty:1,price:8000},{desc:"JR Pass",qty:2,price:600},{desc:"סיורים פרטיים",qty:4,price:1200}],totalPrice:19500,status:"אושרה",cancellationPolicy:"ביטול עד 60 יום – החזר מלא.",notes:"חופשת כבוד, VIP",createdAt:isoNow(),validUntil:"2026-06-01"}
+      ],
+      quoteForm:{id:null,clientName:"",destination:"",items:[{desc:"",qty:1,price:0}],totalPrice:0,status:"טיוטה",cancellationPolicy:"ביטול עד 30 יום לפני – החזר מלא. 14 יום – 50%. פחות מ-14 יום – ללא החזר.",notes:"",validUntil:""},
+      // Finances
+      invoices:[
+        {id:80001,type:"חשבונית",number:"INV-001",clientName:"עידו ברק",amount:9700,currency:"ILS",status:"ממתין",dueDate:"2026-05-01",method:"אשראי",notes:"הצעה 90001",createdAt:isoNow()},
+        {id:80002,type:"קבלה",number:"REC-001",clientName:"דניאל לוי",amount:19500,currency:"ILS",status:"שולם",dueDate:"2026-04-01",method:"העברה",notes:"תשלום מלא",createdAt:isoNow()},
+        {id:80003,type:"חשבונית",number:"INV-002",clientName:"אביגיל כהן",amount:9100,currency:"ILS",status:"חלקי",dueDate:"2026-04-20",method:"אשראי",notes:"תשלום ראשון 50%",createdAt:isoNow()},
+        {id:80004,type:"חשבונית",number:"INV-003",clientName:"משה גולדברג",amount:5500,currency:"ILS",status:"ממתין",dueDate:"2026-05-15",method:"מזומן",notes:"",createdAt:isoNow()}
+      ],
+      invoiceForm:{id:null,type:"חשבונית",number:"",clientName:"",amount:"",currency:"ILS",status:"ממתין",dueDate:"",method:"אשראי",notes:""},
+      // Campaigns
+      campaigns:[
+        {id:70001,name:"מבצע פסח – גאורגיה",channel:"פייסבוק",budget:3500,startDate:"2026-03-15",endDate:"2026-04-10",targetAudience:"משפחות דתיות",status:"פעיל",impressions:24500,clicks:890,conversions:12,notes:"קמפיין מוצלח מאוד"},
+        {id:70002,name:"סייל קיץ – אלפים",channel:"אינסטגרם",budget:2000,startDate:"2026-05-01",endDate:"2026-06-30",targetAudience:"מיטיבי לכת צעירים",status:"מתוכנן",impressions:0,clicks:0,conversions:0,notes:""},
+        {id:70003,name:"ניוזלטר חודשי – אפריל",channel:"מייל",budget:200,startDate:"2026-04-01",endDate:"2026-04-30",targetAudience:"כל המטיילים",status:"פעיל",impressions:1500,clicks:230,conversions:5,notes:"שיעור פתיחה 42%"}
+      ],
+      campaignForm:{id:null,name:"",channel:"פייסבוק",budget:"",startDate:"",endDate:"",targetAudience:"",status:"מתוכנן",impressions:"",clicks:"",conversions:"",notes:""},
+      // Documents
+      documents:[
+        {id:60001,name:"חוזה קבוצת כהן – גאורגיה",category:"חוזה",relatedTo:"אביגיל כהן",uploadDate:isoNow(),fileSize:"2.1MB",notes:"חוזה חתום"},
+        {id:60002,name:"פוליסת ביטוח נוסעים Q2",category:"ביטוח",relatedTo:"כלל החברה",uploadDate:isoNow(),fileSize:"1.4MB",notes:"תוקף עד 30.06.2026"},
+        {id:60003,name:"חשבונית SkyRoad – אפריל",category:"חשבונית",relatedTo:"SkyRoad Transfers",uploadDate:isoNow(),fileSize:"340KB",notes:""},
+        {id:60004,name:"צילום דרכון – רות כהן",category:"דרכון",relatedTo:"רות כהן",uploadDate:isoNow(),fileSize:"890KB",notes:"תוקף עד 2028"}
+      ],
+      documentForm:{id:null,name:"",category:"חוזה",relatedTo:"",notes:""},
+      // Social Media
+      socialPosts:[
+        {id:50001,platform:"facebook",content:"🌍 טיול חלומי לגאורגיה! הרי הקווקז, יקבים מסורתיים ואוכל מדהים. מקומות אחרונים לפסח!",scheduledDate:"2026-04-08",status:"מתוכנן",likes:0,comments:0,shares:0},
+        {id:50002,platform:"instagram",content:"📸 רגע קסום מטרק הרי האלפים! מי מצטרף לקיץ? #GoTours #Alps #Trekking #Travel",scheduledDate:"2026-04-05",status:"פורסם",likes:156,comments:23,shares:12},
+        {id:50003,platform:"facebook",content:"✈️ מבצע אחרון! טיול ערים קלאסיות באיטליה – רק ₪3,100 ל-5 ימים. הזמנות עד סוף החודש!",scheduledDate:"2026-04-03",status:"פורסם",likes:89,comments:14,shares:31}
+      ],
+      socialForm:{id:null,platform:"facebook",content:"",scheduledDate:"",status:"טיוטה"},
+      // Settings
+      settingsNotifyEmail:true, settingsNotifyWhatsapp:true, settingsNotifyBirthday:true,
+      settingsNotifyLeads:true, settingsNotifyTasks:true, settingsAutoBackup:true,
+      settingsCompanyName:"GoTours", settingsCompanyPhone:"03-5551234", settingsCompanyEmail:"info@gotours.co.il",
+      // Activity Log
+      activityLog:[
+        {id:40001,action:"הוספה",entityType:"ליד",entityName:"עידו ברק",timestamp:isoNow(),user:"איציק"},
+        {id:40002,action:"עדכון",entityType:"מטייל",entityName:"רות כהן",timestamp:isoNow(),user:"איציק"},
+        {id:40003,action:"הוספה",entityType:"הצעת מחיר",entityName:"הצעה לעידו ברק – איטליה",timestamp:isoNow(),user:"איציק"},
+        {id:40004,action:"הוספה",entityType:"ספק",entityName:"אל-על",timestamp:isoNow(),user:"איציק"},
+        {id:40005,action:"הוספה",entityType:"טיול",entityName:"ים המלח ומסע בנגב",timestamp:isoNow(),user:"איציק"},
+        {id:40006,action:"עדכון",entityType:"ליד",entityName:"אביגיל כהן",timestamp:isoNow(),user:"איציק"},
+        {id:40007,action:"הוספה",entityType:"קמפיין",entityName:"מבצע פסח – גאורגיה",timestamp:isoNow(),user:"איציק"},
+        {id:40008,action:"הוספה",entityType:"מסמך",entityName:"חוזה קבוצת כהן",timestamp:isoNow(),user:"איציק"}
+      ],
+      activityLogFilter:"all",
+      // Trails filter
+      trailsRegionFilter:"all", trailsDifficultyFilter:"all",
       aiWidgetOpen:false, aiPrompt:"", aiLoading:false, aiError:"",
       aiHistory:[{role:"assistant",text:"שלום! GoAI זמין לענות בעברית על שאלות עבור tiyoolim.com, GoTours ושטח הפקות."}],
       agencies:[
@@ -391,10 +568,14 @@
     const S = structuredClone(seed);
 
     // ===== STATE MANAGEMENT =====
+    function _saveFocus(){const el=document.activeElement;if(!el||el===document.body) return null;const tag=el.tagName;if(tag!=="INPUT"&&tag!=="TEXTAREA"&&tag!=="SELECT") return null;const info={tag,start:el.selectionStart,end:el.selectionEnd,id:el.id};const oninput=el.getAttribute("oninput")||"";if(oninput) info.oninput=oninput;return info;}
+    function _restoreFocus(info){if(!info) return;setTimeout(()=>{let el=null;if(info.id) el=document.getElementById(info.id);if(!el&&info.oninput){const all=document.querySelectorAll(info.tag);for(const e of all){if((e.getAttribute("oninput")||"")===info.oninput){el=e;break;}}}if(el){el.focus();if(info.start!=null&&el.setSelectionRange){try{el.setSelectionRange(info.start,info.end);}catch(_){}}}},0);}
     function setState(patch, doSave=true) {
+      const focusInfo=_saveFocus();
       Object.assign(S, patch);
       render();
-      if (doSave) saveLocal();
+      _restoreFocus(focusInfo);
+      if (doSave) { saveLocal(); debouncedSaveRemote(); }
     }
     function saveLocal() {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch(_) {}
@@ -429,6 +610,22 @@
       if (!S.hrForm) S.hrForm = structuredClone(seed.hrForm);
       if (!S.conversationForm) S.conversationForm = structuredClone(seed.conversationForm);
       if (!S.hrConversationForm) S.hrConversationForm = structuredClone(seed.hrConversationForm);
+      // Ensure travelHistory and conversationHistory arrays on all travelers
+      S.travelers.forEach(t=>{if(!Array.isArray(t.travelHistory))t.travelHistory=[];if(!Array.isArray(t.conversationHistory))t.conversationHistory=[];});
+      // Ensure jobHistory array on all suppliers
+      S.suppliers.forEach(s=>{if(!Array.isArray(s.jobHistory))s.jobHistory=[];});
+      // New modules
+      if (!Array.isArray(S.quotes)) S.quotes = seed.quotes;
+      if (!S.quoteForm) S.quoteForm = structuredClone(seed.quoteForm);
+      if (!Array.isArray(S.invoices)) S.invoices = seed.invoices;
+      if (!S.invoiceForm) S.invoiceForm = structuredClone(seed.invoiceForm);
+      if (!Array.isArray(S.campaigns)) S.campaigns = seed.campaigns;
+      if (!S.campaignForm) S.campaignForm = structuredClone(seed.campaignForm);
+      if (!Array.isArray(S.documents)) S.documents = seed.documents;
+      if (!S.documentForm) S.documentForm = structuredClone(seed.documentForm);
+      if (!Array.isArray(S.socialPosts)) S.socialPosts = seed.socialPosts;
+      if (!S.socialForm) S.socialForm = structuredClone(seed.socialForm);
+      if (!Array.isArray(S.activityLog)) S.activityLog = seed.activityLog;
     }
     function renderSyncMeta() {
       const el = document.getElementById("sync_meta");
@@ -458,7 +655,7 @@
     function saveTraveler() {
       const f=S.travelerForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
       if (f.id) { const i=S.travelers.findIndex(t=>t.id==f.id); if(i>=0) S.travelers[i]={...S.travelers[i],...f}; }
-      else { S.travelers.unshift({...structuredClone(seed.travelerForm),...f,id:uid(),conversationHistory:[],active:true}); }
+      else { S.travelers.unshift({...structuredClone(seed.travelerForm),...f,id:uid(),conversationHistory:[],travelHistory:[],active:true}); }
       resetTravelerForm(); setState({travelers:S.travelers});
     }
     function toggleSegment(seg) {
@@ -504,7 +701,7 @@
     function saveSupplier() {
       const f=S.supplierForm; if(!f.name) return alert("שם ספק חובה");
       if (f.id) { const i=S.suppliers.findIndex(s=>s.id==f.id); if(i>=0) S.suppliers[i]={...S.suppliers[i],...f}; }
-      else { S.suppliers.unshift({...structuredClone(seed.supplierForm),...f,id:uid(),active:true}); }
+      else { S.suppliers.unshift({...structuredClone(seed.supplierForm),...f,id:uid(),active:true,jobHistory:[]}); }
       resetSupplierForm(); setState({suppliers:S.suppliers});
     }
 
@@ -548,12 +745,109 @@
     // ===== CRUD CONTACTS =====
     function resetContactForm() { S.contactForm=structuredClone(seed.contactForm); }
     function editContact(id) { const c=S.contacts.find(x=>x.id==id); if(!c) return; S.contactForm=structuredClone(c); S.tab="contacts"; render(); }
-    function deleteContact(id) { if(!confirm("למחוק איש קשר?")) return; S.contacts=S.contacts.filter(c=>c.id!=id); setState({contacts:S.contacts}); }
+    function deleteContact(id) { if(!confirm("למחוק איש קשר?")) return; S.contacts=S.contacts.filter(c=>c.id!=id); setState({contacts:S.contacts}); logActivity("מחיקה","איש קשר",""); }
     function saveContact() {
       const f=S.contactForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
-      if (f.id) { const i=S.contacts.findIndex(c=>c.id==f.id); if(i>=0) S.contacts[i]={...S.contacts[i],...f}; }
-      else { S.contacts.unshift({...structuredClone(seed.contactForm),...f,id:uid(),active:true}); }
+      if (f.id) { const i=S.contacts.findIndex(c=>c.id==f.id); if(i>=0) S.contacts[i]={...S.contacts[i],...f}; logActivity("עדכון","איש קשר",f.fullName); }
+      else { S.contacts.unshift({...structuredClone(seed.contactForm),...f,id:uid(),active:true}); logActivity("הוספה","איש קשר",f.fullName); }
       resetContactForm(); setState({contacts:S.contacts});
+    }
+
+    // ===== CRUD QUOTES =====
+    function resetQuoteForm() { S.quoteForm=structuredClone(seed.quoteForm); }
+    function editQuote(id) { const q=S.quotes.find(x=>x.id==id); if(!q) return; S.quoteForm=structuredClone(q); S.tab="quotes"; render(); }
+    function deleteQuote(id) { if(!confirm("למחוק הצעה?")) return; S.quotes=S.quotes.filter(q=>q.id!=id); setState({quotes:S.quotes}); logActivity("מחיקה","הצעת מחיר",""); }
+    function saveQuote() {
+      const f=S.quoteForm; if(!f.clientName||!f.destination) return alert("שם לקוח ויעד חובה");
+      f.totalPrice=f.items.reduce((a,item)=>(a+(Number(item.qty)||1)*(Number(item.price)||0)),0);
+      if (f.id) { const i=S.quotes.findIndex(q=>q.id==f.id); if(i>=0) S.quotes[i]={...S.quotes[i],...f}; logActivity("עדכון","הצעת מחיר",f.clientName); }
+      else { S.quotes.unshift({...structuredClone(seed.quoteForm),...f,id:uid(),createdAt:isoNow()}); logActivity("הוספה","הצעת מחיר",f.clientName+" – "+f.destination); }
+      resetQuoteForm(); setState({quotes:S.quotes});
+    }
+    function addQuoteItem() { S.quoteForm.items.push({desc:"",qty:1,price:0}); render(); }
+    function removeQuoteItem(idx) { if(S.quoteForm.items.length>1) { S.quoteForm.items.splice(idx,1); render(); } }
+    function updateQuoteStatus(id,status) { const i=S.quotes.findIndex(q=>q.id==id); if(i>=0) { S.quotes[i].status=status; setState({quotes:S.quotes}); logActivity("עדכון","הצעת מחיר",S.quotes[i].clientName+" → "+status); } }
+
+    // ===== CRUD INVOICES =====
+    function resetInvoiceForm() { S.invoiceForm=structuredClone(seed.invoiceForm); }
+    function editInvoice(id) { const inv=S.invoices.find(x=>x.id==id); if(!inv) return; S.invoiceForm=structuredClone(inv); S.tab="finances"; render(); }
+    function deleteInvoice(id) { if(!confirm("למחוק?")) return; S.invoices=S.invoices.filter(x=>x.id!=id); setState({invoices:S.invoices}); logActivity("מחיקה","מסמך כספי",""); }
+    function saveInvoice() {
+      const f=S.invoiceForm; if(!f.clientName||!f.amount) return alert("שם לקוח וסכום חובה");
+      if (f.id) { const i=S.invoices.findIndex(x=>x.id==f.id); if(i>=0) S.invoices[i]={...S.invoices[i],...f}; logActivity("עדכון","מסמך כספי",f.number); }
+      else { S.invoices.unshift({...structuredClone(seed.invoiceForm),...f,id:uid(),createdAt:isoNow()}); logActivity("הוספה","מסמך כספי",f.type+" – "+f.clientName); }
+      resetInvoiceForm(); setState({invoices:S.invoices});
+    }
+
+    // ===== CRUD CAMPAIGNS =====
+    function resetCampaignForm() { S.campaignForm=structuredClone(seed.campaignForm); }
+    function editCampaign(id) { const c=S.campaigns.find(x=>x.id==id); if(!c) return; S.campaignForm=structuredClone(c); S.tab="campaigns"; render(); }
+    function deleteCampaign(id) { if(!confirm("למחוק קמפיין?")) return; S.campaigns=S.campaigns.filter(x=>x.id!=id); setState({campaigns:S.campaigns}); logActivity("מחיקה","קמפיין",""); }
+    function saveCampaign() {
+      const f=S.campaignForm; if(!f.name) return alert("שם קמפיין חובה");
+      if (f.id) { const i=S.campaigns.findIndex(x=>x.id==f.id); if(i>=0) S.campaigns[i]={...S.campaigns[i],...f}; logActivity("עדכון","קמפיין",f.name); }
+      else { S.campaigns.unshift({...structuredClone(seed.campaignForm),...f,id:uid()}); logActivity("הוספה","קמפיין",f.name); }
+      resetCampaignForm(); setState({campaigns:S.campaigns});
+    }
+
+    // ===== CRUD DOCUMENTS =====
+    function resetDocumentForm() { S.documentForm=structuredClone(seed.documentForm); }
+    function editDocument(id) { const d=S.documents.find(x=>x.id==id); if(!d) return; S.documentForm=structuredClone(d); S.tab="documents"; render(); }
+    function deleteDocument(id) { if(!confirm("למחוק מסמך?")) return; S.documents=S.documents.filter(x=>x.id!=id); setState({documents:S.documents}); logActivity("מחיקה","מסמך",""); }
+    function saveDocument() {
+      const f=S.documentForm; if(!f.name) return alert("שם מסמך חובה");
+      if (f.id) { const i=S.documents.findIndex(x=>x.id==f.id); if(i>=0) S.documents[i]={...S.documents[i],...f}; logActivity("עדכון","מסמך",f.name); }
+      else { S.documents.unshift({...structuredClone(seed.documentForm),...f,id:uid(),uploadDate:isoNow()}); logActivity("הוספה","מסמך",f.name); }
+      resetDocumentForm(); setState({documents:S.documents});
+    }
+
+    // ===== CRUD SOCIAL POSTS =====
+    function resetSocialForm() { S.socialForm=structuredClone(seed.socialForm); }
+    function editSocialPost(id) { const p=S.socialPosts.find(x=>x.id==id); if(!p) return; S.socialForm=structuredClone(p); S.tab="social"; render(); }
+    function deleteSocialPost(id) { if(!confirm("למחוק פוסט?")) return; S.socialPosts=S.socialPosts.filter(x=>x.id!=id); setState({socialPosts:S.socialPosts}); }
+    function saveSocialPost() {
+      const f=S.socialForm; if(!f.content) return alert("תוכן חובה");
+      if (f.id) { const i=S.socialPosts.findIndex(x=>x.id==f.id); if(i>=0) S.socialPosts[i]={...S.socialPosts[i],...f}; }
+      else { S.socialPosts.unshift({...structuredClone(seed.socialForm),...f,id:uid(),likes:0,comments:0,shares:0}); logActivity("הוספה","פוסט",f.platform); }
+      resetSocialForm(); setState({socialPosts:S.socialPosts});
+    }
+
+    // ===== ACTIVITY LOG =====
+    function logActivity(action,entityType,entityName) {
+      if(!Array.isArray(S.activityLog)) S.activityLog=[];
+      S.activityLog.unshift({id:uid(),action:action,entityType:entityType,entityName:entityName||"",timestamp:isoNow(),user:LOGIN_USER});
+      if(S.activityLog.length>200) S.activityLog=S.activityLog.slice(0,200);
+    }
+
+    // ===== DUPLICATE DETECTION =====
+    function findDuplicates() {
+      const dups=[];
+      const allRecords=[
+        ...S.travelers.map(t=>({...t,_type:"מטייל",_name:t.fullName,_phone:normalizePhone(t.phone)})),
+        ...S.leads.map(l=>({...l,_type:"ליד",_name:l.fullName,_phone:normalizePhone(l.phone)})),
+        ...S.contacts.map(c=>({...c,_type:"איש קשר",_name:c.fullName,_phone:normalizePhone(c.phone)}))
+      ];
+      for(let i=0;i<allRecords.length;i++){
+        for(let j=i+1;j<allRecords.length;j++){
+          const a=allRecords[i],b=allRecords[j];
+          if(a._phone&&b._phone&&a._phone===b._phone){
+            dups.push({a:a,b:b,reason:"טלפון זהה: "+a._phone});
+          } else if(a._name&&b._name&&a._name.trim()===b._name.trim()){
+            dups.push({a:a,b:b,reason:"שם זהה: "+a._name});
+          }
+        }
+      }
+      return dups;
+    }
+
+    // ===== DATA EXPORT =====
+    function exportDataAsJson() {
+      const data={travelers:S.travelers,leads:S.leads,suppliers:S.suppliers,trips:S.trips,agencies:S.agencies,contacts:S.contacts,hrManagers:S.hrManagers,tasks:S.tasks,quotes:S.quotes,invoices:S.invoices,campaigns:S.campaigns,documents:S.documents,socialPosts:S.socialPosts};
+      const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a"); a.href=url; a.download="gotours-crm-backup-"+new Date().toISOString().slice(0,10)+".json"; a.click();
+      URL.revokeObjectURL(url);
+      logActivity("ייצוא","גיבוי נתונים","JSON");
     }
 
     // ===== CRUD HR =====
@@ -571,7 +865,8 @@
     function saveConversation() {
       const f=S.conversationForm; if(!f.travelerId||!f.summary) return alert("מטייל וסיכום חובה");
       const t=travelerById(f.travelerId); if(!t) return;
-      const entry={at:isoNow(),channel:f.channel,summary:f.summary,nextStep:f.nextStep};
+      const now=new Date();
+      const entry={at:isoNow(),channel:f.channel,summary:f.summary,nextStep:f.nextStep,dateDisplay:now.toLocaleDateString("he-IL"),timeDisplay:now.toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"})};
       if(!Array.isArray(t.conversationHistory)) t.conversationHistory=[];
       t.conversationHistory.unshift(entry); t.lastConversation=entry;
       S.conversationForm=structuredClone(seed.conversationForm); setState({travelers:S.travelers});
@@ -583,6 +878,48 @@
       if(!Array.isArray(h.correspondenceHistory)) h.correspondenceHistory=[];
       h.correspondenceHistory.unshift(entry);
       S.hrConversationForm=structuredClone(seed.hrConversationForm); setState({hrManagers:S.hrManagers});
+    }
+
+    // ===== TRAVELER TRAVEL HISTORY =====
+    function addTravelHistory(travelerId) {
+      const t=travelerById(travelerId); if(!t) return;
+      const tripName=prompt("שם הטיול:"); if(!tripName) return;
+      const travelDate=prompt("תאריך (YYYY-MM-DD):",new Date().toISOString().slice(0,10));
+      if(!Array.isArray(t.travelHistory)) t.travelHistory=[];
+      t.travelHistory.unshift({id:uid(),tripName,travelDate:travelDate||"",addedAt:isoNow()});
+      setState({travelers:S.travelers});
+    }
+    function removeTravelHistory(travelerId, entryId) {
+      const t=travelerById(travelerId); if(!t||!Array.isArray(t.travelHistory)) return;
+      t.travelHistory=t.travelHistory.filter(e=>e.id!=entryId);
+      setState({travelers:S.travelers});
+    }
+
+    // ===== INLINE TRAVELER CONVERSATION =====
+    function addInlineConversation(travelerId) {
+      const t=travelerById(travelerId); if(!t) return;
+      const summary=prompt("סיכום השיחה:"); if(!summary) return;
+      const channel=prompt("ערוץ (ווטסאפ/טלפון/מייל/פגישה):","ווטסאפ")||"ווטסאפ";
+      const now=new Date();
+      const entry={at:isoNow(),channel,summary,nextStep:"",dateDisplay:now.toLocaleDateString("he-IL"),timeDisplay:now.toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"})};
+      if(!Array.isArray(t.conversationHistory)) t.conversationHistory=[];
+      t.conversationHistory.unshift(entry); t.lastConversation=entry;
+      setState({travelers:S.travelers});
+    }
+
+    // ===== SUPPLIER JOB HISTORY =====
+    function addSupplierJob(supplierId) {
+      const s=supplierById(supplierId); if(!s) return;
+      const jobDesc=prompt("תיאור העבודה:"); if(!jobDesc) return;
+      const jobDate=prompt("תאריך (YYYY-MM-DD):",new Date().toISOString().slice(0,10));
+      if(!Array.isArray(s.jobHistory)) s.jobHistory=[];
+      s.jobHistory.unshift({id:uid(),description:jobDesc,date:jobDate||"",addedAt:isoNow()});
+      setState({suppliers:S.suppliers});
+    }
+    function removeSupplierJob(supplierId, entryId) {
+      const s=supplierById(supplierId); if(!s||!Array.isArray(s.jobHistory)) return;
+      s.jobHistory=s.jobHistory.filter(e=>e.id!=entryId);
+      setState({suppliers:S.suppliers});
     }
 
     // ===== AUTOCOMPLETE =====
@@ -605,9 +942,9 @@
           data:{id:l.id,fullName:l.fullName,phone:l.phone,email:l.email,source:l.source,status:l.status}
         }));
       }
-      S.autocompleteField=field; S.autocompleteResults=results; render();
+      S.autocompleteField=field; S.autocompleteResults=results; const _fi=_saveFocus(); render(); _restoreFocus(_fi);
     }
-    function clearAutocomplete() { S.autocompleteField=""; S.autocompleteResults=[]; render(); }
+    function clearAutocomplete() { S.autocompleteField=""; S.autocompleteResults=[]; const _fi=_saveFocus(); render(); _restoreFocus(_fi); }
     function applyAutocomplete(idx) {
       const r=S.autocompleteResults[idx]; if(!r) return;
       if(S.autocompleteField==="trav_name") Object.assign(S.travelerForm,r.data);
@@ -860,7 +1197,7 @@
     }
     async function saveRemote() {
       try {
-        const res=await fetch(API_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"save",data:{travelers:S.travelers,leads:S.leads,suppliers:S.suppliers,trips:S.trips,agencies:S.agencies,contacts:S.contacts,hrManagers:S.hrManagers,tasks:S.tasks}})});
+        const res=await fetch(API_URL,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"save",data:{travelers:S.travelers,leads:S.leads,suppliers:S.suppliers,trips:S.trips,agencies:S.agencies,contacts:S.contacts,hrManagers:S.hrManagers,tasks:S.tasks,quotes:S.quotes,invoices:S.invoices,campaigns:S.campaigns,documents:S.documents,socialPosts:S.socialPosts,activityLog:S.activityLog,conversations:S.conversations}})});
         if(res.ok){S.syncOkAt=new Date().toLocaleTimeString("he-IL"); renderSyncMeta();}
       } catch(_) {}
     }
@@ -931,7 +1268,7 @@
         + '<div style="margin-top:10px"><label>סיסמה</label><input type="password" value="'+escapeHtml(S.loginPass||"")+'" oninput="S.loginPass=this.value" onkeydown="if(event.key===\'Enter\')login()" placeholder="••••"></div>'
         + (S.authError?'<div style="color:var(--danger);margin-top:8px;font-size:13px">'+escapeHtml(S.authError)+'</div>':"")
         + '<button class="btn-primary" style="margin-top:16px" onclick="login()">כניסה למערכת</button>'
-        + '<div class="small muted" style="margin-top:12px;text-align:center">גרסה 3.0 | מהדורה מקצועית</div>'
+        + '<div class="small muted" style="margin-top:12px;text-align:center">גרסה 4.0 | מהדורה מקצועית – 29 מודולים</div>'
         + '</div></div>';
     }
 
@@ -988,8 +1325,8 @@
             + '</div>').join('')
           + '</div></div>':"")
         // מודולים
-        + '<div class="card"><div class="section-title">🗂 מודולים</div><div class="module-grid">'
-        + [["👥 לקוחות",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["📋 הצעות",S.trips.length,"trips"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🌍 מזג אוויר","","weather"],["🤖 GoAI","","matching"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
+        + '<div class="card"><div class="section-title">🗂 מודולים (29)</div><div class="module-grid">'
+        + [["👥 לקוחות",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["✈️ טיולים",S.trips.length,"trips"],["📝 הצעות",S.quotes.length,"quotes"],["💰 כספים",S.invoices.length,"finances"],["✅ משימות",S.tasks.length,"tasks"],["📣 קמפיינים",S.campaigns.length,"campaigns"],["📄 מסמכים",S.documents.length,"documents"],["📱 רשתות",S.socialPosts.length,"social"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🥾 שבילים",HIKING_TRAILS.length,"trails"],["📈 אנליטיקס","","analytics"],["🌍 מזג אוויר","","weather"],["🤖 GoAI","","matching"],["🔍 כפילויות","","duplicates"],["📋 יומן","","activityLog"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
         + '</div></div>'
         + '</div>';
     }
@@ -1008,7 +1345,7 @@
         + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.leadForm.email=this.value"></div>'
         + '<div><label>מקור</label><select onchange="S.leadForm.source=this.value">'+LEAD_SOURCES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.source===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
         + '<div><label>סטטוס</label><select onchange="S.leadForm.status=this.value">'+LEAD_STATUSES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.status===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
-        + '<div><label>יעד מועדף</label><input value="'+escapeHtml(f.destinationInterest)+'" oninput="S.leadForm.destinationInterest=this.value" placeholder="איטליה, יוון..."></div>'
+        + '<div><label>יעד מועדף</label><input value="'+escapeHtml(f.destinationInterest)+'" oninput="S.leadForm.destinationInterest=this.value" placeholder="איטליה, יוון..." list="dest_list"><datalist id="dest_list">'+COUNTRY_TRAVEL_CATALOG.map(c=>'<option value="'+escapeHtml(c.country)+'">').join("")+'</datalist></div>'
         + '<div><label>תקציב ₪</label><input type="number" value="'+escapeHtml(f.budget)+'" oninput="S.leadForm.budget=this.value"></div>'
         + '<div><label>כמות מטיילים</label><input type="number" value="'+escapeHtml(f.travelersCount)+'" oninput="S.leadForm.travelersCount=this.value"></div>'
         + '<div><label>אחראי</label><input value="'+escapeHtml(f.assignedTo)+'" oninput="S.leadForm.assignedTo=this.value" placeholder="איציק"></div>'
@@ -1071,11 +1408,20 @@
         + '<div><div class="folder-tabs"><div class="folder-tab '+(folder==="all"?"active":"")+'" onclick="setState({activeFolder:\'all\'},false)">כולם ('+S.travelers.length+')</div>'+SEGMENTS.map(s=>'<div class="folder-tab '+(folder===s?"active":"")+'" onclick="setState({activeFolder:\''+escapeHtml(s)+'\'},false)">'+escapeHtml(s)+' ('+S.travelers.filter(t=>(t.segments||[]).includes(s)).length+')</div>').join("")+'</div>'
         + '<div class="list">'+(rows.length?rows.map(t=>{
           const trip=tripById(t.currentTripId);
+          const travHist=(t.travelHistory||[]);
+          const convHist=(t.conversationHistory||[]);
           return '<div class="item '+(( t.segments||[]).includes("VIP")?"priority":"")+'">'
             + '<div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><div class="chips">'+((t.segments||[]).map(s=>'<span class="chip">'+escapeHtml(s)+'</span>').join(""))+'</div></div>'
             + '<div class="small">📞 '+escapeHtml(t.phone||"")+(t.city?" | "+escapeHtml(t.city):"")+(t.birthday?" | יום הולדת: "+escapeHtml(fmtDateShort(t.birthday)):"")+'</div>'
             + (trip?'<div class="small b-ok" style="padding:3px 8px;border-radius:6px;display:inline-block;margin-top:4px">✈ '+escapeHtml(trip.title)+'</div>':"")
-            + (t.lastConversation?'<div class="small muted" style="margin-top:4px">שיחה אחרונה: '+escapeHtml(t.lastConversation.channel)+" – "+escapeHtml(fmtDateShort(t.lastConversation.at))+'</div>':"")
+            // Travel History section
+            + '<div class="history-block" style="margin-top:8px"><div class="history-title">✈ היסטוריית טיולים'+(travHist.length?' ('+travHist.length+')':'')+'</div>'
+            + (travHist.length?travHist.slice(0,5).map(h=>'<div class="history-entry"><strong>'+escapeHtml(h.tripName)+'</strong><span class="small muted" style="margin-right:8px">'+escapeHtml(fmtDateShort(h.travelDate))+'</span><button class="btn-danger" style="width:auto;font-size:10px;padding:2px 6px" onclick="removeTravelHistory('+t.id+','+h.id+')">x</button></div>').join(""):'<div class="small muted">לא נרשמו טיולים</div>')
+            + '<button class="btn-soft" style="width:auto;font-size:11px;margin-top:4px" onclick="addTravelHistory('+t.id+')">+ הוסף טיול</button></div>'
+            // Conversation History section
+            + '<div class="history-block" style="margin-top:6px"><div class="history-title">💬 שיחות מתועדות'+(convHist.length?' ('+convHist.length+')':'')+'</div>'
+            + (convHist.length?convHist.slice(0,5).map(c=>'<div class="history-entry"><div class="row" style="gap:6px;margin-bottom:2px"><span class="badge b-ok" style="font-size:10px">'+escapeHtml(c.channel)+'</span><span class="small muted">'+escapeHtml(c.dateDisplay||fmtDateShort(c.at))+' '+escapeHtml(c.timeDisplay||"")+'</span></div><div class="small">'+escapeHtml(c.summary)+'</div>'+(c.nextStep?'<div class="small" style="color:var(--warn)">▶ '+escapeHtml(c.nextStep)+'</div>':'')+'</div>').join(""):'<div class="small muted">לא נרשמו שיחות</div>')
+            + '<button class="btn-soft" style="width:auto;font-size:11px;margin-top:4px" onclick="addInlineConversation('+t.id+')">+ רשום שיחה</button></div>'
             + '<div class="row" style="margin-top:8px;gap:4px">'
             + '<button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 WA</button>'
             + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="callTraveler('+t.id+')">📞</button>'
@@ -1156,7 +1502,7 @@
         + '<div class="autocomplete-wrap"><label>שם ספק</label><input value="'+escapeHtml(f.name)+'" oninput="S.supplierForm.name=this.value;showAutocomplete(\'sup_name\',this.value,\'supplier\')" placeholder="הקלד שם ספק..."><div class="autocomplete-list" style="display:'+(S.autocompleteField==="sup_name"&&S.autocompleteResults.length?"block":"none")+'">'+(S.autocompleteField==="sup_name"?S.autocompleteResults.map((r,i)=>'<div class="autocomplete-item" onclick="applyAutocomplete('+i+')">'+escapeHtml(r.label)+'</div>').join(""):"")+'</div></div>'
         + '<div class="grid">'
         + '<div><label>סוג</label><select onchange="S.supplierForm.type=this.value">'+SUPPLIER_TYPES.map(t=>'<option value="'+escapeHtml(t)+'" '+(f.type===t?"selected":"")+'>'+escapeHtml(t)+'</option>').join("")+'</select></div>'
-        + '<div><label>עיר</label><input value="'+escapeHtml(f.city)+'" oninput="S.supplierForm.city=this.value"></div>'
+        + '<div><label>עיר</label><input value="'+escapeHtml(f.city)+'" oninput="S.supplierForm.city=this.value" list="city_list_sup"><datalist id="city_list_sup">'+ISRAEL_CITIES.map(c=>'<option value="'+escapeHtml(c)+'">').join("")+'</datalist></div>'
         + '<div><label>איש קשר</label><input value="'+escapeHtml(f.contactName)+'" oninput="S.supplierForm.contactName=this.value"></div>'
         + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.supplierForm.phone=this.value"></div>'
         + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.supplierForm.email=this.value"></div>'
@@ -1168,16 +1514,23 @@
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveSupplier()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetSupplierForm();render()">ביטול</button>':"")+'</div>'
         + '</div>'
         + '<div><div class="section-title">ספקים ('+rows.length+')</div><div class="list">'
-        + (rows.length?rows.map(s=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(s.name)+'</strong><span class="badge b-ok">'+escapeHtml(s.type)+'</span></div>'
+        + (rows.length?rows.map(s=>{
+          const jobHist=(s.jobHistory||[]);
+          return '<div class="item"><div class="item-head"><strong>'+escapeHtml(s.name)+'</strong><span class="badge b-ok">'+escapeHtml(s.type)+'</span></div>'
           + '<div class="small">'+escapeHtml(s.city||"")+(s.contactName?" | "+escapeHtml(s.contactName):"")+(s.phone?" | "+escapeHtml(s.phone):"")+'</div>'
           + (s.taxId?'<div class="small muted">ח"פ: '+escapeHtml(s.taxId)+(s.paymentTerms?" | תשלום: "+escapeHtml(s.paymentTerms):"")+'</div>':"")
           + (s.rating?'<div class="small">⭐ '+escapeHtml(String(s.rating))+'</div>':"")
+          // Job History section
+          + '<div class="history-block" style="margin-top:6px"><div class="history-title">📋 היסטוריית עבודות'+(jobHist.length?' ('+jobHist.length+')':'')+'</div>'
+          + (jobHist.length?jobHist.slice(0,5).map(j=>'<div class="history-entry"><strong>'+escapeHtml(j.description)+'</strong><span class="small muted" style="margin-right:8px">'+escapeHtml(fmtDateShort(j.date))+'</span><button class="btn-danger" style="width:auto;font-size:10px;padding:2px 6px" onclick="removeSupplierJob('+s.id+','+j.id+')">x</button></div>').join(""):'<div class="small muted">לא נרשמו עבודות</div>')
+          + '<button class="btn-soft" style="width:auto;font-size:11px;margin-top:4px" onclick="addSupplierJob('+s.id+')">+ הוסף עבודה</button></div>'
           + '<div class="row" style="margin-top:6px;gap:4px">'
           + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editSupplier('+s.id+')">✏️</button>'
           + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteSupplier('+s.id+')">🗑</button>'
           + (s.phone?'<button class="btn-soft" style="width:auto;font-size:12px" onclick="window.location.href=\'tel:'+escapeHtml(normalizePhone(s.phone))+'\'">📞</button>':"")
           + (s.phone?'<button class="btn-wa" style="width:auto;font-size:12px" onclick="window.open(\'https://wa.me/'+escapeHtml(phoneForWa(s.phone))+'\',\'_blank\')">💬</button>':"")
-          + '</div></div>').join(""):'<div class="empty">אין ספקים</div>')
+          + '</div></div>';
+        }).join(""):'<div class="empty">אין ספקים</div>')
         + '</div></div></div>';
     }
 
@@ -1346,7 +1699,7 @@
         + '</div></div>'
         + '<div><div class="section-title">📋 שיחות אחרונות</div><div class="list">'
         + (recent.length?recent.map(t=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><span class="badge b-ok">'+escapeHtml(t.lastConversation.channel)+'</span></div>'
-          + '<div class="small">'+escapeHtml(fmtDateShort(t.lastConversation.at))+'</div>'
+          + '<div class="small">'+escapeHtml(t.lastConversation.dateDisplay||fmtDateShort(t.lastConversation.at))+' '+escapeHtml(t.lastConversation.timeDisplay||"")+'</div>'
           + '<div class="small muted">'+escapeHtml(t.lastConversation.summary||"")+'</div>'
           + (t.lastConversation.nextStep?'<div class="small" style="color:var(--warn)">▶ '+escapeHtml(t.lastConversation.nextStep)+'</div>':"")
           + '<div class="row" style="margin-top:6px;gap:4px"><button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 WA</button></div>'
@@ -1558,6 +1911,423 @@
         + '</div></div></div>';
     }
 
+    // ===== RENDER QUOTES =====
+    function renderQuotesTab() {
+      const f=S.quoteForm;
+      const q=String(S.search||"").toLowerCase();
+      const rows=S.quotes.filter(x=>!q||(x.clientName||"").toLowerCase().includes(q)||(x.destination||"").toLowerCase().includes(q));
+      const itemsHtml=f.items.map((item,idx)=>'<div class="quote-item">'
+        + '<input placeholder="תיאור פריט" value="'+escapeHtml(item.desc)+'" oninput="S.quoteForm.items['+idx+'].desc=this.value" style="flex:2">'
+        + '<input type="number" placeholder="כמות" value="'+escapeHtml(String(item.qty))+'" oninput="S.quoteForm.items['+idx+'].qty=this.value" style="max-width:70px">'
+        + '<input type="number" placeholder="מחיר ₪" value="'+escapeHtml(String(item.price))+'" oninput="S.quoteForm.items['+idx+'].price=this.value" style="max-width:100px">'
+        + '<strong style="min-width:80px;text-align:center">₪'+(( Number(item.qty)||1)*(Number(item.price)||0)).toLocaleString("he-IL")+'</strong>'
+        + (f.items.length>1?'<button class="btn-danger" style="width:auto;padding:4px 8px" onclick="removeQuoteItem('+idx+')">✕</button>':'')
+        + '</div>').join("");
+      const totalCalc=f.items.reduce((a,item)=>(a+(Number(item.qty)||1)*(Number(item.price)||0)),0);
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת הצעה":"הצעת מחיר חדשה")+'</div>'
+        + '<div class="grid">'
+        + '<div><label>שם לקוח</label><input value="'+escapeHtml(f.clientName)+'" oninput="S.quoteForm.clientName=this.value" placeholder="שם הלקוח..."></div>'
+        + '<div><label>יעד</label><input value="'+escapeHtml(f.destination)+'" oninput="S.quoteForm.destination=this.value" list="dest_list2"><datalist id="dest_list2">'+COUNTRY_TRAVEL_CATALOG.map(c=>'<option value="'+escapeHtml(c.country)+'">').join("")+'</datalist></div>'
+        + '<div><label>סטטוס</label><select onchange="S.quoteForm.status=this.value">'+QUOTE_STATUSES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.status===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
+        + '<div><label>תוקף עד</label><input type="date" value="'+escapeHtml(f.validUntil||"")+'" oninput="S.quoteForm.validUntil=this.value"></div>'
+        + '</div>'
+        + '<div style="margin-top:10px"><label>פריטים</label><div class="quote-items">'+itemsHtml+'</div>'
+        + '<button class="btn-soft" style="margin-top:6px" onclick="addQuoteItem()">+ הוסף פריט</button></div>'
+        + '<div class="quote-summary">סה"כ: <strong>₪'+totalCalc.toLocaleString("he-IL")+'</strong></div>'
+        + '<div style="margin-top:10px"><label>מדיניות ביטול</label><textarea oninput="S.quoteForm.cancellationPolicy=this.value">'+escapeHtml(f.cancellationPolicy)+'</textarea></div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.quoteForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveQuote()">'+escapeHtml(f.id?"עדכון":"שמירה")+'</button>'+(f.id?'<button class="btn-soft" onclick="resetQuoteForm();render()">ביטול</button>':"")+'</div>'
+        + '</div>'
+        + '<div><div class="section-title">הצעות מחיר ('+rows.length+')</div><div class="list">'
+        + (rows.length?rows.map(x=>{
+          const statusClass=x.status==="אושרה"?"b-ok":x.status==="נשלחה"?"b-warn":x.status==="בוטלה"?"b-danger":"b-purple";
+          return '<div class="item"><div class="item-head"><strong>'+escapeHtml(x.clientName)+' – '+escapeHtml(x.destination)+'</strong><span class="badge '+statusClass+'">'+escapeHtml(x.status)+'</span></div>'
+            + '<div class="small">₪'+escapeHtml(String(x.totalPrice?.toLocaleString("he-IL")||0))+' | '+escapeHtml(x.items?.length||0)+' פריטים'+(x.validUntil?' | תוקף: '+escapeHtml(fmtDateShort(x.validUntil)):"")+'</div>'
+            + '<div class="row" style="margin-top:6px;gap:4px">'
+            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editQuote('+x.id+')">✏️</button>'
+            + '<button class="btn-ok" style="width:auto;font-size:12px" onclick="updateQuoteStatus('+x.id+',\'אושרה\')">✅</button>'
+            + '<button class="btn-warn" style="width:auto;font-size:12px" onclick="updateQuoteStatus('+x.id+',\'נשלחה\')">📤</button>'
+            + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteQuote('+x.id+')">🗑</button>'
+            + '</div></div>';
+        }).join(""):'<div class="empty">אין הצעות מחיר</div>')
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER FINANCES =====
+    function renderFinancesTab() {
+      const f=S.invoiceForm;
+      const totalAmount=S.invoices.reduce((a,x)=>a+(Number(x.amount)||0),0);
+      const paidAmount=S.invoices.filter(x=>x.status==="שולם").reduce((a,x)=>a+(Number(x.amount)||0),0);
+      const pendingAmount=S.invoices.filter(x=>x.status==="ממתין").reduce((a,x)=>a+(Number(x.amount)||0),0);
+      const partialAmount=S.invoices.filter(x=>x.status==="חלקי").reduce((a,x)=>a+(Number(x.amount)||0),0);
+      return '<div class="dashboard-flow">'
+        + '<div class="finance-kpis">'
+        + '<div class="finance-kpi"><div class="label">סה"כ</div><div class="amount" style="color:var(--brand)">₪'+totalAmount.toLocaleString("he-IL")+'</div></div>'
+        + '<div class="finance-kpi paid"><div class="label">שולם</div><div class="amount" style="color:var(--ok)">₪'+paidAmount.toLocaleString("he-IL")+'</div></div>'
+        + '<div class="finance-kpi pending"><div class="label">ממתין</div><div class="amount" style="color:var(--warn)">₪'+pendingAmount.toLocaleString("he-IL")+'</div></div>'
+        + '<div class="finance-kpi"><div class="label">חלקי</div><div class="amount" style="color:#7c3aed">₪'+partialAmount.toLocaleString("he-IL")+'</div></div>'
+        + '</div>'
+        + '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכה":"הוספת חשבונית/קבלה")+'</div>'
+        + '<div class="grid">'
+        + '<div><label>סוג</label><select onchange="S.invoiceForm.type=this.value"><option '+(f.type==="חשבונית"?"selected":"")+'>חשבונית</option><option '+(f.type==="קבלה"?"selected":"")+'>קבלה</option></select></div>'
+        + '<div><label>מספר</label><input value="'+escapeHtml(f.number)+'" oninput="S.invoiceForm.number=this.value" placeholder="INV-004"></div>'
+        + '<div><label>שם לקוח</label><input value="'+escapeHtml(f.clientName)+'" oninput="S.invoiceForm.clientName=this.value"></div>'
+        + '<div><label>סכום ₪</label><input type="number" value="'+escapeHtml(f.amount)+'" oninput="S.invoiceForm.amount=this.value"></div>'
+        + '<div><label>סטטוס</label><select onchange="S.invoiceForm.status=this.value">'+INVOICE_STATUSES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.status===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
+        + '<div><label>תאריך פירעון</label><input type="date" value="'+escapeHtml(f.dueDate)+'" oninput="S.invoiceForm.dueDate=this.value"></div>'
+        + '<div><label>אמצעי תשלום</label><select onchange="S.invoiceForm.method=this.value">'+INVOICE_METHODS.map(m=>'<option value="'+escapeHtml(m)+'" '+(f.method===m?"selected":"")+'>'+escapeHtml(m)+'</option>').join("")+'</select></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.invoiceForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveInvoice()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetInvoiceForm();render()">ביטול</button>':"")+'</div>'
+        + '</div>'
+        + '<div><div class="section-title">רשומות כספיות ('+S.invoices.length+')</div><div class="list">'
+        + S.invoices.map(x=>{
+          const sc=x.status==="שולם"?"b-ok":x.status==="ממתין"?"b-warn":x.status==="חלקי"?"b-purple":"b-danger";
+          return '<div class="item"><div class="item-head"><strong>'+escapeHtml(x.type)+' '+escapeHtml(x.number)+'</strong><span class="badge '+sc+'">'+escapeHtml(x.status)+'</span></div>'
+            + '<div class="small">'+escapeHtml(x.clientName)+' | ₪'+Number(x.amount).toLocaleString("he-IL")+' | '+escapeHtml(x.method)+'</div>'
+            + (x.dueDate?'<div class="small muted">פירעון: '+escapeHtml(fmtDateShort(x.dueDate))+'</div>':"")
+            + '<div class="row" style="margin-top:6px;gap:4px">'
+            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editInvoice('+x.id+')">✏️</button>'
+            + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteInvoice('+x.id+')">🗑</button>'
+            + '</div></div>';
+        }).join("")
+        + '</div></div></div></div>';
+    }
+
+    // ===== RENDER DEDICATED TASKS =====
+    function renderTasksTab() {
+      const tasks=S.tasks||[];
+      const f=S.taskForm;
+      const priorityFilter=S.taskPriorityFilter||"all";
+      const filtered=tasks.filter(t=>priorityFilter==="all"||t.priority===priorityFilter);
+      const overdue=filtered.filter(t=>!t.done&&t.dueDate&&new Date(t.dueDate)<new Date());
+      const active=filtered.filter(t=>!t.done&&(!t.dueDate||new Date(t.dueDate)>=new Date())).sort((a,b)=>(a.dueDate||"z").localeCompare(b.dueDate||"z"));
+      const done=filtered.filter(t=>t.done);
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">הוספת משימה חדשה</div>'
+        + '<div class="grid">'
+        + '<div><label>כותרת</label><input value="'+escapeHtml(f.title)+'" oninput="S.taskForm.title=this.value" placeholder="תיאור המשימה..."></div>'
+        + '<div><label>תאריך יעד</label><input type="date" value="'+escapeHtml(f.dueDate)+'" oninput="S.taskForm.dueDate=this.value"></div>'
+        + '<div><label>אחראי</label><input value="'+escapeHtml(f.assignedTo)+'" oninput="S.taskForm.assignedTo=this.value" placeholder="איציק"></div>'
+        + '<div><label>עדיפות</label><select onchange="S.taskForm.priority=this.value"><option '+(f.priority==="גבוהה"?"selected":"")+'>גבוהה</option><option '+(f.priority==="בינונית"?"selected":"")+'>בינונית</option><option '+(f.priority==="נמוכה"?"selected":"")+'>נמוכה</option></select></div>'
+        + '<div><label>סוג</label><select onchange="S.taskForm.relatedType=this.value"><option '+(f.relatedType==="כללי"?"selected":"")+'>כללי</option><option '+(f.relatedType==="lead"?"selected":"")+'>ליד</option><option '+(f.relatedType==="supplier"?"selected":"")+'>ספק</option><option '+(f.relatedType==="trip"?"selected":"")+'>טיול</option></select></div>'
+        + '</div>'
+        + '<button class="btn-ok" style="margin-top:10px" onclick="saveTask()">'+escapeHtml(f.id?"עדכון":"הוספת משימה")+'</button>'
+        + '<div style="margin-top:12px"><label>סינון עדיפות</label><div class="chips" style="margin-top:4px">'
+        + ["all","גבוהה","בינונית","נמוכה"].map(p=>'<span class="chip '+(priorityFilter===p?"active-chip":"")+'" onclick="S.taskPriorityFilter=\''+p+'\';render()" style="cursor:pointer">'+(p==="all"?"הכל":escapeHtml(p))+'</span>').join("")
+        + '</div></div>'
+        + '</div>'
+        + '<div>'
+        + (overdue.length?'<div class="card" style="margin-bottom:12px;border-color:var(--danger)"><div class="section-title" style="color:var(--danger)">⚠️ באיחור ('+overdue.length+')</div><div class="list">'
+          + overdue.map(t=>'<div class="task-item overdue"><input type="checkbox" onchange="toggleTaskDone('+t.id+')" style="width:20px;flex:0"><div style="flex:1"><strong>'+escapeHtml(t.title)+'</strong><div class="small muted">'+escapeHtml(t.dueDate||"")+" | "+escapeHtml(t.assignedTo||"")+" | "+escapeHtml(t.priority||"")+'</div></div><button class="btn-soft" style="width:auto;font-size:12px" onclick="editTask('+t.id+')">✏️</button><button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteTask('+t.id+')">🗑</button></div>').join("")
+          + '</div></div>':"")
+        + '<div class="card" style="margin-bottom:12px"><div class="section-title">📋 פעילות ('+active.length+')</div><div class="list">'
+        + (active.length?active.map(t=>'<div class="task-item"><input type="checkbox" onchange="toggleTaskDone('+t.id+')" style="width:20px;flex:0"><div style="flex:1"><strong>'+escapeHtml(t.title)+'</strong><div class="small muted">'+escapeHtml(t.dueDate||"ללא תאריך")+" | "+escapeHtml(t.assignedTo||"")+" | "+escapeHtml(t.priority||"")+'</div></div><button class="btn-soft" style="width:auto;font-size:12px" onclick="editTask('+t.id+')">✏️</button><button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteTask('+t.id+')">🗑</button></div>').join(""):'<div class="empty">אין משימות פעילות</div>')
+        + '</div></div>'
+        + (done.length?'<div class="card"><div class="section-title">✅ הושלמו ('+done.length+')</div><div class="list">'
+          + done.slice(0,8).map(t=>'<div class="task-item done"><input type="checkbox" checked onchange="toggleTaskDone('+t.id+')" style="width:20px;flex:0"><div style="flex:1">'+escapeHtml(t.title)+'</div><button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteTask('+t.id+')">🗑</button></div>').join("")
+          + '</div></div>':"")
+        + '</div></div>';
+    }
+
+    // ===== RENDER CAMPAIGNS =====
+    function renderCampaignsTab() {
+      const f=S.campaignForm;
+      const rows=S.campaigns;
+      const totalBudget=rows.reduce((a,x)=>a+(Number(x.budget)||0),0);
+      const totalImpressions=rows.reduce((a,x)=>a+(Number(x.impressions)||0),0);
+      const totalConversions=rows.reduce((a,x)=>a+(Number(x.conversions)||0),0);
+      return '<div class="dashboard-flow">'
+        + '<div class="kpis" style="grid-template-columns:repeat(4,1fr)">'
+        + '<div class="kpi"><div class="small muted">קמפיינים</div><strong>'+rows.length+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">תקציב כולל</div><strong>₪'+totalBudget.toLocaleString("he-IL")+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">חשיפות</div><strong>'+totalImpressions.toLocaleString("he-IL")+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">המרות</div><strong>'+totalConversions+'</strong></div>'
+        + '</div>'
+        + '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכה":"קמפיין חדש")+'</div>'
+        + '<div class="grid">'
+        + '<div><label>שם קמפיין</label><input value="'+escapeHtml(f.name)+'" oninput="S.campaignForm.name=this.value"></div>'
+        + '<div><label>ערוץ</label><select onchange="S.campaignForm.channel=this.value">'+CAMPAIGN_CHANNELS.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.channel===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
+        + '<div><label>תקציב ₪</label><input type="number" value="'+escapeHtml(f.budget)+'" oninput="S.campaignForm.budget=this.value"></div>'
+        + '<div><label>סטטוס</label><select onchange="S.campaignForm.status=this.value">'+CAMPAIGN_STATUSES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.status===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
+        + '<div><label>תאריך התחלה</label><input type="date" value="'+escapeHtml(f.startDate)+'" oninput="S.campaignForm.startDate=this.value"></div>'
+        + '<div><label>תאריך סיום</label><input type="date" value="'+escapeHtml(f.endDate)+'" oninput="S.campaignForm.endDate=this.value"></div>'
+        + '<div><label>קהל יעד</label><input value="'+escapeHtml(f.targetAudience)+'" oninput="S.campaignForm.targetAudience=this.value" placeholder="משפחות דתיות..."></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.campaignForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveCampaign()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetCampaignForm();render()">ביטול</button>':"")+'</div>'
+        + '</div>'
+        + '<div><div class="section-title">קמפיינים ('+rows.length+')</div><div class="list">'
+        + rows.map(x=>{
+          const sc=x.status==="פעיל"?"b-ok":x.status==="מתוכנן"?"b-warn":x.status==="הושלם"?"b-purple":"b-danger";
+          return '<div class="campaign-card"><div class="item-head"><strong>'+escapeHtml(x.name)+'</strong><span class="badge '+sc+'">'+escapeHtml(x.status)+'</span></div>'
+            + '<div class="small">'+escapeHtml(x.channel)+' | ₪'+Number(x.budget||0).toLocaleString("he-IL")+' | '+escapeHtml(x.targetAudience||"")+'</div>'
+            + (x.startDate?'<div class="small muted">'+escapeHtml(fmtDateShort(x.startDate))+' – '+escapeHtml(fmtDateShort(x.endDate))+'</div>':"")
+            + '<div class="campaign-metrics">'
+            + '<div class="campaign-metric"><div class="val">'+Number(x.impressions||0).toLocaleString("he-IL")+'</div><div class="lbl">חשיפות</div></div>'
+            + '<div class="campaign-metric"><div class="val">'+Number(x.clicks||0).toLocaleString("he-IL")+'</div><div class="lbl">קליקים</div></div>'
+            + '<div class="campaign-metric"><div class="val">'+Number(x.conversions||0)+'</div><div class="lbl">המרות</div></div>'
+            + '</div>'
+            + '<div class="row" style="margin-top:8px;gap:4px">'
+            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editCampaign('+x.id+')">✏️</button>'
+            + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteCampaign('+x.id+')">🗑</button>'
+            + '</div></div>';
+        }).join("")
+        + '</div></div></div></div>';
+    }
+
+    // ===== RENDER DOCUMENTS =====
+    function renderDocumentsTab() {
+      const f=S.documentForm;
+      const catFilter=S.docCategoryFilter||"all";
+      const rows=S.documents.filter(d=>catFilter==="all"||d.category===catFilter);
+      const catCounts=DOC_CATEGORIES.map(c=>({cat:c,count:S.documents.filter(d=>d.category===c).length}));
+      return '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת מסמך":"הוספת מסמך")+'</div>'
+        + '<div class="grid">'
+        + '<div><label>שם מסמך</label><input value="'+escapeHtml(f.name)+'" oninput="S.documentForm.name=this.value" placeholder="שם המסמך..."></div>'
+        + '<div><label>קטגוריה</label><select onchange="S.documentForm.category=this.value">'+DOC_CATEGORIES.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.category===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
+        + '<div><label>קשור ל-</label><input value="'+escapeHtml(f.relatedTo||"")+'" oninput="S.documentForm.relatedTo=this.value" placeholder="שם לקוח / ספק..."></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.documentForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveDocument()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetDocumentForm();render()">ביטול</button>':"")+'</div>'
+        + '<div style="margin-top:14px"><div class="section-title" style="font-size:16px">📁 תיקיות</div>'
+        + '<div class="list" style="grid-template-columns:repeat(2,1fr);display:grid">'
+        + catCounts.map(c=>'<div class="smart-folder" onclick="S.docCategoryFilter=\''+escapeHtml(c.cat)+'\';render()" style="cursor:pointer"><span class="folder-icon">'+(c.cat==="חוזה"?"📜":c.cat==="ביטוח"?"🛡":c.cat==="חשבונית"?"🧾":c.cat==="דרכון"?"🛂":"📎")+'</span><div class="folder-info"><strong>'+escapeHtml(c.cat)+'</strong></div><span class="folder-count">'+c.count+'</span></div>').join("")
+        + '</div></div>'
+        + '</div>'
+        + '<div><div class="folder-tabs"><div class="folder-tab '+(catFilter==="all"?"active":"")+'" onclick="S.docCategoryFilter=\'all\';render()">כולם ('+S.documents.length+')</div>'+DOC_CATEGORIES.map(c=>'<div class="folder-tab '+(catFilter===c?"active":"")+'" onclick="S.docCategoryFilter=\''+escapeHtml(c)+'\';render()">'+escapeHtml(c)+'</div>').join("")+'</div>'
+        + '<div class="section-title">מסמכים ('+rows.length+')</div><div class="list">'
+        + (rows.length?rows.map(d=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(d.name)+'</strong><span class="badge b-ok">'+escapeHtml(d.category)+'</span></div>'
+          + '<div class="small">'+escapeHtml(d.relatedTo||"")+(d.fileSize?" | "+escapeHtml(d.fileSize):"")+(d.uploadDate?" | "+escapeHtml(fmtDateShort(d.uploadDate)):"")+'</div>'
+          + (d.notes?'<div class="small muted">'+escapeHtml(d.notes)+'</div>':"")
+          + '<div class="row" style="margin-top:6px;gap:4px">'
+          + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editDocument('+d.id+')">✏️</button>'
+          + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteDocument('+d.id+')">🗑</button>'
+          + '</div></div>').join(""):'<div class="empty">אין מסמכים בקטגוריה זו</div>')
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER SOCIAL MEDIA =====
+    function renderSocialTab() {
+      const f=S.socialForm;
+      const rows=S.socialPosts;
+      const totalLikes=rows.reduce((a,x)=>a+(Number(x.likes)||0),0);
+      const totalComments=rows.reduce((a,x)=>a+(Number(x.comments)||0),0);
+      const totalShares=rows.reduce((a,x)=>a+(Number(x.shares)||0),0);
+      const platformIcon=p=>p==="facebook"?"📘":p==="instagram"?"📷":p==="linkedin"?"💼":"🎵";
+      return '<div class="dashboard-flow">'
+        + '<div class="kpis" style="grid-template-columns:repeat(4,1fr)">'
+        + '<div class="kpi"><div class="small muted">פוסטים</div><strong>'+rows.length+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">לייקים</div><strong>'+totalLikes.toLocaleString("he-IL")+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">תגובות</div><strong>'+totalComments+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">שיתופים</div><strong>'+totalShares+'</strong></div>'
+        + '</div>'
+        + '<div class="layout-2">'
+        + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכה":"פוסט חדש")+'</div>'
+        + '<div class="grid">'
+        + '<div><label>פלטפורמה</label><select onchange="S.socialForm.platform=this.value">'+SOCIAL_PLATFORMS.map(p=>'<option value="'+escapeHtml(p)+'" '+(f.platform===p?"selected":"")+'>'+platformIcon(p)+' '+escapeHtml(p)+'</option>').join("")+'</select></div>'
+        + '<div><label>תאריך פרסום</label><input type="date" value="'+escapeHtml(f.scheduledDate||"")+'" oninput="S.socialForm.scheduledDate=this.value"></div>'
+        + '<div><label>סטטוס</label><select onchange="S.socialForm.status=this.value"><option '+(f.status==="טיוטה"?"selected":"")+'>טיוטה</option><option '+(f.status==="מתוכנן"?"selected":"")+'>מתוכנן</option><option '+(f.status==="פורסם"?"selected":"")+'>פורסם</option></select></div>'
+        + '</div>'
+        + '<div style="margin-top:8px"><label>תוכן</label><textarea style="min-height:120px" oninput="S.socialForm.content=this.value" placeholder="כתוב את הפוסט כאן...">'+escapeHtml(f.content)+'</textarea></div>'
+        + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveSocialPost()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetSocialForm();render()">ביטול</button>':"")+'</div>'
+        + '</div>'
+        + '<div><div class="section-title">פוסטים ('+rows.length+')</div><div class="list">'
+        + rows.map(x=>{
+          const sc=x.status==="פורסם"?"b-ok":x.status==="מתוכנן"?"b-warn":"b-purple";
+          return '<div class="item"><div class="item-head"><strong>'+platformIcon(x.platform)+' '+escapeHtml(x.platform)+'</strong><span class="badge '+sc+'">'+escapeHtml(x.status)+'</span></div>'
+            + '<div class="small" style="white-space:pre-wrap;margin:6px 0">'+escapeHtml((x.content||"").slice(0,150))+(x.content?.length>150?"...":"")+'</div>'
+            + (x.scheduledDate?'<div class="small muted">📅 '+escapeHtml(fmtDateShort(x.scheduledDate))+'</div>':"")
+            + (x.status==="פורסם"?'<div class="row" style="margin-top:4px;gap:12px"><span class="small">❤️ '+x.likes+'</span><span class="small">💬 '+x.comments+'</span><span class="small">🔄 '+x.shares+'</span></div>':"")
+            + '<div class="row" style="margin-top:6px;gap:4px">'
+            + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="editSocialPost('+x.id+')">✏️</button>'
+            + '<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteSocialPost('+x.id+')">🗑</button>'
+            + '</div></div>';
+        }).join("")
+        + '</div></div></div></div>';
+    }
+
+    // ===== RENDER SETTINGS =====
+    function renderSettingsTab() {
+      return '<div class="layout-2">'
+        + '<div>'
+        + '<div class="settings-section"><div class="section-title">🏢 פרטי חברה</div>'
+        + '<div class="grid">'
+        + '<div><label>שם חברה</label><input value="'+escapeHtml(S.settingsCompanyName||"")+'" oninput="S.settingsCompanyName=this.value"></div>'
+        + '<div><label>טלפון</label><input value="'+escapeHtml(S.settingsCompanyPhone||"")+'" oninput="S.settingsCompanyPhone=this.value"></div>'
+        + '<div><label>אימייל</label><input value="'+escapeHtml(S.settingsCompanyEmail||"")+'" oninput="S.settingsCompanyEmail=this.value"></div>'
+        + '</div></div>'
+        + '<div class="settings-section"><div class="section-title">🔔 התראות</div>'
+        + '<div class="settings-row"><span>התראות אימייל</span><button class="toggle-switch '+(S.settingsNotifyEmail?"on":"")+'" onclick="S.settingsNotifyEmail=!S.settingsNotifyEmail;render()"></button></div>'
+        + '<div class="settings-row"><span>התראות וואטסאפ</span><button class="toggle-switch '+(S.settingsNotifyWhatsapp?"on":"")+'" onclick="S.settingsNotifyWhatsapp=!S.settingsNotifyWhatsapp;render()"></button></div>'
+        + '<div class="settings-row"><span>תזכורות יום הולדת</span><button class="toggle-switch '+(S.settingsNotifyBirthday?"on":"")+'" onclick="S.settingsNotifyBirthday=!S.settingsNotifyBirthday;render()"></button></div>'
+        + '<div class="settings-row"><span>התראות לידים חדשים</span><button class="toggle-switch '+(S.settingsNotifyLeads?"on":"")+'" onclick="S.settingsNotifyLeads=!S.settingsNotifyLeads;render()"></button></div>'
+        + '<div class="settings-row"><span>תזכורות משימות</span><button class="toggle-switch '+(S.settingsNotifyTasks?"on":"")+'" onclick="S.settingsNotifyTasks=!S.settingsNotifyTasks;render()"></button></div>'
+        + '<div class="settings-row"><span>גיבוי אוטומטי יומי</span><button class="toggle-switch '+(S.settingsAutoBackup?"on":"")+'" onclick="S.settingsAutoBackup=!S.settingsAutoBackup;render()"></button></div>'
+        + '</div>'
+        + '</div>'
+        + '<div>'
+        + '<div class="settings-section"><div class="section-title">💾 ניהול נתונים</div>'
+        + '<div class="list">'
+        + '<div class="item"><div class="item-head"><strong>ייצוא נתונים</strong></div><div class="small muted">הורד את כל הנתונים כקובץ JSON</div><button class="btn-primary" style="margin-top:8px" onclick="exportDataAsJson()">📥 הורד גיבוי JSON</button></div>'
+        + '<div class="item"><div class="item-head"><strong>שמירה לענן</strong></div><div class="small muted">שמור את כל הנתונים לשרת Netlify</div><button class="btn-ok" style="margin-top:8px" onclick="saveRemote()">☁️ שמור לענן</button></div>'
+        + '<div class="item"><div class="item-head"><strong>איפוס מערכת</strong></div><div class="small muted" style="color:var(--danger)">זהירות! פעולה זו תמחק את כל הנתונים</div><button class="btn-danger" style="margin-top:8px" onclick="if(confirm(\'האם אתה בטוח? כל הנתונים יימחקו!\')){localStorage.removeItem(STORAGE_KEY);location.reload();}">🗑 איפוס כל הנתונים</button></div>'
+        + '</div></div>'
+        + '<div class="settings-section"><div class="section-title">📊 סטטיסטיקות מערכת</div>'
+        + '<div class="list">'
+        + '<div class="item"><div class="item-head"><strong>מטיילים</strong><span class="badge b-ok">'+S.travelers.length+'</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>לידים</strong><span class="badge b-ok">'+S.leads.length+'</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>ספקים</strong><span class="badge b-ok">'+S.suppliers.length+'</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>טיולים</strong><span class="badge b-ok">'+S.trips.length+'</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>הצעות מחיר</strong><span class="badge b-ok">'+S.quotes.length+'</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>חשבוניות</strong><span class="badge b-ok">'+S.invoices.length+'</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>קמפיינים</strong><span class="badge b-ok">'+S.campaigns.length+'</span></div></div>'
+        + '<div class="item"><div class="item-head"><strong>מסמכים</strong><span class="badge b-ok">'+S.documents.length+'</span></div></div>'
+        + '</div></div>'
+        + '<div class="settings-section"><div class="section-title">ℹ️ אודות</div>'
+        + '<div class="small muted">GoTours CRM 360 – מהדורה מקצועית<br>גרסה 4.0 | 29 מודולים<br>tiyoolim.com · GoTours · שטח הפקות</div>'
+        + '</div></div></div>';
+    }
+
+    // ===== RENDER ANALYTICS =====
+    function renderAnalyticsTab() {
+      const revenue=S.trips.reduce((a,t)=>a+(t.enrolled||0)*(t.price||0),0);
+      const avgDealSize=S.leads.filter(l=>l.budget).length?Math.round(S.leads.filter(l=>l.budget).reduce((a,l)=>a+Number(l.budget),0)/S.leads.filter(l=>l.budget).length):0;
+      const byDest={};S.leads.forEach(l=>{if(l.destinationInterest){byDest[l.destinationInterest]=(byDest[l.destinationInterest]||0)+1;}});
+      const destArr=Object.entries(byDest).sort((a,b)=>b[1]-a[1]);
+      const maxDest=destArr.length?destArr[0][1]:1;
+      const byCity={};S.travelers.forEach(t=>{if(t.city){byCity[t.city]=(byCity[t.city]||0)+1;}});
+      const cityArr=Object.entries(byCity).sort((a,b)=>b[1]-a[1]).slice(0,8);
+      const maxCity=cityArr.length?cityArr[0][1]:1;
+      const byCategory={};S.trips.forEach(t=>{if(t.category){byCategory[t.category]=(byCategory[t.category]||0)+(t.enrolled||0);}});
+      const catArr=Object.entries(byCategory).sort((a,b)=>b[1]-a[1]);
+      const maxCat=catArr.length?catArr[0][1]:1;
+      const suppliersByType={};S.suppliers.forEach(s=>{if(s.type){suppliersByType[s.type]=(suppliersByType[s.type]||0)+1;}});
+      const supArr=Object.entries(suppliersByType).sort((a,b)=>b[1]-a[1]);
+      const segmentCounts=SEGMENTS.map(s=>({seg:s,count:S.travelers.filter(t=>(t.segments||[]).includes(s)).length}));
+      const maxSeg=Math.max(1,...segmentCounts.map(x=>x.count));
+      return '<div class="dashboard-flow">'
+        + '<div class="kpis">'
+        + '<div class="kpi"><div class="small muted">הכנסות</div><strong>₪'+revenue.toLocaleString("he-IL")+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">עסקה ממוצעת</div><strong>₪'+avgDealSize.toLocaleString("he-IL")+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">לקוחות פעילים</div><strong>'+S.travelers.length+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">לידים</div><strong>'+S.leads.length+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">ספקים</div><strong>'+S.suppliers.length+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">טיולים</div><strong>'+S.trips.length+'</strong></div>'
+        + '</div>'
+        + '<div class="analytics-grid">'
+        // Revenue by trip
+        + '<div class="analytics-chart"><div class="section-title" style="font-size:15px">💰 הכנסות לפי טיול</div>'
+        + '<div class="bar-chart" style="padding-bottom:24px">'
+        + S.trips.map(t=>{const rev=(t.enrolled||0)*(t.price||0);const maxRev=Math.max(1,...S.trips.map(x=>(x.enrolled||0)*(x.price||0)));return '<div class="bar" style="height:'+Math.max(8,Math.round(rev/maxRev*120))+'px"><div class="bar-val">₪'+rev.toLocaleString("he-IL")+'</div><div class="bar-label">'+escapeHtml(t.title.slice(0,8))+'</div></div>';}).join("")
+        + '</div></div>'
+        // Leads by destination
+        + '<div class="analytics-chart"><div class="section-title" style="font-size:15px">🎯 לידים לפי יעד</div>'
+        + '<div class="bar-chart" style="padding-bottom:24px">'
+        + destArr.slice(0,6).map(([dest,count])=>'<div class="bar" style="height:'+Math.max(8,Math.round(count/maxDest*120))+'px;background:linear-gradient(to top,#1f8a53,#27a2be)"><div class="bar-val">'+count+'</div><div class="bar-label">'+escapeHtml(dest.slice(0,6))+'</div></div>').join("")
+        + '</div></div>'
+        // Travelers by city
+        + '<div class="analytics-chart"><div class="section-title" style="font-size:15px">🏙 מטיילים לפי עיר</div>'
+        + '<div class="bar-chart" style="padding-bottom:24px">'
+        + cityArr.map(([city,count])=>'<div class="bar" style="height:'+Math.max(8,Math.round(count/maxCity*120))+'px;background:linear-gradient(to top,#7c3aed,#a78bfa)"><div class="bar-val">'+count+'</div><div class="bar-label">'+escapeHtml(city.slice(0,5))+'</div></div>').join("")
+        + '</div></div>'
+        // Segments
+        + '<div class="analytics-chart"><div class="section-title" style="font-size:15px">👥 מטיילים לפי קבוצה</div>'
+        + '<div class="bar-chart" style="padding-bottom:24px">'
+        + segmentCounts.map(x=>'<div class="bar" style="height:'+Math.max(8,Math.round(x.count/maxSeg*120))+'px;background:linear-gradient(to top,#b57814,#f59e0b)"><div class="bar-val">'+x.count+'</div><div class="bar-label">'+escapeHtml(x.seg.slice(0,6))+'</div></div>').join("")
+        + '</div></div>'
+        // Suppliers by type
+        + '<div class="analytics-chart"><div class="section-title" style="font-size:15px">🏪 ספקים לפי סוג</div><div class="list">'
+        + supArr.map(([type,count])=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(type)+'</strong><span class="badge b-ok">'+count+'</span></div></div>').join("")
+        + '</div></div>'
+        // Categories
+        + '<div class="analytics-chart"><div class="section-title" style="font-size:15px">✈ רשומים לפי קטגוריה</div>'
+        + '<div class="bar-chart" style="padding-bottom:24px">'
+        + catArr.map(([cat,count])=>'<div class="bar" style="height:'+Math.max(8,Math.round(count/maxCat*120))+'px;background:linear-gradient(to top,#c33434,#ef4444)"><div class="bar-val">'+count+'</div><div class="bar-label">'+escapeHtml(cat)+'</div></div>').join("")
+        + '</div></div>'
+        + '</div></div>';
+    }
+
+    // ===== RENDER TRAILS =====
+    function renderTrailsTab() {
+      const regionFilter=S.trailsRegionFilter||"all";
+      const diffFilter=S.trailsDifficultyFilter||"all";
+      const q=String(S.search||"").toLowerCase();
+      const regions=["צפון","מרכז","ירושלים","דרום"];
+      const diffs=["קל","בינוני","קשה"];
+      const rows=HIKING_TRAILS.filter(t=>(regionFilter==="all"||t.region===regionFilter)&&(diffFilter==="all"||t.difficulty===diffFilter)&&(!q||(t.name||"").includes(q)||(t.description||"").includes(q)));
+      const regionCounts=regions.map(r=>({r:r,c:HIKING_TRAILS.filter(t=>t.region===r).length}));
+      return '<div class="dashboard-flow">'
+        + '<div class="kpis" style="grid-template-columns:repeat(5,1fr)">'
+        + '<div class="kpi"><div class="small muted">סה"כ שבילים</div><strong>'+HIKING_TRAILS.length+'</strong></div>'
+        + regionCounts.map(x=>'<div class="kpi"><div class="small muted">'+escapeHtml(x.r)+'</div><strong>'+x.c+'</strong></div>').join("")
+        + '</div>'
+        + '<div class="card"><div class="row">'
+        + '<div><label>אזור</label><div class="chips" style="margin-top:4px"><span class="chip '+(regionFilter==="all"?"active-chip":"")+'" onclick="S.trailsRegionFilter=\'all\';render()" style="cursor:pointer">הכל</span>'+regions.map(r=>'<span class="chip '+(regionFilter===r?"active-chip":"")+'" onclick="S.trailsRegionFilter=\''+escapeHtml(r)+'\';render()" style="cursor:pointer">'+escapeHtml(r)+'</span>').join("")+'</div></div>'
+        + '<div><label>רמת קושי</label><div class="chips" style="margin-top:4px"><span class="chip '+(diffFilter==="all"?"active-chip":"")+'" onclick="S.trailsDifficultyFilter=\'all\';render()" style="cursor:pointer">הכל</span>'+diffs.map(d=>'<span class="chip '+(diffFilter===d?"active-chip":"")+'" onclick="S.trailsDifficultyFilter=\''+escapeHtml(d)+'\';render()" style="cursor:pointer">'+escapeHtml(d)+'</span>').join("")+'</div></div>'
+        + '</div></div>'
+        + '<div class="section-title">🥾 שבילים ('+rows.length+')</div>'
+        + '<div class="list" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">'
+        + rows.map(t=>{
+          const diffColor=t.difficulty==="קל"?"b-ok":t.difficulty==="בינוני"?"b-warn":"b-danger";
+          return '<div class="trail-card"><div class="trail-header"><strong>'+escapeHtml(t.name)+'</strong><span class="badge '+diffColor+'">'+escapeHtml(t.difficulty)+'</span></div>'
+            + '<div class="small muted">'+escapeHtml(t.description)+'</div>'
+            + '<div class="trail-details">'
+            + '<div class="trail-detail">📍 '+escapeHtml(t.region)+'</div>'
+            + '<div class="trail-detail">📏 '+t.distance+' ק"מ</div>'
+            + '<div class="trail-detail">⏱ '+t.duration+' שעות</div>'
+            + '<div class="trail-detail">🗓 '+escapeHtml(t.season)+'</div>'
+            + '</div>'
+            + '<div class="chips" style="margin-top:6px">'+t.suitability.map(s=>'<span class="chip">'+escapeHtml(s)+'</span>').join("")+'</div>'
+            + '</div>';
+        }).join("")
+        + '</div></div>';
+    }
+
+    // ===== RENDER DUPLICATES =====
+    function renderDuplicatesTab() {
+      const dups=findDuplicates();
+      return '<div class="card"><div class="section-title">🔍 זיהוי כפילויות</div>'
+        + '<div class="sub-title">סריקה אוטומטית של מטיילים, לידים ואנשי קשר לאיתור רשומות כפולות לפי שם או טלפון.</div>'
+        + '<div class="kpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">'
+        + '<div class="kpi"><div class="small muted">מטיילים נסרקו</div><strong>'+S.travelers.length+'</strong></div>'
+        + '<div class="kpi"><div class="small muted">לידים נסרקו</div><strong>'+S.leads.length+'</strong></div>'
+        + '<div class="kpi" style="border-color:'+(dups.length?"var(--warn)":"var(--ok)")+'"><div class="small muted">כפילויות שנמצאו</div><strong style="color:'+(dups.length?"var(--warn)":"var(--ok)")+'">'+dups.length+'</strong></div>'
+        + '</div>'
+        + (dups.length?'<div class="list">'+dups.slice(0,20).map(d=>'<div class="dup-pair">'
+          + '<div class="dup-record"><div class="small" style="color:var(--muted)">'+escapeHtml(d.a._type)+'</div><strong>'+escapeHtml(d.a._name)+'</strong><div class="small">'+escapeHtml(d.a._phone||"")+(d.a.email?" | "+escapeHtml(d.a.email):"")+'</div></div>'
+          + '<div class="dup-arrow">⇔</div>'
+          + '<div class="dup-record"><div class="small" style="color:var(--muted)">'+escapeHtml(d.b._type)+'</div><strong>'+escapeHtml(d.b._name)+'</strong><div class="small">'+escapeHtml(d.b._phone||"")+(d.b.email?" | "+escapeHtml(d.b.email):"")+'</div></div>'
+          + '<div style="text-align:center"><div class="small" style="color:var(--warn);margin-bottom:4px">'+escapeHtml(d.reason)+'</div></div>'
+          + '</div>').join("")+'</div>'
+          :'<div class="empty" style="margin-top:12px">לא נמצאו כפילויות! 🎉 כל הרשומות ייחודיות.</div>')
+        + '</div>';
+    }
+
+    // ===== RENDER ACTIVITY LOG =====
+    function renderActivityLogTab() {
+      const filter=S.activityLogFilter||"all";
+      const logs=(S.activityLog||[]).filter(l=>filter==="all"||l.action===filter);
+      const actionIcon=a=>a==="הוספה"?"add":a==="עדכון"?"edit":"delete";
+      const actionEmoji=a=>a==="הוספה"?"➕":a==="עדכון"?"✏️":"🗑";
+      return '<div class="card"><div class="section-title">📋 יומן פעילות</div>'
+        + '<div class="sub-title">מעקב אחר כל הפעולות שבוצעו במערכת</div>'
+        + '<div class="chips" style="margin-bottom:12px">'
+        + ["all","הוספה","עדכון","מחיקה"].map(a=>'<span class="chip '+(filter===a?"active-chip":"")+'" onclick="S.activityLogFilter=\''+escapeHtml(a)+'\';render()" style="cursor:pointer">'+(a==="all"?"הכל":escapeHtml(a))+'</span>').join("")
+        + '</div>'
+        + '<div class="list">'
+        + (logs.length?logs.slice(0,50).map(l=>'<div class="log-entry"><div class="log-icon '+actionIcon(l.action)+'">'+actionEmoji(l.action)+'</div>'
+          + '<div class="log-content"><strong>'+escapeHtml(l.action)+' '+escapeHtml(l.entityType)+'</strong>'+(l.entityName?' – '+escapeHtml(l.entityName):"")
+          + '<div class="small muted">👤 '+escapeHtml(l.user||"")+' | '+escapeHtml(fmtDateShort(l.timestamp))+'</div></div>'
+          + '<div class="log-time">'+escapeHtml(new Date(l.timestamp).toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"}))+'</div>'
+          + '</div>').join(""):'<div class="empty">אין פעולות רשומות</div>')
+        + '</div></div>';
+    }
+
     // ===== RENDER AI WIDGET =====
     function renderAiWidget() {
       const panel=S.aiWidgetOpen
@@ -1594,19 +2364,30 @@
         {id:"contacts",label:"📇 אנשי קשר"},
         {id:"leads",label:"🎯 לידים"},
         {id:"suppliers",label:"🏪 ספקים"},
-        {id:"trips",label:"📋 הצעות מחיר"},
+        {id:"trips",label:"✈️ טיולים"},
+        {id:"quotes",label:"📝 בונה הצעות"},
         {id:"conversations",label:"💬 תקשורת"},
         {id:"birthdays",label:"🎂 ימי הולדת"},
         {id:"alerts",label:"🔔 התראות"},
         {id:"broadcast",label:"📲 קבוצות WA"},
+        {id:"finances",label:"💰 כספים"},
+        {id:"tasks",label:"✅ משימות"},
+        {id:"campaigns",label:"📣 קמפיינים"},
+        {id:"documents",label:"📄 מסמכים"},
+        {id:"social",label:"📱 רשתות חברתיות"},
         {id:"reports",label:"📊 דוחות"},
+        {id:"analytics",label:"📈 אנליטיקס"},
         {id:"weather",label:"🌍 מזג אוויר"},
+        {id:"trails",label:"🥾 שבילי טיול"},
         {id:"integrations",label:"🔌 אינטגרציות"},
         {id:"imports",label:"🧠 ייבוא חכם"},
+        {id:"duplicates",label:"🔍 כפילויות"},
         {id:"agencies",label:"🏢 ארגונים"},
         {id:"hr",label:"👔 כוח אדם"},
         {id:"matching",label:"🤖 GoAI"},
-        {id:"calendar",label:"📅 לוח שנה"}
+        {id:"calendar",label:"📅 לוח שנה"},
+        {id:"activityLog",label:"📋 יומן פעילות"},
+        {id:"settings",label:"⚙️ הגדרות"}
       ];
       let content="";
       if(S.tab==="dashboard") content=renderDashboard();
@@ -1627,6 +2408,17 @@
       else if(S.tab==="integrations") content=renderIntegrationsTab();
       else if(S.tab==="imports") content=renderImportsTab();
       else if(S.tab==="calendar") content=renderCalendarTab();
+      else if(S.tab==="quotes") content=renderQuotesTab();
+      else if(S.tab==="finances") content=renderFinancesTab();
+      else if(S.tab==="tasks") content=renderTasksTab();
+      else if(S.tab==="campaigns") content=renderCampaignsTab();
+      else if(S.tab==="documents") content=renderDocumentsTab();
+      else if(S.tab==="social") content=renderSocialTab();
+      else if(S.tab==="settings") content=renderSettingsTab();
+      else if(S.tab==="analytics") content=renderAnalyticsTab();
+      else if(S.tab==="trails") content=renderTrailsTab();
+      else if(S.tab==="duplicates") content=renderDuplicatesTab();
+      else if(S.tab==="activityLog") content=renderActivityLogTab();
       else content=renderDashboard();
 
       const d=dashboardData();
@@ -1641,9 +2433,11 @@
 
     function render() {
       const app=document.getElementById("app");
+      const scrollY=window.scrollY;
       if(S.loading){app.innerHTML='<div class="auth-wrap"><div class="card auth"><h1>✈ GoTours CRM 360</h1><div class="muted">טוען נתונים...</div></div></div>'; return;}
       app.innerHTML=S.isAuthenticated?renderMain():renderAuth();
       renderSyncMeta();
+      window.scrollTo(0,scrollY);
     }
 
     // ===== INIT =====
