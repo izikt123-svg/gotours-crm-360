@@ -174,6 +174,8 @@
     .import-card .import-card-head .ic-icon { font-size:32px; width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:12px; }
     .import-card .import-card-head h4 { margin:0; font-size:15px; }
     .import-card .import-card-head .small { color:#888; margin-top:2px; }
+    .import-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .import-grid .import-card-full { grid-column:1/-1; }
     .ic-trav { background:linear-gradient(135deg,#dbeafe,#eff6ff); }
     .ic-lead { background:linear-gradient(135deg,#fef3c7,#fefce8); }
     .ic-cont { background:linear-gradient(135deg,#d1fae5,#ecfdf5); }
@@ -259,6 +261,7 @@
       .row { flex-direction:column; }
       .row > * { min-width:auto; width:100%; }
       .grid { gap:6px; }
+      .import-grid { grid-template-columns:1fr; }
       .item-head { flex-direction:column; gap:4px; }
       .chips { gap:4px; }
       .chip { font-size:11px; padding:3px 7px; }
@@ -982,14 +985,17 @@
       if(!file) return;
       if(!/\.(xlsx|xls|csv)$/i.test(file.name)) return alert("יש לבחור קובץ Excel או CSV");
       const fakeInput={files:[file]};
+      var nameEl=document.getElementById(zoneId+'_fname');
+      if(nameEl) nameEl.textContent='⏳ טוען: '+file.name;
       if(extraArg!==undefined) importFn(fakeInput,extraArg); else importFn(fakeInput);
-      const nameEl=document.getElementById(zoneId+'_fname');
-      if(nameEl) nameEl.textContent='📎 '+file.name;
     }
     function handleImportFileSelect(input,zoneId) {
       const file=input.files&&input.files[0]; if(!file) return;
-      const nameEl=document.getElementById(zoneId+'_fname');
-      if(nameEl) nameEl.textContent='📎 '+file.name;
+      var nameEl=document.getElementById(zoneId+'_fname');
+      if(nameEl) nameEl.textContent='⏳ טוען: '+file.name;
+      if(nameEl) nameEl.textContent='⏳ טוען: '+file.name;
+      // Reset the input value so re-selecting the same file triggers onchange
+      setTimeout(function(){ input.value=''; },100);
     }
 
     // WhatsApp smart import state
@@ -998,6 +1004,7 @@
     if(!S.waGroupName) S.waGroupName='';
     if(!S.waPreviewData) S.waPreviewData=[];
     if(!S.waPreviewReady) S.waPreviewReady=false;
+    if(S.contactImportCategory===undefined) S.contactImportCategory='';
 
     function handleWaFileDrop(e) {
       e.preventDefault(); e.stopPropagation();
@@ -1093,64 +1100,65 @@
         reader.onerror=reject; reader.readAsArrayBuffer(file);
       });
     }
-    function pick(row,keys) { for(const k of keys){if(row[k]!==undefined&&row[k]!==null&&String(row[k]).trim()!=="") return row[k];} return ""; }
+    function pick(row,keys) { for(const k of keys){if(row[k]!==undefined&&row[k]!==null&&String(row[k]).trim()!=="") return row[k];} for(const rk of Object.keys(row)){const rl=rk.trim().toLowerCase();for(const k of keys){if(k.toLowerCase()===rl) return row[rk];}} return ""; }
     async function importTravelersFromExcel(input) {
       const file=input.files&&input.files[0]; if(!file) return;
       try {
         const rows=await getWorkbookRows(file); const created=[];
         rows.forEach(row=>{
-          const fullName=pick(row,["fullName","name","שם","שם מלא"]); const phone=pick(row,["phone","טלפון","mobile"]);
-          if(!fullName||!phone) return;
-          created.push({id:uid(),fullName:String(fullName).trim(),phone:normalizePhone(phone),whatsapp:normalizePhone(pick(row,["whatsapp","ווטסאפ"])||phone),email:String(pick(row,["email","אימייל"])||"").trim(),birthday:normalizeBirthday(pick(row,["birthday","birthDate","תאריך לידה","יום הולדת"])),age:parseNumber(pick(row,["age","גיל"])),city:String(pick(row,["city","עיר"])||"").trim(),budgetMin:parseNumber(pick(row,["budgetMin","תקציב מינימום"])),budgetMax:parseNumber(pick(row,["budgetMax","תקציב מקסימום"])),preferredCategory:String(pick(row,["preferredCategory","קטגוריה"])||"טבע").trim(),walkingLevel:String(pick(row,["walkingLevel","רמת הליכה"])||"בינוני").trim(),religiousNeeds:parseBoolean(pick(row,["religiousNeeds","דתי"])),kashrutRequired:parseBoolean(pick(row,["kashrutRequired","כשרות"])),shabbatFriendly:parseBoolean(pick(row,["shabbatFriendly","שבת"])),segments:parseSegments(pick(row,["segments","קבוצות"])),notes:String(pick(row,["notes","הערות"])||"").trim(),active:true,conversationHistory:[]});
+          const fullName=pick(row,["fullName","name","שם","שם מלא","שם פרטי","first_name","firstName"]); const phone=pick(row,["phone","טלפון","mobile","נייד","מספר טלפון","tel","telephone","phone_number"]);
+          if(!fullName&&!phone) return;
+          created.push({id:uid(),fullName:String(fullName||phone).trim(),phone:normalizePhone(phone),whatsapp:normalizePhone(pick(row,["whatsapp","ווטסאפ","וואטסאפ"])||phone),email:String(pick(row,["email","אימייל","דואל","mail","e-mail"])||"").trim(),birthday:normalizeBirthday(pick(row,["birthday","birthDate","תאריך לידה","יום הולדת","תאריך_לידה"])),age:parseNumber(pick(row,["age","גיל"])),city:String(pick(row,["city","עיר","ישוב","מקום מגורים","address","כתובת"])||"").trim(),budgetMin:parseNumber(pick(row,["budgetMin","תקציב מינימום","budget_min"])),budgetMax:parseNumber(pick(row,["budgetMax","תקציב מקסימום","budget_max","budget","תקציב"])),preferredCategory:String(pick(row,["preferredCategory","קטגוריה","category","סוג"])||"טבע").trim(),walkingLevel:String(pick(row,["walkingLevel","רמת הליכה","walking_level","רמה"])||"בינוני").trim(),religiousNeeds:parseBoolean(pick(row,["religiousNeeds","דתי","religious"])),kashrutRequired:parseBoolean(pick(row,["kashrutRequired","כשרות","kashrut"])),shabbatFriendly:parseBoolean(pick(row,["shabbatFriendly","שבת","shabbat"])),segments:parseSegments(pick(row,["segments","קבוצות","קבוצה","group","tag","תגית"])),notes:String(pick(row,["notes","הערות","הערה","remarks"])||"").trim(),active:true,conversationHistory:[]});
         });
-        S.travelers.unshift(...created); setState({travelers:S.travelers,travelerImportMsg:"יובאו "+created.length+" מטיילים"});
-      } catch(_) { alert("שגיאה בייבוא קובץ"); }
+        S.travelers.unshift(...created); setState({travelers:S.travelers,travelerImportMsg:"יובאו "+created.length+" מטיילים מתוך "+rows.length+" שורות"});
+      } catch(err) { alert("שגיאה בייבוא קובץ: "+(err.message||err)); throw err; }
     }
     async function importLeadsFromExcel(input) {
       const file=input.files&&input.files[0]; if(!file) return;
       try {
         const rows=await getWorkbookRows(file); const created=[];
         rows.forEach(row=>{
-          const fullName=pick(row,["fullName","name","שם"]); const phone=pick(row,["phone","טלפון"]);
-          if(!fullName||!phone) return;
-          created.push({id:uid(),fullName:String(fullName).trim(),phone:normalizePhone(phone),email:String(pick(row,["email","אימייל"])||"").trim(),source:String(pick(row,["source","מקור"])||"אחר").trim(),status:"חדש",destinationInterest:String(pick(row,["destination","יעד"])||"").trim(),budget:parseNumber(pick(row,["budget","תקציב"])),travelersCount:parseNumber(pick(row,["count","כמות"])),notes:String(pick(row,["notes","הערות"])||"").trim(),assignedTo:"",createdAt:isoNow()});
+          const fullName=pick(row,["fullName","name","שם","שם מלא","שם פרטי","first_name"]); const phone=pick(row,["phone","טלפון","mobile","נייד","מספר טלפון","tel"]);
+          if(!fullName&&!phone) return;
+          created.push({id:uid(),fullName:String(fullName||phone).trim(),phone:normalizePhone(phone),email:String(pick(row,["email","אימייל","דואל","mail"])||"").trim(),source:String(pick(row,["source","מקור","lead_source"])||"אחר").trim(),status:"חדש",destinationInterest:String(pick(row,["destination","יעד","destination_interest","יעד מבוקש"])||"").trim(),budget:parseNumber(pick(row,["budget","תקציב"])),travelersCount:parseNumber(pick(row,["count","כמות","travelers_count","מספר מטיילים"])),notes:String(pick(row,["notes","הערות","הערה"])||"").trim(),assignedTo:"",createdAt:isoNow()});
         });
-        S.leads.unshift(...created); setState({leads:S.leads,leadImportMsg:"יובאו "+created.length+" לידים"});
-      } catch(_) { alert("שגיאה בייבוא קובץ"); }
+        S.leads.unshift(...created); setState({leads:S.leads,leadImportMsg:"יובאו "+created.length+" לידים מתוך "+rows.length+" שורות"});
+      } catch(err) { alert("שגיאה בייבוא קובץ: "+(err.message||err)); throw err; }
     }
-    async function importContactsFromExcel(input,company) {
+    async function importContactsFromExcel(input,category) {
       const file=input.files&&input.files[0]; if(!file) return;
       try {
         const rows=await getWorkbookRows(file); const created=[];
         rows.forEach(row=>{
-          const fullName=pick(row,["fullName","name","שם"]); const phone=pick(row,["phone","טלפון"]);
-          if(!fullName||!phone) return;
-          created.push({id:uid(),fullName:String(fullName).trim(),phone:normalizePhone(phone),email:String(pick(row,["email","אימייל"])||"").trim(),role:String(pick(row,["role","תפקיד"])||"").trim(),company:company||"tiyoolim.com",organization:String(pick(row,["organization","ארגון"])||"").trim(),orgField:"אחר",domain:"",groupName:"",notes:String(pick(row,["notes","הערות"])||"").trim(),active:true});
+          const fullName=pick(row,["fullName","name","שם","שם מלא","שם פרטי","first_name"]); const phone=pick(row,["phone","טלפון","mobile","נייד","מספר טלפון","tel"]);
+          if(!fullName&&!phone) return;
+          const cat=category||String(pick(row,["category","קטגוריה","סוג","orgField","תחום"])||"אחר").trim();
+          created.push({id:uid(),fullName:String(fullName||phone).trim(),phone:normalizePhone(phone),email:String(pick(row,["email","אימייל","דואל","mail","e-mail"])||"").trim(),role:String(pick(row,["role","תפקיד","position","job_title"])||"").trim(),company:String(pick(row,["company","חברה","site","אתר"])||"").trim(),organization:String(pick(row,["organization","ארגון","org"])||"").trim(),orgField:cat,domain:String(pick(row,["domain","דומיין","website","אתר"])||"").trim(),groupName:String(pick(row,["groupName","קבוצה","group","שם קבוצה"])||"").trim(),notes:String(pick(row,["notes","הערות","הערה"])||"").trim(),active:true});
         });
-        S.contacts.unshift(...created); setState({contacts:S.contacts,contactImportMsg:"יובאו "+created.length+" אנשי קשר"});
-      } catch(_) { alert("שגיאה בייבוא קובץ"); }
+        S.contacts.unshift(...created); setState({contacts:S.contacts,contactImportMsg:"יובאו "+created.length+" אנשי קשר מתוך "+rows.length+" שורות"+(category?" (קטגוריה: "+category+")":"")});
+      } catch(err) { alert("שגיאה בייבוא קובץ: "+(err.message||err)); throw err; }
     }
     async function importHrFromExcel(input) {
       const file=input.files&&input.files[0]; if(!file) return;
       try {
         const rows=await getWorkbookRows(file); const created=[];
         rows.forEach(row=>{
-          const fullName=pick(row,["fullName","name","שם"]); if(!fullName) return;
-          created.push({id:uid(),fullName:String(fullName).trim(),role:String(pick(row,["role","תפקיד"])||"מנהלת גיוס").trim(),phone:normalizePhone(pick(row,["phone","טלפון"])),email:String(pick(row,["email","אימייל"])||"").trim(),site:String(pick(row,["site","חברה"])||"GoTours").trim(),groupName:"",team:String(pick(row,["team","צוות"])||"תפעול").trim(),employeesCount:parseNumber(pick(row,["employeesCount","עובדים"])),skills:"",needs:"",active:true,notes:"",correspondenceHistory:[]});
+          const fullName=pick(row,["fullName","name","שם","שם מלא","שם פרטי"]); if(!fullName) return;
+          created.push({id:uid(),fullName:String(fullName).trim(),role:String(pick(row,["role","תפקיד","position"])||"מנהלת גיוס").trim(),phone:normalizePhone(pick(row,["phone","טלפון","mobile","נייד"])),email:String(pick(row,["email","אימייל","דואל","mail"])||"").trim(),site:String(pick(row,["site","חברה","company","מקום עבודה"])||"GoTours").trim(),groupName:"",team:String(pick(row,["team","צוות","department","מחלקה"])||"תפעול").trim(),employeesCount:parseNumber(pick(row,["employeesCount","עובדים","employees"])),skills:"",needs:"",active:true,notes:"",correspondenceHistory:[]});
         });
-        S.hrManagers.unshift(...created); setState({hrManagers:S.hrManagers,hrImportMsg:"יובאו "+created.length+" מנהלות/י כ\"א"});
-      } catch(_) { alert("שגיאה בייבוא קובץ"); }
+        S.hrManagers.unshift(...created); setState({hrManagers:S.hrManagers,hrImportMsg:"יובאו "+created.length+" מנהלות/י כ\"א מתוך "+rows.length+" שורות"});
+      } catch(err) { alert("שגיאה בייבוא קובץ: "+(err.message||err)); throw err; }
     }
     async function importOrganizationsFromExcel(input) {
       const file=input.files&&input.files[0]; if(!file) return;
       try {
         const rows=await getWorkbookRows(file); const created=[];
         rows.forEach(row=>{
-          const name=pick(row,["name","שם","ארגון"]); if(!name) return;
-          created.push({id:uid(),name:String(name).trim(),city:String(pick(row,["city","עיר"])||"").trim(),managerName:String(pick(row,["manager","מנהל"])||"").trim(),phone:normalizePhone(pick(row,["phone","טלפון"])),email:String(pick(row,["email","אימייל"])||"").trim(),specialization:String(pick(row,["specialization","התמחות"])||"").trim(),active:true,notes:""});
+          const name=pick(row,["name","שם","ארגון","organization","org_name"]); if(!name) return;
+          created.push({id:uid(),name:String(name).trim(),city:String(pick(row,["city","עיר","ישוב","address","כתובת"])||"").trim(),managerName:String(pick(row,["manager","מנהל","manager_name","שם מנהל","contact"])||"").trim(),phone:normalizePhone(pick(row,["phone","טלפון","mobile","tel"])),email:String(pick(row,["email","אימייל","mail"])||"").trim(),specialization:String(pick(row,["specialization","התמחות","field","תחום"])||"").trim(),active:true,notes:""});
         });
-        S.agencies.unshift(...created); setState({agencies:S.agencies,orgImportMsg:"יובאו "+created.length+" ארגונים"});
-      } catch(_) { alert("שגיאה בייבוא קובץ"); }
+        S.agencies.unshift(...created); setState({agencies:S.agencies,orgImportMsg:"יובאו "+created.length+" ארגונים מתוך "+rows.length+" שורות"});
+      } catch(err) { alert("שגיאה בייבוא קובץ: "+(err.message||err)); throw err; }
     }
     function importContactsFromWhatsApp() {
       const raw=String(S.waImportText||"").trim(); if(!raw) return alert("יש להדביק טקסט מקבוצת וואטסאפ");
@@ -1955,17 +1963,21 @@
     // ===== RENDER IMPORTS =====
     function renderImportsTab() {
       const makeImportCard=function(icon,iconClass,label,desc,inputId,zoneId,importFn,extraArg,msgKey){
+        const escArg=extraArg!==undefined? "&quot;"+escapeHtml(String(extraArg))+"&quot;" : "";
         const fnCall=extraArg!==undefined
-          ? importFn.name+"(this,"+JSON.stringify(extraArg)+")"
+          ? importFn.name+"(this,"+escArg+")"
           : importFn.name+"(this)";
+        const dropCall=extraArg!==undefined
+          ? "handleImportDrop(event,&quot;"+zoneId+"&quot;,"+importFn.name+","+escArg+")"
+          : "handleImportDrop(event,&quot;"+zoneId+"&quot;,"+importFn.name+")";
         const msg=S[msgKey];
         return '<div class="import-card">'
           + '<div class="import-card-head"><div class="ic-icon '+iconClass+'">'+icon+'</div><div><h4>'+label+'</h4><div class="small muted">'+desc+'</div></div></div>'
-          + '<div class="import-zone" id="'+zoneId+'" ondragover="handleImportDragOver(event,\''+zoneId+'\')" ondragleave="handleImportDragLeave(event,\''+zoneId+'\')" ondrop="handleImportDrop(event,\''+zoneId+'\','+importFn.name+(extraArg!==undefined?','+JSON.stringify(extraArg):'')+')\" onclick="document.getElementById(\''+inputId+'\').click()">'
+          + '<div class="import-zone" id="'+zoneId+'" ondragover="handleImportDragOver(event,&quot;'+zoneId+'&quot;)" ondragleave="handleImportDragLeave(event,&quot;'+zoneId+'&quot;)" ondrop="'+dropCall+'" onclick="document.getElementById(&quot;'+inputId+'&quot;).click()">'
           + '<span class="iz-icon">📂</span>'
-          + '<span class="iz-label">גררו קובץ לכאן או לחצו לבחירה</span>'
+          + '<span class="iz-label">גררו קובץ Excel/CSV לכאן או לחצו לבחירה</span>'
           + '<div class="iz-file-name" id="'+zoneId+'_fname"></div>'
-          + '<input id="'+inputId+'" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFileSelect(this,\''+zoneId+'\');'+fnCall+'">'
+          + '<input id="'+inputId+'" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFileSelect(this,&quot;'+zoneId+'&quot;);'+fnCall+'">'
           + '</div>'
           + (msg?'<div class="small b-ok" style="padding:6px 10px;border-radius:8px;margin-top:6px;display:flex;align-items:center;gap:6px">✅ '+escapeHtml(msg)+'</div>':"")
           + '</div>';
@@ -2036,13 +2048,34 @@
       }
       waSection+='</div>';
 
+      // Contact category import section
+      const contactCat=S.contactImportCategory||'';
+      const contactCatCards=ORG_FIELDS.map(function(cat){
+        const safeCat=escapeHtml(cat);
+        return '<div class="wa-tab'+(contactCat===cat?' active':'')+'" onclick="S.contactImportCategory=&quot;'+safeCat+'&quot;;render()">'+safeCat+'</div>';
+      }).join('');
+      const contactCatSection='<div class="import-card import-card-full">'
+        + '<div class="import-card-head"><div class="ic-icon ic-cont">👔</div><div><h4>ייבוא אנשי קשר לפי קטגוריה</h4><div class="small muted">שם, טלפון, אימייל, תפקיד, ארגון – בחרו קטגוריה לפני ההעלאה</div></div></div>'
+        + '<div style="margin-bottom:10px"><label style="font-weight:600">🏷️ בחרו קטגוריה:</label>'
+        + '<div class="wa-tabs" style="margin-top:6px;flex-wrap:wrap">'+contactCatCards
+        + '<div class="wa-tab'+(contactCat===''?' active':'')+'" onclick="S.contactImportCategory=&quot;&quot;;render()">🔄 זיהוי אוטומטי</div>'
+        + '</div></div>'
+        + '<div class="import-zone" id="zone_cont" ondragover="handleImportDragOver(event,&quot;zone_cont&quot;)" ondragleave="handleImportDragLeave(event,&quot;zone_cont&quot;)" ondrop="handleImportDrop(event,&quot;zone_cont&quot;,importContactsFromExcel,S.contactImportCategory||undefined)" onclick="document.getElementById(&quot;imp_cont&quot;).click()">'
+        + '<span class="iz-icon">📂</span>'
+        + '<span class="iz-label">גררו קובץ Excel/CSV לכאן או לחצו לבחירה'+(contactCat?' <b>(קטגוריה: '+escapeHtml(contactCat)+')</b>':' (זיהוי אוטומטי מהקובץ)')+'</span>'
+        + '<div class="iz-file-name" id="zone_cont_fname"></div>'
+        + '<input id="imp_cont" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFileSelect(this,&quot;zone_cont&quot;);importContactsFromExcel(this,S.contactImportCategory||undefined)">'
+        + '</div>'
+        + (S.contactImportMsg?'<div class="small b-ok" style="padding:6px 10px;border-radius:8px;margin-top:6px;display:flex;align-items:center;gap:6px">✅ '+escapeHtml(S.contactImportMsg)+'</div>':"")
+        + '</div>';
+
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">📥 ייבוא מאקסל</div>'
         + '<div class="sub-title">גררו קובץ Excel/CSV לתוך האזור או לחצו לבחירה. הנתונים מסווגים אוטומטית.</div>'
-        + '<div class="grid">'
+        + '<div class="import-grid">'
         + makeImportCard('👥','ic-trav','ייבוא מטיילים','שם, טלפון, עיר, תקציב, קטגוריה, רמת הליכה','imp_trav','zone_trav',importTravelersFromExcel,undefined,'travelerImportMsg')
         + makeImportCard('🎯','ic-lead','ייבוא לידים','שם, טלפון, מקור, יעד, תקציב','imp_lead','zone_lead',importLeadsFromExcel,undefined,'leadImportMsg')
-        + makeImportCard('👔','ic-cont','ייבוא אנשי קשר','שם, טלפון, אימייל, תפקיד, ארגון','imp_cont','zone_cont',importContactsFromExcel,'tiyoolim.com','contactImportMsg')
+        + contactCatSection
         + makeImportCard('💼','ic-hr','ייבוא מנהלי/ות כ"א','שם, תפקיד, טלפון, חברה, צוות','imp_hr','zone_hr',importHrFromExcel,undefined,'hrImportMsg')
         + makeImportCard('🏢','ic-org','ייבוא ארגונים','שם, עיר, מנהל, טלפון, התמחות','imp_org','zone_org',importOrganizationsFromExcel,undefined,'orgImportMsg')
         + '</div></div>'
