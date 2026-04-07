@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GoTours - הצעת מחיר</title>
+  <style>
+    :root { --brand:#0f567f; --ok:#1f8a53; --warn:#b57814; --line:#d7e1eb; --text:#132133; --muted:#5e6f84; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:16px; min-height:100vh; color:var(--text); font-family:"Assistant","Segoe UI",Arial,sans-serif; background:radial-gradient(circle at top right,#e7f4ff 0%,#f5f8fc 45%,#eff3f8 100%); }
+    .wrap { max-width:800px; margin:0 auto; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 12px 30px rgba(11,39,64,0.09); padding:20px; margin-bottom:16px; }
+    h1 { color:var(--brand); font-size:26px; margin:0 0 8px; }
+    h2 { color:var(--brand); font-size:20px; margin:16px 0 8px; }
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0; }
+    .info-grid div { font-size:14px; }
+    .info-grid strong { color:var(--brand); }
+    table { width:100%; border-collapse:collapse; margin:12px 0; font-size:14px; }
+    th { background:var(--brand); color:#fff; padding:10px; text-align:right; }
+    td { padding:8px 10px; border-bottom:1px solid var(--line); }
+    tr:hover td { background:#f0f7ff; }
+    .total-row td { font-weight:800; background:#edf5fc !important; font-size:16px; }
+    .cancel-box { background:#fff8f0; border:1px solid #fbd38d; border-radius:10px; padding:14px; margin:12px 0; }
+    .cancel-box h3 { color:var(--warn); margin:0 0 6px; font-size:15px; }
+    .sig-area { border:2px dashed var(--line); border-radius:12px; padding:20px; text-align:center; margin:16px 0; }
+    .sig-area.signed { border-color:var(--ok); background:#f0fdf4; border-style:solid; }
+    .sig-area canvas { border:1px solid var(--line); border-radius:8px; background:#fff; cursor:crosshair; display:block; margin:10px auto; touch-action:none; max-width:100%; }
+    .sig-meta { font-size:12px; color:var(--muted); margin-top:8px; }
+    .btn { display:inline-block; padding:10px 24px; border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; font-family:inherit; transition:0.15s; }
+    .btn:hover { transform:translateY(-1px); }
+    .btn-ok { background:var(--ok); color:#fff; }
+    .btn-soft { background:#f2f7fc; color:var(--brand); border:1px solid #d4e5f5; }
+    .btn-brand { background:var(--brand); color:#fff; }
+    .btns { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:12px 0; }
+    .loading { text-align:center; padding:40px; color:var(--muted); font-size:18px; }
+    .error { text-align:center; padding:40px; color:#c33; font-size:18px; }
+    .footer { text-align:center; font-size:12px; color:#999; margin-top:20px; padding-top:12px; border-top:1px solid var(--line); }
+    .notes { background:#f8fbff; border:1px solid var(--line); border-radius:8px; padding:10px; margin:8px 0; font-size:14px; }
+    @media(max-width:600px) {
+      body { padding:8px; }
+      .card { padding:14px; }
+      .info-grid { grid-template-columns:1fr; }
+      h1 { font-size:22px; }
+      canvas { width:100% !important; height:auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" id="app">
+    <div class="loading">טוען הצעת מחיר...</div>
+  </div>
+
+  <script>
+    var quoteId = new URLSearchParams(window.location.search).get("id");
+    var app = document.getElementById("app");
+    var quote = null;
+    var sigCanvas, sigCtx, drawing = false;
+
+    function escHtml(s) { return s == null ? "" : String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+    function fmtDate(v) { if(!v) return ""; try { return new Date(v).toLocaleDateString("he-IL"); } catch(e) { return String(v); } }
+
+    function loadQuote() {
+      if (!quoteId) { app.innerHTML = '<div class="error">קישור לא תקין – חסר מזהה הצעה</div>'; return; }
+      fetch("/.netlify/functions/quote-public?id=" + encodeURIComponent(quoteId))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data.ok || !data.quote) { app.innerHTML = '<div class="error">הצעת המחיר לא נמצאה</div>'; return; }
+          quote = data.quote;
+          renderQuote();
+        })
+        .catch(function() { app.innerHTML = '<div class="error">שגיאה בטעינת ההצעה. נסו שוב מאוחר יותר.</div>'; });
+    }
+
+    function renderQuote() {
+      var q = quote;
+      var syms = {ILS:"₪",USD:"$",EUR:"€",GBP:"£"};
+      var sym = syms[q.currency] || q.currency || "₪";
+      var total = (q.items||[]).reduce(function(s,it) { return s + (Number(it.qty)||0) * (Number(it.unitPrice)||0); }, 0);
+
+      var html = '<div class="card">'
+        + '<div style="text-align:center;margin-bottom:12px"><h1>✈ GoTours</h1><div style="color:#5e6f84">הצעת מחיר מס׳ Q-' + q.id + '</div></div>'
+        + '<h2>' + escHtml(q.tripTitle) + (q.destination ? ' – ' + escHtml(q.destination) : '') + '</h2>'
+        + '<div class="info-grid">'
+        + '<div><strong>לקוח:</strong> ' + escHtml(q.clientName) + '</div>'
+        + '<div><strong>תאריך הצעה:</strong> ' + fmtDate(q.createdAt) + '</div>'
+        + (q.departureDate ? '<div><strong>תאריך יציאה:</strong> ' + escHtml(q.departureDate) + '</div>' : '')
+        + (q.returnDate ? '<div><strong>תאריך חזרה:</strong> ' + escHtml(q.returnDate) + '</div>' : '')
+        + '</div>'
+        + '<table><tr><th>פריט</th><th>כמות</th><th>מחיר יחידה</th><th>סה"כ</th></tr>'
+        + (q.items||[]).map(function(it) {
+            var t = (Number(it.qty)||0) * (Number(it.unitPrice)||0);
+            return '<tr><td>' + escHtml(it.description) + '</td><td>' + it.qty + '</td><td>' + sym + (Number(it.unitPrice)||0).toLocaleString("he-IL") + '</td><td>' + sym + t.toLocaleString("he-IL") + '</td></tr>';
+          }).join("")
+        + '<tr class="total-row"><td colspan="3"><strong>סה"כ לתשלום</strong></td><td><strong>' + sym + total.toLocaleString("he-IL") + '</strong></td></tr></table>';
+
+      if (q.notes) {
+        html += '<div class="notes"><strong>הערות:</strong> ' + escHtml(q.notes) + '</div>';
+      }
+
+      if (q.cancellationPolicy) {
+        html += '<div class="cancel-box"><h3>מדיניות דמי ביטול</h3><div>' + escHtml(q.cancellationPolicy) + '</div></div>';
+      }
+
+      // Signature section
+      if (q.signature) {
+        html += '<div class="sig-area signed"><strong>הצעה זו נחתמה</strong><br>'
+          + '<img src="' + q.signature + '" style="max-width:300px;max-height:120px;margin:10px auto;display:block;border-radius:8px" alt="חתימה">'
+          + '<div class="sig-meta">נחתם בתאריך: ' + fmtDate(q.signatureTimestamp) + '</div></div>';
+      } else {
+        html += '<div class="sig-area" id="sig_section"><strong>חתימת המזמין</strong><br>'
+          + '<div style="font-size:13px;color:#5e6f84;margin:6px 0">אנא חתמו כאן לאישור ההצעה</div>'
+          + '<canvas id="sig_canvas" width="400" height="150"></canvas><br>'
+          + '<div class="btns">'
+          + '<button class="btn btn-soft" onclick="clearSig()">נקה חתימה</button>'
+          + '<button class="btn btn-ok" onclick="submitSignature()">אשר וחתום</button>'
+          + '</div>'
+          + '<div id="sig_status" style="margin-top:8px"></div></div>';
+      }
+
+      html += '<div class="footer">GoTours Group | tiyoolim.com<br>הצעת מחיר זו תקפה ל-30 יום מתאריך הפקתה</div></div>';
+
+      app.innerHTML = html;
+
+      if (!q.signature) {
+        setTimeout(initSigPad, 50);
+      }
+    }
+
+    function initSigPad() {
+      sigCanvas = document.getElementById("sig_canvas");
+      if (!sigCanvas) return;
+      sigCtx = sigCanvas.getContext("2d");
+      sigCtx.strokeStyle = "#1a1a2e";
+      sigCtx.lineWidth = 2;
+      sigCtx.lineCap = "round";
+
+      function getPos(e) {
+        var r = sigCanvas.getBoundingClientRect();
+        var t = e.touches ? e.touches[0] : e;
+        return { x: (t.clientX - r.left) * (sigCanvas.width / r.width), y: (t.clientY - r.top) * (sigCanvas.height / r.height) };
+      }
+      function start(e) { e.preventDefault(); drawing = true; var p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); }
+      function move(e) { if (!drawing) return; e.preventDefault(); var p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); }
+      function stop() { drawing = false; }
+
+      sigCanvas.addEventListener("mousedown", start);
+      sigCanvas.addEventListener("mousemove", move);
+      sigCanvas.addEventListener("mouseup", stop);
+      sigCanvas.addEventListener("mouseleave", stop);
+      sigCanvas.addEventListener("touchstart", start, { passive: false });
+      sigCanvas.addEventListener("touchmove", move, { passive: false });
+      sigCanvas.addEventListener("touchend", stop);
+    }
+
+    function clearSig() {
+      if (sigCtx && sigCanvas) sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+    }
+
+    function submitSignature() {
+      if (!sigCanvas || !sigCtx) return;
+      var px = sigCtx.getImageData(0, 0, sigCanvas.width, sigCanvas.height).data;
+      var hasDraw = false;
+      for (var i = 3; i < px.length; i += 4) { if (px[i] > 0) { hasDraw = true; break; } }
+      if (!hasDraw) { alert("אנא חתמו על ההצעה לפני השליחה"); return; }
+
+      var sigData = sigCanvas.toDataURL("image/png");
+      var statusEl = document.getElementById("sig_status");
+      if (statusEl) statusEl.innerHTML = '<div style="color:#0f567f;font-weight:700">שומר חתימה...</div>';
+
+      fetch("/.netlify/functions/quote-public?id=" + encodeURIComponent(quoteId), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ signature: sigData })
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.ok) {
+            quote.signature = sigData;
+            quote.signatureTimestamp = data.signedAt;
+            quote.signatureIP = data.ip;
+            quote.status = "נחתמה";
+            renderQuote();
+          } else {
+            if (statusEl) statusEl.innerHTML = '<div style="color:#c33">שגיאה: ' + escHtml(data.error) + '</div>';
+          }
+        })
+        .catch(function() {
+          if (statusEl) statusEl.innerHTML = '<div style="color:#c33">שגיאה בשמירת החתימה. נסו שוב.</div>';
+        });
+    }
+
+    loadQuote();
+  </script>
+</body>
+</html>

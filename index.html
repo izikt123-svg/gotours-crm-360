@@ -310,6 +310,31 @@
     .call-doc-item .call-doc-content { margin-top:4px; font-size:13px; }
     .call-doc-item .call-doc-audio { margin-top:6px; }
 
+    /* Quote Module Styles */
+    .quote-layout { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media(max-width:900px){ .quote-layout { grid-template-columns:1fr; } }
+    .quote-status-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+    .quote-status-chip { padding:6px 14px; border-radius:999px; font-size:12px; font-weight:700; cursor:pointer; border:1px solid var(--line); background:#fff; transition:0.15s; }
+    .quote-status-chip.active { background:var(--brand); color:#fff; border-color:var(--brand); }
+    .quote-detail-card { border:1px solid var(--line); border-radius:14px; background:#fff; padding:16px; }
+    .quote-items-table { width:100%; border-collapse:collapse; font-size:13px; margin:8px 0; }
+    .quote-items-table th { background:var(--brand); color:#fff; padding:8px; text-align:right; }
+    .quote-items-table td { padding:7px 8px; border-bottom:1px solid var(--line); }
+    .quote-items-table tr:hover td { background:#f0f7ff; }
+    .quote-total-row td { font-weight:800; background:#edf5fc !important; }
+    .quote-cancel-policy { background:#fff8f0; border:1px solid #fbd38d; border-radius:10px; padding:12px; margin:8px 0; }
+    .quote-cancel-policy h4 { color:var(--warn); margin-bottom:6px; font-size:14px; }
+    .quote-signature-area { border:2px dashed var(--line); border-radius:12px; padding:16px; text-align:center; background:#fafcff; margin:8px 0; }
+    .quote-signature-area.signed { border-color:var(--ok); background:#f0fdf4; }
+    .quote-signature-area canvas { border:1px solid var(--line); border-radius:8px; background:#fff; cursor:crosshair; display:block; margin:8px auto; touch-action:none; }
+    .quote-signature-meta { font-size:11px; color:var(--muted); margin-top:6px; }
+    .quote-share-btns { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+    .quote-badge { display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:800; }
+    .qb-draft { background:#e2e8f0; color:#475569; }
+    .qb-sent { background:#dbeafe; color:#1e40af; }
+    .qb-signed { background:#dcfce7; color:#166534; }
+    .qb-expired { background:#fee2e2; color:#991b1b; }
+
     /* Campaign Module Styles */
     .campaign-layout { display:grid; grid-template-columns:1fr 340px; gap:12px; }
     @media(max-width:900px){ .campaign-layout { grid-template-columns:1fr; } }
@@ -588,6 +613,11 @@
       // שיחות נכנסות
       incomingCallOpen:false, incomingCallNumber:"", incomingCallMatch:null, incomingCallNote:"", incomingCallRecording:false, incomingCallRecorded:false,
       callLog:[],
+      // הצעות מחיר
+      quotes:[],
+      quoteForm:{id:null,clientName:"",clientPhone:"",clientEmail:"",tripTitle:"",destination:"",departureDate:"",returnDate:"",items:[{description:"",qty:1,unitPrice:0}],currency:"ILS",cancellationPolicy:"",notes:"",status:"טיוטה",signature:null,signatureTimestamp:null,signatureIP:null,createdAt:"",sentAt:"",signedAt:""},
+      quoteViewId:null,
+      quoteFilterStatus:"all",
       // כספים וגבייה
       finances:[
         {id:uid()+60,type:"חשבונית",travelerId:null,travelerName:"עידו ברק",description:"טיול איטליה - תשלום ראשון",amount:3250,currency:"ILS",status:"שולם",dueDate:new Date(Date.now()-3*86400000).toISOString().slice(0,10),paidDate:new Date(Date.now()-3*86400000).toISOString().slice(0,10),method:"כרטיס אשראי",invoiceNumber:"INV-001",notes:""},
@@ -886,6 +916,8 @@
       if (!S.hrConversationForm) S.hrConversationForm = structuredClone(seed.hrConversationForm);
       if (!Array.isArray(S.finances)) S.finances = seed.finances;
       if (!S.financeForm) S.financeForm = structuredClone(seed.financeForm);
+      if (!Array.isArray(S.quotes)) S.quotes = [];
+      if (!S.quoteForm) S.quoteForm = structuredClone(seed.quoteForm);
       if (!Array.isArray(S.hikingTrails)) S.hikingTrails = seed.hikingTrails;
       if (!Array.isArray(S.activityLog)) S.activityLog = loadActivityLog();
       if (!S.hikingForm) S.hikingForm = structuredClone(seed.hikingForm);
@@ -1025,7 +1057,8 @@
         {topic:"התחברות,כניסה,login,אבטחה,אימות,סיסמה,משתמש", answer:"המערכת כוללת מסך התחברות מאובטח. יש 2 סוגי משתמשים: מנכ\"ל (איציק) עם גישה מלאה לכל המודולים כולל כספים, דוחות והגדרות API, ומדריכים (5 משתמשים) עם גישה לתיקי מטיילים, מסלולים ותקשורת ללא חשיפת נתוני גבייה. המערכת זוכרת את המשתמש המחובר כך שלא צריך להקליד סיסמה בכל פעם (Stay Logged In). הסיסמה הראשונית היא 1234 וניתן לשנות אותה בהגדרות."},
         {topic:"הרשאות,תפקיד,role,מנכל,מדריך,גישה", answer:"במערכת יש 2 רמות הרשאה: 1) מנכ\"ל (איציק) – גישה מלאה לכל הנתונים כולל כספים וגבייה, דוחות, אינטגרציות והגדרות API. 2) מדריכים – גישה מלאה לתיקי מטיילים, מסלולי הליכה, תקשורת, לוח שנה, ימי הולדת ומודולים תפעוליים. מדריכים לא רואים את הכספים, דוחות כספיים, אינטגרציות והגדרות מערכת."},
         {topic:"סנכרון,יציבות,offline,אינטרנט,חיבור,שגיאה", answer:"המערכת משתמשת בסנכרון ענן יציב עם Netlify Blobs (strong consistency). נתונים נשמרים מקומית ובענן במקביל. אם אין חיבור אינטרנט, המערכת עוברת למצב לא מקוון אוטומטית ושומרת מקומית. כשהחיבור חוזר, הנתונים מסתנכרנים מחדש. הסנכרון כולל מנגנון retry אוטומטי ונעילה למניעת התנגשויות בכתיבה."},
-        {topic:"ברכה,שעה,בוקר,צהריים,ערב,greeting", answer:"המערכת מציגה ברכה אוטומטית לפי השעה: בוקר טוב (06:00-12:00), צהריים טובים (12:00-18:00), ערב טוב (18:00-06:00). הברכה מופיעה במסך ההתחברות ובסרגל העליון של המערכת."}
+        {topic:"ברכה,שעה,בוקר,צהריים,ערב,greeting", answer:"המערכת מציגה ברכה אוטומטית לפי השעה: בוקר טוב (06:00-12:00), צהריים טובים (12:00-18:00), ערב טוב (18:00-06:00). הברכה מופיעה במסך ההתחברות ובסרגל העליון של המערכת."},
+        {topic:"הצעת מחיר,הצעות מחיר,quote,חתימה,ביטול,דמי ביטול,PDF,חתימה דיגיטלית", answer:"מודול הצעות מחיר (לשונית 'הצעות מחיר') מאפשר יצירה, עריכה ושליחת הצעות מחיר ללקוחות. מלאו שם לקוח, טלפון, אימייל, כותרת הצעה, יעד, תאריכים ופריטים עם כמויות ומחירים. המנכ\"ל בלבד יכול לערוך את מדיניות דמי הביטול. שלחו את ההצעה ללקוח ב-WhatsApp או אימייל – הלקוח מקבל קישור ייחודי שבו יכול לצפות בהצעה ולחתום דיגיטלית. לאחר חתימה, המערכת מתעדת את זמן החתימה וכתובת ה-IP לצרכי הגנה משפטית. ניתן להפיק PDF רשמי הכולל את כל פרטי ההצעה, מדיניות הביטול והחתימה המקורית."}
       ];
       return sections;
     }
@@ -3095,6 +3128,272 @@
     const FINANCE_STATUSES = ["ממתין","שולם","באיחור","בוטל"];
     const PAYMENT_METHODS = ["כרטיס אשראי","העברה בנקאית","מזומן","צ'ק","PayPal","Bit"];
 
+    // ===== הצעות מחיר =====
+    const QUOTE_STATUSES = ["טיוטה","נשלחה","נחתמה","בוטלה"];
+    function quoteById(id) { return S.quotes.find(q=>q.id==id)||null; }
+    function resetQuoteForm() { S.quoteForm = structuredClone(seed.quoteForm); S.quoteViewId = null; }
+    function editQuote(id) { const q=quoteById(id); if(!q) return; S.quoteForm=structuredClone(q); S.quoteViewId=null; render(); }
+    function viewQuote(id) { S.quoteViewId = id; render(); }
+    function deleteQuote(id) { if(!confirm("למחוק הצעת מחיר?")) return; S.quotes=S.quotes.filter(q=>q.id!=id); setState({quotes:S.quotes}); }
+    function addQuoteItem() { S.quoteForm.items.push({description:"",qty:1,unitPrice:0}); render(); }
+    function removeQuoteItem(idx) { S.quoteForm.items.splice(idx,1); if(S.quoteForm.items.length===0) S.quoteForm.items.push({description:"",qty:1,unitPrice:0}); render(); }
+    function quoteTotal(items) { return (items||[]).reduce((s,it)=>s+(Number(it.qty)||0)*(Number(it.unitPrice)||0),0); }
+
+    function saveQuote() {
+      const f=S.quoteForm;
+      if(!f.clientName) return alert("שם לקוח חובה");
+      if(!f.tripTitle) return alert("כותרת הצעה חובה");
+      if(f.id) {
+        const i=S.quotes.findIndex(q=>q.id===f.id);
+        if(i>=0) { S.quotes[i]={...f}; logActivity("עדכון הצעת מחיר",f.clientName+" - "+f.tripTitle); }
+      } else {
+        const newQ={...f,id:uid(),createdAt:isoNow(),status:"טיוטה"};
+        S.quotes.unshift(newQ);
+        logActivity("הצעת מחיר חדשה",f.clientName+" - "+f.tripTitle);
+      }
+      resetQuoteForm();
+      setState({quotes:S.quotes});
+    }
+
+    function sendQuoteViaWhatsApp(id) {
+      const q=quoteById(id); if(!q) return;
+      const wa=phoneForWa(q.clientPhone);
+      if(!wa) return alert("אין מספר טלפון ללקוח");
+      const link=window.location.origin+"/quote.html?id="+id;
+      const i=S.quotes.findIndex(x=>x.id===id);
+      if(i>=0 && S.quotes[i].status==="טיוטה") { S.quotes[i].status="נשלחה"; S.quotes[i].sentAt=isoNow(); }
+      setState({quotes:S.quotes});
+      logActivity("הצעת מחיר נשלחה (WhatsApp)",q.clientName);
+      window.open("https://wa.me/"+wa+"?text="+encodeURIComponent("שלום "+q.clientName+",\nמצורפת הצעת מחיר מ-GoTours:\n"+link+"\nנשמח לעמוד לשירותכם!"),"_blank");
+    }
+    function sendQuoteViaEmail(id) {
+      const q=quoteById(id); if(!q) return;
+      if(!q.clientEmail) return alert("אין כתובת אימייל ללקוח");
+      const link=window.location.origin+"/quote.html?id="+id;
+      const i=S.quotes.findIndex(x=>x.id===id);
+      if(i>=0 && S.quotes[i].status==="טיוטה") { S.quotes[i].status="נשלחה"; S.quotes[i].sentAt=isoNow(); }
+      setState({quotes:S.quotes});
+      logActivity("הצעת מחיר נשלחה (Email)",q.clientName);
+      window.open("mailto:"+encodeURIComponent(q.clientEmail)+"?subject="+encodeURIComponent("הצעת מחיר מ-GoTours - "+q.tripTitle)+"&body="+encodeURIComponent("שלום "+q.clientName+",\n\nמצורפת הצעת מחיר:\n"+link+"\n\nבברכה,\nGoTours"),"_blank");
+    }
+    function copyQuoteLink(id) {
+      const link=window.location.origin+"/quote.html?id="+id;
+      navigator.clipboard.writeText(link).then(()=>alert("קישור הועתק!")).catch(()=>alert(link));
+    }
+
+    // Signature pad initialization for internal use
+    var _sigCanvas=null, _sigCtx=null, _sigDrawing=false;
+    function initSignaturePad() {
+      setTimeout(function(){
+        _sigCanvas=document.getElementById("quote_sig_canvas");
+        if(!_sigCanvas) return;
+        _sigCtx=_sigCanvas.getContext("2d");
+        _sigCtx.strokeStyle="#1a1a2e";
+        _sigCtx.lineWidth=2;
+        _sigCtx.lineCap="round";
+        _sigDrawing=false;
+        function getPos(e) {
+          const r=_sigCanvas.getBoundingClientRect();
+          const t=e.touches?e.touches[0]:e;
+          return {x:t.clientX-r.left,y:t.clientY-r.top};
+        }
+        function startDraw(e) { e.preventDefault(); _sigDrawing=true; const p=getPos(e); _sigCtx.beginPath(); _sigCtx.moveTo(p.x,p.y); }
+        function draw(e) { if(!_sigDrawing) return; e.preventDefault(); const p=getPos(e); _sigCtx.lineTo(p.x,p.y); _sigCtx.stroke(); }
+        function stopDraw() { _sigDrawing=false; }
+        _sigCanvas.addEventListener("mousedown",startDraw);
+        _sigCanvas.addEventListener("mousemove",draw);
+        _sigCanvas.addEventListener("mouseup",stopDraw);
+        _sigCanvas.addEventListener("mouseleave",stopDraw);
+        _sigCanvas.addEventListener("touchstart",startDraw,{passive:false});
+        _sigCanvas.addEventListener("touchmove",draw,{passive:false});
+        _sigCanvas.addEventListener("touchend",stopDraw);
+      },100);
+    }
+    function clearSignaturePad() {
+      if(_sigCtx && _sigCanvas) _sigCtx.clearRect(0,0,_sigCanvas.width,_sigCanvas.height);
+    }
+    function saveSignatureToQuote(quoteId) {
+      if(!_sigCanvas) return alert("לא נמצא אזור חתימה");
+      // Check if canvas has any drawing
+      var pxData=_sigCtx.getImageData(0,0,_sigCanvas.width,_sigCanvas.height).data;
+      var hasDraw=false;
+      for(var p=3;p<pxData.length;p+=4){ if(pxData[p]>0){hasDraw=true;break;} }
+      if(!hasDraw) return alert("אנא חתמו על הצעת המחיר לפני השמירה");
+      var sigData=_sigCanvas.toDataURL("image/png");
+      var i=S.quotes.findIndex(q=>q.id===quoteId);
+      if(i<0) return;
+      S.quotes[i].signature=sigData;
+      S.quotes[i].signatureTimestamp=isoNow();
+      S.quotes[i].signatureIP="פנימי (CRM)";
+      S.quotes[i].signedAt=isoNow();
+      S.quotes[i].status="נחתמה";
+      setState({quotes:S.quotes});
+      logActivity("הצעת מחיר נחתמה (פנימי)",S.quotes[i].clientName);
+    }
+
+    function generateQuotePDF(id) {
+      var q=quoteById(id); if(!q) return;
+      var total=quoteTotal(q.items);
+      var syms={ILS:"₪",USD:"$",EUR:"€",GBP:"£"};
+      var sym=syms[q.currency]||q.currency;
+      var w=window.open("","_blank");
+      w.document.write('<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>הצעת מחיר - '+escapeHtml(q.tripTitle)+'</title>'
+        +'<style>*{box-sizing:border-box;font-family:Assistant,Arial,sans-serif}body{margin:0;padding:30px;color:#132133;max-width:800px;margin:0 auto}'
+        +'h1{color:#0f567f;border-bottom:3px solid #0f567f;padding-bottom:8px}table{width:100%;border-collapse:collapse;margin:16px 0}'
+        +'th{background:#0f567f;color:#fff;padding:8px;text-align:right}td{padding:7px 8px;border-bottom:1px solid #d7e1eb}'
+        +'.total{font-weight:800;background:#edf5fc}.cancel{background:#fff8f0;border:1px solid #fbd38d;border-radius:8px;padding:12px;margin:16px 0}'
+        +'.sig-area{border:2px solid #1f8a53;border-radius:8px;padding:12px;margin:16px 0;text-align:center}.sig-area img{max-width:300px;max-height:120px}'
+        +'.meta{font-size:12px;color:#5e6f84}.footer{margin-top:30px;text-align:center;font-size:12px;color:#999;border-top:1px solid #ddd;padding-top:10px}'
+        +'@media print{body{padding:15px}.no-print{display:none}}</style></head><body>'
+        +'<h1>✈ GoTours - הצעת מחיר</h1>'
+        +'<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px">'
+        +'<div><strong>ללקוח:</strong> '+escapeHtml(q.clientName)+'<br><strong>טלפון:</strong> '+escapeHtml(q.clientPhone||"")+'<br><strong>אימייל:</strong> '+escapeHtml(q.clientEmail||"")+'</div>'
+        +'<div><strong>תאריך:</strong> '+fmtDateShort(q.createdAt)+'<br><strong>הצעה מס׳:</strong> Q-'+q.id+'</div></div>'
+        +'<h2>'+escapeHtml(q.tripTitle)+(q.destination?' – '+escapeHtml(q.destination):'')+'</h2>'
+        +(q.departureDate||q.returnDate?'<div><strong>תאריכים:</strong> '+escapeHtml(q.departureDate||"")+(q.returnDate?' עד '+escapeHtml(q.returnDate):'')+'</div>':'')
+        +'<table><tr><th>פריט</th><th>כמות</th><th>מחיר יחידה</th><th>סה"כ</th></tr>'
+        +q.items.map(function(it){var t=(Number(it.qty)||0)*(Number(it.unitPrice)||0);return '<tr><td>'+escapeHtml(it.description)+'</td><td>'+it.qty+'</td><td>'+sym+(Number(it.unitPrice)||0).toLocaleString("he-IL")+'</td><td>'+sym+t.toLocaleString("he-IL")+'</td></tr>';}).join("")
+        +'<tr class="total"><td colspan="3">סה"כ</td><td>'+sym+total.toLocaleString("he-IL")+'</td></tr></table>'
+        +(q.notes?'<div><strong>הערות:</strong> '+escapeHtml(q.notes)+'</div>':'')
+        +(q.cancellationPolicy?'<div class="cancel"><strong>מדיניות דמי ביטול:</strong><br>'+escapeHtml(q.cancellationPolicy)+'</div>':'')
+        +(q.signature?'<div class="sig-area"><strong>חתימת המזמין:</strong><br><img src="'+q.signature+'"><br><div class="meta">חתימה בתאריך: '+fmtDateShort(q.signatureTimestamp)+' | IP: '+escapeHtml(q.signatureIP||"")+'</div></div>':'<div class="sig-area" style="border-color:#ccc"><strong>טרם נחתם</strong></div>')
+        +'<div class="footer">GoTours Group | tiyoolim.com | הצעת מחיר זו תקפה ל-30 יום מתאריך הפקתה</div>'
+        +'<div class="no-print" style="text-align:center;margin:20px 0"><button onclick="window.print()" style="padding:10px 30px;font-size:16px;background:#0f567f;color:#fff;border:none;border-radius:8px;cursor:pointer">🖨 הדפס / שמור PDF</button></div>'
+        +'</body></html>');
+      w.document.close();
+    }
+
+    function renderQuotesTab() {
+      var isCeo = S.currentUserRole==="מנכ\"ל";
+      var filterSt = S.quoteFilterStatus||"all";
+      var q=(S.search||"").trim().toLowerCase();
+      var list=S.quotes.filter(function(qt){
+        if(filterSt!=="all" && qt.status!==filterSt) return false;
+        if(q && !(qt.clientName||"").toLowerCase().includes(q) && !(qt.tripTitle||"").toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      // If viewing a specific quote
+      if(S.quoteViewId) {
+        var vq=quoteById(S.quoteViewId);
+        if(!vq) { S.quoteViewId=null; }
+        else {
+          var total=quoteTotal(vq.items);
+          var syms={ILS:"₪",USD:"$",EUR:"€",GBP:"£"};
+          var sym=syms[vq.currency]||vq.currency;
+          var stBadge=vq.status==="נחתמה"?"qb-signed":vq.status==="נשלחה"?"qb-sent":vq.status==="בוטלה"?"qb-expired":"qb-draft";
+          var html='<div class="card" style="max-width:900px;margin:0 auto">'
+            +'<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">'
+            +'<button class="btn-soft" style="width:auto" onclick="S.quoteViewId=null;render()">→ חזרה לרשימה</button>'
+            +'<span class="quote-badge '+stBadge+'">'+escapeHtml(vq.status)+'</span></div>'
+            +'<div class="section-title">📋 הצעת מחיר: '+escapeHtml(vq.tripTitle)+'</div>'
+            +'<div class="grid" style="grid-template-columns:1fr 1fr;gap:8px">'
+            +'<div><strong>לקוח:</strong> '+escapeHtml(vq.clientName)+'</div>'
+            +'<div><strong>טלפון:</strong> '+escapeHtml(vq.clientPhone||"—")+'</div>'
+            +'<div><strong>אימייל:</strong> '+escapeHtml(vq.clientEmail||"—")+'</div>'
+            +'<div><strong>יעד:</strong> '+escapeHtml(vq.destination||"—")+'</div>'
+            +'<div><strong>תאריך יציאה:</strong> '+escapeHtml(vq.departureDate||"—")+'</div>'
+            +'<div><strong>תאריך חזרה:</strong> '+escapeHtml(vq.returnDate||"—")+'</div>'
+            +'</div>'
+            +'<table class="quote-items-table"><tr><th>פריט</th><th>כמות</th><th>מחיר יחידה</th><th>סה"כ</th></tr>'
+            +vq.items.map(function(it){var t=(Number(it.qty)||0)*(Number(it.unitPrice)||0);return '<tr><td>'+escapeHtml(it.description)+'</td><td>'+it.qty+'</td><td>'+sym+(Number(it.unitPrice)||0).toLocaleString("he-IL")+'</td><td>'+sym+t.toLocaleString("he-IL")+'</td></tr>';}).join("")
+            +'<tr class="quote-total-row"><td colspan="3"><strong>סה"כ</strong></td><td><strong>'+sym+total.toLocaleString("he-IL")+'</strong></td></tr></table>'
+            +(vq.notes?'<div style="margin:8px 0"><strong>הערות:</strong> '+escapeHtml(vq.notes)+'</div>':'')
+            +(vq.cancellationPolicy?'<div class="quote-cancel-policy"><h4>מדיניות דמי ביטול</h4><div>'+escapeHtml(vq.cancellationPolicy)+'</div></div>':'');
+
+          // Signature area
+          if(vq.signature) {
+            html+='<div class="quote-signature-area signed"><strong>חתימת המזמין</strong><br><img src="'+vq.signature+'" style="max-width:300px;max-height:120px;margin:8px auto;display:block;border-radius:8px">'
+              +'<div class="quote-signature-meta">נחתם בתאריך: '+fmtDateShort(vq.signatureTimestamp)+' | IP: '+escapeHtml(vq.signatureIP||"")+'</div></div>';
+          } else {
+            html+='<div class="quote-signature-area"><strong>חתימת המזמין</strong><br>'
+              +'<canvas id="quote_sig_canvas" width="400" height="150"></canvas><br>'
+              +'<button class="btn-soft" style="width:auto;font-size:12px" onclick="clearSignaturePad()">נקה חתימה</button> '
+              +'<button class="btn-ok" style="width:auto;font-size:12px" onclick="saveSignatureToQuote('+vq.id+')">שמור חתימה</button></div>';
+          }
+
+          // Share and PDF buttons
+          html+='<div class="quote-share-btns">'
+            +'<button class="btn-wa" style="width:auto;padding:8px 16px" onclick="sendQuoteViaWhatsApp('+vq.id+')">📲 שלח ב-WhatsApp</button>'
+            +'<button class="btn-primary" style="width:auto;padding:8px 16px" onclick="sendQuoteViaEmail('+vq.id+')">📧 שלח באימייל</button>'
+            +'<button class="btn-soft" style="width:auto;padding:8px 16px" onclick="copyQuoteLink('+vq.id+')">🔗 העתק קישור</button>'
+            +(vq.signature?'<button class="btn-purple" style="width:auto;padding:8px 16px" onclick="generateQuotePDF('+vq.id+')">📄 הפק PDF</button>':'<button class="btn-purple" style="width:auto;padding:8px 16px;opacity:0.5" title="יש לחתום על ההצעה לפני הפקת PDF" disabled>📄 הפק PDF (דרושה חתימה)</button>')
+            +'<button class="btn-soft" style="width:auto;padding:8px 16px" onclick="editQuote('+vq.id+')">✏️ עריכה</button>'
+            +'</div></div>';
+
+          if(!vq.signature) setTimeout(initSignaturePad,50);
+          return html;
+        }
+      }
+
+      // Quote form
+      var f=S.quoteForm;
+      var formTotal=quoteTotal(f.items);
+      var syms={ILS:"₪",USD:"$",EUR:"€",GBP:"£"};
+      var sym=syms[f.currency]||f.currency;
+
+      var formHtml='<div class="card"><div class="section-title">📋 '+(f.id?"עריכת":"הוספת")+' הצעת מחיר</div>'
+        +'<div class="grid">'
+        +'<div class="row"><div>'+tip("שם לקוח","שם מלא של הלקוח שמקבל את ההצעה")+'<input value="'+escapeHtml(f.clientName)+'" oninput="S.quoteForm.clientName=this.value"></div>'
+        +'<div>'+tip("טלפון","מספר טלפון לשליחת ההצעה ב-WhatsApp")+'<input value="'+escapeHtml(f.clientPhone)+'" oninput="S.quoteForm.clientPhone=this.value"></div></div>'
+        +'<div class="row"><div>'+tip("אימייל","כתובת דואר אלקטרוני לשליחת ההצעה")+'<input type="email" value="'+escapeHtml(f.clientEmail)+'" oninput="S.quoteForm.clientEmail=this.value"></div>'
+        +'<div>'+tip("מטבע","מטבע ההצעה")+'<select onchange="S.quoteForm.currency=this.value;render()">'+["ILS","USD","EUR","GBP"].map(function(c){return '<option'+(c===f.currency?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div></div>'
+        +'<div class="row"><div>'+tip("כותרת הצעה","שם הטיול או השירות המוצע")+'<input value="'+escapeHtml(f.tripTitle)+'" oninput="S.quoteForm.tripTitle=this.value"></div>'
+        +'<div>'+tip("יעד","יעד הטיול")+'<input value="'+escapeHtml(f.destination)+'" oninput="S.quoteForm.destination=this.value"></div></div>'
+        +'<div class="row"><div>'+tip("תאריך יציאה","")+'<input type="date" value="'+escapeHtml(f.departureDate)+'" oninput="S.quoteForm.departureDate=this.value"></div>'
+        +'<div>'+tip("תאריך חזרה","")+'<input type="date" value="'+escapeHtml(f.returnDate)+'" oninput="S.quoteForm.returnDate=this.value"></div></div>';
+
+      // Items
+      formHtml+='<div style="margin:8px 0"><strong>פריטי הצעה:</strong></div>';
+      f.items.forEach(function(it,idx){
+        formHtml+='<div class="row" style="align-items:end;gap:6px">'
+          +'<div style="flex:3"><input placeholder="תיאור פריט" value="'+escapeHtml(it.description)+'" oninput="S.quoteForm.items['+idx+'].description=this.value"></div>'
+          +'<div style="flex:1"><input type="number" min="1" placeholder="כמות" value="'+it.qty+'" oninput="S.quoteForm.items['+idx+'].qty=Number(this.value)||1;render()"></div>'
+          +'<div style="flex:1"><input type="number" min="0" placeholder="מחיר" value="'+it.unitPrice+'" oninput="S.quoteForm.items['+idx+'].unitPrice=Number(this.value)||0;render()"></div>'
+          +'<div style="flex:0"><button class="btn-danger" style="width:auto;padding:6px 10px;font-size:12px" onclick="removeQuoteItem('+idx+')">✕</button></div></div>';
+      });
+      formHtml+='<button class="btn-soft" style="width:auto;font-size:12px;margin:6px 0" onclick="addQuoteItem()">+ הוסף פריט</button>'
+        +'<div style="font-weight:800;font-size:16px;color:var(--brand);margin:6px 0">סה"כ: '+sym+formTotal.toLocaleString("he-IL")+'</div>';
+
+      // Cancellation policy - CEO only can edit
+      if(isCeo) {
+        formHtml+='<div>'+tip("מדיניות דמי ביטול","מדיניות ביטול שתוצג ללקוח בהצעה – רק המנכ\"ל יכול לערוך")+'<textarea placeholder="פרט את מדיניות דמי הביטול..." oninput="S.quoteForm.cancellationPolicy=this.value">'+escapeHtml(f.cancellationPolicy)+'</textarea></div>';
+      } else {
+        formHtml+='<div>'+tip("מדיניות דמי ביטול","ניתן לצפייה בלבד – רק המנכ\"ל יכול לערוך")+'<textarea disabled style="background:#f0f0f0;cursor:not-allowed">'+escapeHtml(f.cancellationPolicy)+'</textarea><div class="small muted">רק המנכ"ל יכול לערוך את מדיניות דמי הביטול</div></div>';
+      }
+
+      formHtml+='<div>'+tip("הערות","הערות נוספות להצעה")+'<textarea oninput="S.quoteForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        +'<button class="btn-primary" onclick="saveQuote()">'+(f.id?"עדכן":"צור")+' הצעת מחיר</button>'
+        +(f.id?'<button class="btn-soft" style="margin-top:4px" onclick="resetQuoteForm();render()">ביטול</button>':'')
+        +'</div></div>';
+
+      // Quote list
+      var listHtml='<div class="card"><div class="section-title">📋 הצעות מחיר ('+list.length+')</div>'
+        +'<div class="quote-status-bar">'
+        +'<span class="quote-status-chip '+(filterSt==="all"?"active":"")+'" onclick="S.quoteFilterStatus=\'all\';render()">הכל</span>'
+        +QUOTE_STATUSES.map(function(st){return '<span class="quote-status-chip '+(filterSt===st?"active":"")+'" onclick="S.quoteFilterStatus=\''+st+'\';render()">'+st+'</span>';}).join("")
+        +'</div>'
+        +'<div class="list">'+(list.length===0?'<div class="empty">אין הצעות מחיר'+(filterSt!=="all"?' בסטטוס '+filterSt:'')+'</div>'
+        :list.map(function(qt){
+          var t=quoteTotal(qt.items);
+          var stBadge=qt.status==="נחתמה"?"qb-signed":qt.status==="נשלחה"?"qb-sent":qt.status==="בוטלה"?"qb-expired":"qb-draft";
+          return '<div class="item">'
+            +'<div class="item-head"><strong>'+escapeHtml(qt.tripTitle)+'</strong><span class="quote-badge '+stBadge+'">'+escapeHtml(qt.status)+'</span></div>'
+            +'<div class="small">👤 '+escapeHtml(qt.clientName)+' | 💰 '+sym+t.toLocaleString("he-IL")+(qt.destination?' | ✈ '+escapeHtml(qt.destination):'')+'</div>'
+            +'<div class="small muted">נוצרה: '+fmtDateShort(qt.createdAt)+(qt.sentAt?' | נשלחה: '+fmtDateShort(qt.sentAt):'')+(qt.signedAt?' | נחתמה: '+fmtDateShort(qt.signedAt):'')+'</div>'
+            +'<div class="row" style="margin-top:6px;gap:4px">'
+            +'<button class="btn-primary" style="width:auto;font-size:12px" onclick="viewQuote('+qt.id+')">👁 צפה</button>'
+            +'<button class="btn-soft" style="width:auto;font-size:12px" onclick="editQuote('+qt.id+')">✏️</button>'
+            +'<button class="btn-wa" style="width:auto;font-size:12px" onclick="sendQuoteViaWhatsApp('+qt.id+')">📲</button>'
+            +'<button class="btn-primary" style="width:auto;font-size:12px" onclick="sendQuoteViaEmail('+qt.id+')">📧</button>'
+            +(qt.signature?'<button class="btn-purple" style="width:auto;font-size:12px" onclick="generateQuotePDF('+qt.id+')">📄 PDF</button>':'')
+            +'<button class="btn-danger" style="width:auto;font-size:12px" onclick="deleteQuote('+qt.id+')">🗑</button>'
+            +'</div></div>';
+        }).join(""))+'</div></div>';
+
+      return '<div class="quote-layout">'+formHtml+listHtml+'</div>';
+    }
+
     function saveFinance() {
       const f=S.financeForm; if(!f.travelerName||!f.amount) return;
       if(f.id) { const i=S.finances.findIndex(x=>x.id===f.id); if(i>=0) S.finances[i]={...f}; }
@@ -3940,6 +4239,7 @@
         // Communication
         + '<div class="upgrade-card"><h4>💬 מערכת תקשורת</h4><p>רישום שיחות עם מטיילים ומנהלי כ"א. 4 ערוצים: WhatsApp, טלפון, מייל, פגישה.</p><div class="upgrade-badge" onclick="setState({tab:\'conversations\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         + '<div class="upgrade-card"><h4>📡 קמפיינים ושליחה קבוצתית</h4><p>שליחה מתקדמת ב-WhatsApp, אימייל ו-SMS עם סינון חכם לפי סגמנטים, אזורים, גיל, קטגוריות ורמת הליכה. כולל מנגנון החרגה מובנה.</p><div class="upgrade-badge" onclick="setState({tab:\'broadcast\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>📋 הצעות מחיר מתקדמות</h4><p>יצירה, שליחה וחתימה דיגיטלית של הצעות מחיר. כולל דמי ביטול, חתימה עם תיעוד IP וזמן, שליחה ב-WhatsApp/אימייל, והפקת PDF רשמי.</p><div class="upgrade-badge" onclick="setState({tab:\'quotes\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         + '<div class="upgrade-card"><h4>🎂 אוטומציית ימי הולדת</h4><p>זיהוי אוטומטי, תבנית הודעה מותאמת, קופוני הנחה, שליחה אוטומטית בWhatsApp/מייל.</p><div class="upgrade-badge" onclick="setState({tab:\'birthdays\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         // Intelligence
         + '<div class="upgrade-card"><h4>🤖 לילה AI – שותפה אסטרטגית</h4><p>ממשק צ\'אט חכם עם לילה, השותפה האסטרטגית של איציק. מנוע התאמה חכם שמתאים מטיילים לטיולים.</p><div class="upgrade-badge" onclick="setState({tab:\'matching\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
@@ -3985,6 +4285,7 @@
         {id:"duplicates",label:"🔍 הסר כפילויות"},
         {id:"conversations",label:"💬 תקשורת"},
         {id:"finances",label:"💳 כספים וגבייה"},
+        {id:"quotes",label:"📋 הצעות מחיר"},
         {id:"birthdays",label:"🎂 ימי הולדת"},
         {id:"alerts",label:"🔔 התראות"},
         {id:"broadcast",label:"📡 קמפיינים"},
@@ -4030,6 +4331,7 @@
       else if(S.tab==="imports") content=renderImportsTab();
       else if(S.tab==="calendar") content=renderCalendarTab();
       else if(S.tab==="finances") content=renderFinancesTab();
+      else if(S.tab==="quotes") content=renderQuotesTab();
       else if(S.tab==="hiking") content=renderHikingTab();
       else if(S.tab==="social") content=renderSocialTab();
       else if(S.tab==="guidesManage") content=renderGuidesManageTab();
