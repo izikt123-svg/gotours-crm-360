@@ -84,6 +84,9 @@ export default async (req) => {
         data.quotes[idx].signatureIP = clientIP;
         data.quotes[idx].signedAt = now;
         data.quotes[idx].status = "נחתמה";
+        if (body.selectedAddons) {
+          data.quotes[idx].selectedAddons = body.selectedAddons;
+        }
 
         const newVersion = String(Date.now());
         await store.setJSON(DATA_KEY, data);
