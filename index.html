@@ -285,6 +285,30 @@
       .tabs { flex-direction:column; }
       .tabs button { width:100%; text-align:center; }
     }
+    /* TOOLTIPS */
+    .field-with-tip { position:relative; }
+    .field-with-tip .tip-icon { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:#d4e5f5; color:var(--brand); font-size:11px; font-weight:800; cursor:help; margin-right:4px; position:relative; vertical-align:middle; }
+    .field-with-tip .tip-icon:hover .tip-text { display:block; }
+    .field-with-tip .tip-text { display:none; position:absolute; bottom:calc(100% + 6px); right:-10px; background:#1a2a3a; color:#fff; font-size:12px; font-weight:400; padding:8px 12px; border-radius:8px; width:220px; z-index:60; line-height:1.5; box-shadow:0 4px 12px rgba(0,0,0,0.25); white-space:normal; }
+    .field-with-tip .tip-text::after { content:""; position:absolute; top:100%; right:14px; border:6px solid transparent; border-top-color:#1a2a3a; }
+    /* LILA AI CHAT */
+    .lila-chat-wrap { max-width:800px; margin:0 auto; }
+    .lila-header { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; border-radius:16px 16px 0 0; padding:20px; text-align:center; }
+    .lila-header h3 { margin:0; font-size:20px; }
+    .lila-header .lila-sub { font-size:13px; opacity:0.85; margin-top:4px; }
+    .lila-messages { background:#f8f9fb; border:1px solid var(--line); border-top:none; padding:16px; min-height:300px; max-height:450px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+    .lila-msg { max-width:85%; padding:10px 14px; border-radius:14px; font-size:14px; line-height:1.6; }
+    .lila-msg.bot { background:linear-gradient(135deg,#e8e0f0,#f0e8ff); color:#2d1b69; align-self:flex-start; border-bottom-right-radius:4px; }
+    .lila-msg.user { background:var(--brand); color:#fff; align-self:flex-end; border-bottom-left-radius:4px; }
+    .lila-input-row { display:flex; gap:8px; padding:12px 16px; background:#fff; border:1px solid var(--line); border-top:none; border-radius:0 0 16px 16px; }
+    .lila-input-row input { flex:1; min-width:0; border-radius:10px; }
+    .lila-input-row button { width:auto; flex:0; }
+    .lila-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:18px; margin-left:8px; vertical-align:middle; }
+    /* CALL DOC MODULE */
+    .call-doc-item { border:1px solid var(--line); border-radius:10px; background:#fff; padding:10px; margin-bottom:8px; }
+    .call-doc-item .call-doc-time { font-size:12px; color:var(--muted); }
+    .call-doc-item .call-doc-content { margin-top:4px; font-size:13px; }
+    .call-doc-item .call-doc-audio { margin-top:6px; }
   </style>
 </head>
 <body>
@@ -309,6 +333,10 @@
     const SEGMENTS = ["מיטיבי לכת","אוהבי לכת","דתיים","משפחות","גיל שלישי","VIP"];
     const TRIP_CATEGORIES = ["טבע","עירוני","תרבות","משפחתי","אקסטרים","יוקרה"];
     const LEVELS = ["קל","בינוני","מיטיבי לכת"];
+    const GENDERS = ["זכר","נקבה"];
+    const INTEREST_GROUPS = ["מיטיבי לכת","אוהבי לכת","דתיים","משפחות","גיל שלישי","VIP"];
+    const LEAD_SOURCE_OPTIONS = ["אתר","פייסבוק","אינסטגרם","וואטסאפ","טלפון","סוכן שותף","גוגל","המלצה","אחר"];
+    const IMPORT_TARGETS = [{id:"contacts",label:"📇 אנשי קשר"},{id:"hr",label:"👔 כוח אדם"},{id:"agencies",label:"🏢 ארגונים"}];
     const LEAD_STATUSES = ["חדש","בטיפול","הצעה נשלחה","ממתין לאישור","נסגר","אבוד"];
     const LEAD_SOURCES = ["אתר","פייסבוק","אינסטגרם","וואטסאפ","טלפון","סוכן שותף","גוגל","המלצה","אחר"];
     const SUPPLIER_TYPES = ["מלון","הסעות","מדריך","ביטוח","מסעדה","אטרקציה","טיסות","ספינה","פעילות","ויזה","צלם"];
@@ -413,6 +441,9 @@
     function escapeHtml(s) {
       if (s==null) return "";
       return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    }
+    function tip(label, tipText) {
+      return '<span class="field-with-tip"><label>'+label+' <span class="tip-icon">?<span class="tip-text">'+escapeHtml(tipText)+'</span></span></label></span>';
     }
     function parseNumber(v) { const n=Number(v); return Number.isFinite(n)?n:""; }
     function parseBoolean(v) { if(typeof v==="boolean") return v; const s=String(v||"").toLowerCase(); return s==="true"||s==="1"||s==="כן"||s==="yes"; }
@@ -539,7 +570,7 @@
       ],
       taskForm:{id:null,title:"",dueDate:"",assignedTo:"איציק",priority:"בינונית",relatedType:"כללי",done:false},
       autocompleteField:"", autocompleteQuery:"", autocompleteResults:[],
-      travelerForm:{id:null,fullName:"",phone:"",whatsapp:"",email:"",birthday:"",age:"",city:"",budgetMin:"",budgetMax:"",preferredCategory:"טבע",walkingLevel:"בינוני",religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,preferredSeason:"",notes:"",segments:[],currentTripId:null,active:true,lastConversation:null},
+      travelerForm:{id:null,fullName:"",phone:"",whatsapp:"",email:"",birthday:"",age:"",city:"",gender:"",budgetMin:"",budgetMax:"",preferredCategories:[],preferredCategory:"טבע",walkingLevel:"בינוני",interestGroups:[],religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,leadSource:"",returningCustomer:false,pastTrips:"",preferredSeason:"",notes:"",segments:[],currentTripId:null,active:true,lastConversation:null,callDocs:[]},
       leadForm:{id:null,fullName:"",phone:"",email:"",source:"אתר",status:"חדש",destinationInterest:"",budget:"",travelersCount:"",notes:"",assignedTo:"",createdAt:""},
       tripForm:{id:null,title:"",destination:"",departureDate:"",returnDate:"",category:"טבע",difficulty:"בינוני",price:"",durationDays:"",season:"",religiousFriendly:false,kashrutAvailable:false,shabbatOptions:false,notes:"",capacity:20,enrolled:0,assignedGuide:"",travelersData:{}},
       tripImportSearch:"",
@@ -551,6 +582,8 @@
       hrConversationForm:{hrManagerId:"",channel:"מייל",summary:"",nextStep:""},
       aiWidgetOpen:false, aiPrompt:"", aiLoading:false, aiError:"",
       aiHistory:[{role:"assistant",text:"שלום! GoAI זמין לענות בעברית על שאלות עבור tiyoolim.com, GoTours ושטח הפקות."}],
+      lilaHistory:[{role:"assistant",text:"שלום, אני לילה, השותפה האסטרטגית של איציק ב-GoTours Group. תפקידי הוא לעזור לכם, המדריכים, למנוע טעויות ולנהל את הטיולים. איך אוכל לעזור לכם היום?"}],
+      lilaInput:"",
       agencies:[
         {id:uid(),name:"גלובל טריפס תל אביב",city:"תל אביב",managerName:"שרון עמית",phone:"035551122",email:"office@globaltrips.co.il",specialization:"יוקרה וטיולי תרבות",active:true,notes:"שותפה אסטרטגית לקבוצות פרימיום"},
         {id:uid()+1,name:"דרך עולם חיפה",city:"חיפה",managerName:"עופר לוין",phone:"048881133",email:"sales@derech-olam.co.il",specialization:"טבע ומשפחות",active:true,notes:"חזקה בצפון ובקבוצות משפחתיות"},
@@ -567,9 +600,9 @@
         {id:uid()+15,fullName:"משה גולדברג",phone:"0509988776",email:"moshe@example.com",source:"המלצה",status:"ממתין לאישור",destinationInterest:"ארמניה",budget:5500,travelersCount:8,notes:"קבוצת VIP",assignedTo:"",createdAt:isoNow()}
       ],
       travelers:[
-        {id:uid()+5,fullName:"רות כהן",phone:"0501234567",whatsapp:"0501234567",email:"rut@example.com",birthday:"1986-03-15",age:38,city:"רעננה",budgetMin:3000,budgetMax:5200,preferredCategory:"טבע",walkingLevel:"מיטיבי לכת",religiousNeeds:true,kashrutRequired:true,shabbatFriendly:true,preferredSeason:"אביב",notes:"מעדיפה קבוצה קטנה ומדריך דובר עברית",segments:["מיטיבי לכת","דתיים"],currentTripId:null,active:true,lastConversation:{at:isoNow(),channel:"טלפון",summary:"מבקשת מסלול טבע עם כשרות מלאה",nextStep:"לשלוח 2 הצעות עד מחר"},conversationHistory:[{at:isoNow(),channel:"טלפון",summary:"מבקשת מסלול טבע עם כשרות מלאה",nextStep:"לשלוח 2 הצעות עד מחר"}]},
-        {id:uid()+16,fullName:"יוסי אברהם",phone:"0529876543",whatsapp:"0529876543",email:"yossi@example.com",birthday:"1975-07-22",age:49,city:"תל אביב",budgetMin:5000,budgetMax:9000,preferredCategory:"יוקרה",walkingLevel:"קל",religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,preferredSeason:"חורף",notes:"VIP, מעדיף מלונות 5 כוכבים",segments:["VIP"],currentTripId:null,active:true,lastConversation:{at:isoNow(),channel:"ווטסאפ",summary:"מתעניין בטיול לדובאי",nextStep:"לשלוח הצעה מפורטת"},conversationHistory:[]},
-        {id:uid()+17,fullName:"מרים שלום",phone:"0531112222",whatsapp:"0531112222",email:"miriam@example.com",birthday:"1958-12-01",age:66,city:"ירושלים",budgetMin:2000,budgetMax:4000,preferredCategory:"תרבות",walkingLevel:"קל",religiousNeeds:true,kashrutRequired:true,shabbatFriendly:true,preferredSeason:"קיץ",notes:"גיל שלישי, צריכה עזרה בהתארגנות",segments:["גיל שלישי","דתיים"],currentTripId:null,active:true,lastConversation:null,conversationHistory:[]}
+        {id:uid()+5,fullName:"רות כהן",phone:"0501234567",whatsapp:"0501234567",email:"rut@example.com",birthday:"1986-03-15",age:38,city:"רעננה",gender:"נקבה",budgetMin:3000,budgetMax:5200,preferredCategory:"טבע",preferredCategories:["טבע"],walkingLevel:"מיטיבי לכת",interestGroups:["מיטיבי לכת","דתיים"],religiousNeeds:true,kashrutRequired:true,shabbatFriendly:true,leadSource:"אתר",returningCustomer:false,pastTrips:"",preferredSeason:"אביב",notes:"מעדיפה קבוצה קטנה ומדריך דובר עברית",segments:["מיטיבי לכת","דתיים"],currentTripId:null,active:true,lastConversation:{at:isoNow(),channel:"טלפון",summary:"מבקשת מסלול טבע עם כשרות מלאה",nextStep:"לשלוח 2 הצעות עד מחר"},conversationHistory:[{at:isoNow(),channel:"טלפון",summary:"מבקשת מסלול טבע עם כשרות מלאה",nextStep:"לשלוח 2 הצעות עד מחר"}],callDocs:[]},
+        {id:uid()+16,fullName:"יוסי אברהם",phone:"0529876543",whatsapp:"0529876543",email:"yossi@example.com",birthday:"1975-07-22",age:49,city:"תל אביב",gender:"זכר",budgetMin:5000,budgetMax:9000,preferredCategory:"יוקרה",preferredCategories:["יוקרה"],walkingLevel:"קל",interestGroups:["VIP"],religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,leadSource:"המלצה",returningCustomer:true,pastTrips:"איטליה 2023",preferredSeason:"חורף",notes:"VIP, מעדיף מלונות 5 כוכבים",segments:["VIP"],currentTripId:null,active:true,lastConversation:{at:isoNow(),channel:"ווטסאפ",summary:"מתעניין בטיול לדובאי",nextStep:"לשלוח הצעה מפורטת"},conversationHistory:[],callDocs:[]},
+        {id:uid()+17,fullName:"מרים שלום",phone:"0531112222",whatsapp:"0531112222",email:"miriam@example.com",birthday:"1958-12-01",age:66,city:"ירושלים",gender:"נקבה",budgetMin:2000,budgetMax:4000,preferredCategory:"תרבות",preferredCategories:["תרבות"],walkingLevel:"קל",interestGroups:["גיל שלישי","דתיים"],religiousNeeds:true,kashrutRequired:true,shabbatFriendly:true,leadSource:"טלפון",returningCustomer:false,pastTrips:"",preferredSeason:"קיץ",notes:"גיל שלישי, צריכה עזרה בהתארגנות",segments:["גיל שלישי","דתיים"],currentTripId:null,active:true,lastConversation:null,conversationHistory:[],callDocs:[]}
       ],
       trips:[
         {id:uid()+6,title:"טרק הרי האלפים",destination:"שווייץ",departureDate:"",returnDate:"",category:"טבע",difficulty:"מיטיבי לכת",price:4900,durationDays:7,season:"קיץ",religiousFriendly:true,kashrutAvailable:true,shabbatOptions:true,notes:"לינה בכפרי הרים",capacity:20,enrolled:14,assignedGuide:"",travelersData:{}},
@@ -712,6 +745,17 @@
       if (!S.currentUserRole) S.currentUserRole = "";
       if (!Array.isArray(S.duplicateResults)) S.duplicateResults = [];
       if (!S.guideForm) S.guideForm = structuredClone(seed.guideForm);
+      if (!Array.isArray(S.lilaHistory)) S.lilaHistory = structuredClone(seed.lilaHistory);
+      // Normalize traveler new fields
+      if (Array.isArray(S.travelers)) S.travelers.forEach(t => {
+        if (!t.gender) t.gender = "";
+        if (!Array.isArray(t.preferredCategories)) t.preferredCategories = t.preferredCategory ? [t.preferredCategory] : [];
+        if (!Array.isArray(t.interestGroups)) t.interestGroups = [];
+        if (t.leadSource === undefined) t.leadSource = "";
+        if (t.returningCustomer === undefined) t.returningCustomer = false;
+        if (t.pastTrips === undefined) t.pastTrips = "";
+        if (!Array.isArray(t.callDocs)) t.callDocs = [];
+      });
       // Normalize trip fields
       if (Array.isArray(S.trips)) S.trips.forEach(t => {
         if (!t.travelersData) t.travelersData = {};
@@ -758,13 +802,50 @@
     function saveTraveler() {
       const f=S.travelerForm; if(!f.fullName||!f.phone) return alert("שם וטלפון חובה");
       if (f.id) { const i=S.travelers.findIndex(t=>t.id==f.id); if(i>=0) S.travelers[i]={...S.travelers[i],...f}; logActivity("עדכון מטייל", f.fullName); }
-      else { S.travelers.unshift({...structuredClone(seed.travelerForm),...f,id:uid(),conversationHistory:[],active:true}); logActivity("הוספת מטייל", f.fullName); }
+      else { S.travelers.unshift({...structuredClone(seed.travelerForm),...f,id:uid(),conversationHistory:[],callDocs:[],active:true}); logActivity("הוספת מטייל", f.fullName); }
       resetTravelerForm(); setState({travelers:S.travelers});
     }
     function toggleSegment(seg) {
       const segs=[...(S.travelerForm.segments||[])];
       const i=segs.indexOf(seg); if(i>=0) segs.splice(i,1); else segs.push(seg);
       S.travelerForm.segments=segs; render();
+    }
+    function toggleTravelerCategory(cat) {
+      const cats=[...(S.travelerForm.preferredCategories||[])];
+      const i=cats.indexOf(cat); if(i>=0) cats.splice(i,1); else cats.push(cat);
+      S.travelerForm.preferredCategories=cats; render();
+    }
+    function toggleInterestGroup(grp) {
+      const groups=[...(S.travelerForm.interestGroups||[])];
+      const i=groups.indexOf(grp); if(i>=0) groups.splice(i,1); else groups.push(grp);
+      S.travelerForm.interestGroups=groups; render();
+    }
+    // Call documentation
+    function addCallDoc(travelerId) {
+      const t=travelerById(travelerId); if(!t) return;
+      const content=S.newCallDocContent||"";
+      const audioUrl=S.newCallDocAudio||"";
+      if(!content&&!audioUrl) return alert("נא למלא תוכן שיחה או קישור הקלטה");
+      if(!Array.isArray(t.callDocs)) t.callDocs=[];
+      t.callDocs.unshift({id:uid(),at:new Date().toISOString(),content:content,audioUrl:audioUrl,audioFile:S.newCallDocFileName||"",user:S.currentUser||""});
+      S.newCallDocContent=""; S.newCallDocAudio=""; S.newCallDocFileName="";
+      logActivity("תיעוד שיחה", t.fullName);
+      setState({travelers:S.travelers});
+    }
+    function handleCallDocFileUpload(input) {
+      const file=input.files&&input.files[0]; if(!file) return;
+      S.newCallDocFileName=file.name;
+      const reader=new FileReader();
+      reader.onload=function(e){ S.newCallDocAudio=e.target.result; render(); };
+      reader.readAsDataURL(file);
+    }
+    // Lila AI
+    function sendLilaMessage() {
+      const msg=(S.lilaInput||"").trim(); if(!msg) return;
+      S.lilaHistory.push({role:"user",text:msg});
+      S.lilaInput="";
+      S.lilaHistory.push({role:"assistant",text:"תודה על השאלה! לילה כרגע בשלב הטמעה ראשוני. בקרוב תתחבר למנוע AI מלא ואוכל לעזור לכם בצורה חכמה יותר. בינתיים, פנו לאיציק לכל שאלה דחופה."});
+      render();
     }
     function travelerBirthdayRows() {
       const today=new Date(); const todayMD=String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
@@ -1224,15 +1305,21 @@
       const created=[];
       S.waPreviewData.forEach(c=>{
         if(target==="travelers"){
-          created.push({id:uid(),fullName:c.fullName,phone:c.phone,whatsapp:c.phone,email:"",birthday:"",age:0,city:"",budgetMin:0,budgetMax:0,preferredCategory:"טבע",walkingLevel:"בינוני",religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,segments:[groupName],notes:"יובא מקבוצת וואטסאפ: "+groupName,active:true,conversationHistory:[]});
+          created.push({id:uid(),fullName:c.fullName,phone:c.phone,whatsapp:c.phone,email:"",birthday:"",age:0,city:"",gender:"",budgetMin:0,budgetMax:0,preferredCategory:"טבע",preferredCategories:[],walkingLevel:"בינוני",interestGroups:[],religiousNeeds:false,kashrutRequired:false,shabbatFriendly:false,leadSource:"וואטסאפ",returningCustomer:false,pastTrips:"",segments:[groupName],notes:"יובא מקבוצת וואטסאפ: "+groupName,active:true,conversationHistory:[],callDocs:[]});
         } else if(target==="leads"){
           created.push({id:uid(),fullName:c.fullName,phone:c.phone,email:"",source:"וואטסאפ",status:"חדש",destinationInterest:"",budget:0,travelersCount:1,notes:"יובא מקבוצת וואטסאפ: "+groupName,assignedTo:"",createdAt:isoNow()});
+        } else if(target==="hr"){
+          created.push({id:uid(),fullName:c.fullName,role:"",phone:c.phone,email:"",site:"GoTours",groupName:groupName,team:"",employeesCount:"",skills:"",needs:"",active:true,notes:"יובא מוואטסאפ: "+groupName,correspondenceHistory:[]});
+        } else if(target==="agencies"){
+          created.push({id:uid(),name:c.fullName,city:"",managerName:"",phone:c.phone,email:"",specialization:"",active:true,notes:"יובא מוואטסאפ: "+groupName});
         } else {
           created.push({id:uid(),fullName:c.fullName,phone:c.phone,email:"",role:"",company:"tiyoolim.com",organization:"",orgField:"אחר",domain:"",groupName:groupName,notes:"יובא מקבוצת וואטסאפ: "+groupName,active:true});
         }
       });
       if(target==="travelers"){ S.travelers.unshift(...created); setState({travelers:S.travelers,waImportMsg:"יובאו "+created.length+" מטיילים מוואטסאפ לקבוצה: "+groupName,waImportText:"",waPreviewData:[],waPreviewReady:false}); }
       else if(target==="leads"){ S.leads.unshift(...created); setState({leads:S.leads,waImportMsg:"יובאו "+created.length+" לידים מוואטסאפ לקבוצה: "+groupName,waImportText:"",waPreviewData:[],waPreviewReady:false}); }
+      else if(target==="hr"){ S.hrManagers.unshift(...created); setState({hrManagers:S.hrManagers,waImportMsg:"יובאו "+created.length+" אנשי כוח אדם מוואטסאפ לקבוצה: "+groupName,waImportText:"",waPreviewData:[],waPreviewReady:false}); }
+      else if(target==="agencies"){ S.agencies.unshift(...created); setState({agencies:S.agencies,waImportMsg:"יובאו "+created.length+" ארגונים מוואטסאפ לקבוצה: "+groupName,waImportText:"",waPreviewData:[],waPreviewReady:false}); }
       else { S.contacts.unshift(...created); setState({contacts:S.contacts,waImportMsg:"יובאו "+created.length+" אנשי קשר מוואטסאפ לקבוצה: "+groupName,waImportText:"",waPreviewData:[],waPreviewReady:false}); }
     }
 
@@ -1251,7 +1338,7 @@
         rows.forEach(row=>{
           const fullName=pick(row,["fullName","name","שם","שם מלא","שם פרטי","first_name","firstName"]); const phone=pick(row,["phone","טלפון","mobile","נייד","מספר טלפון","tel","telephone","phone_number"]);
           if(!fullName&&!phone) return;
-          created.push({id:uid(),fullName:String(fullName||phone).trim(),phone:normalizePhone(phone),whatsapp:normalizePhone(pick(row,["whatsapp","ווטסאפ","וואטסאפ"])||phone),email:String(pick(row,["email","אימייל","דואל","mail","e-mail"])||"").trim(),birthday:normalizeBirthday(pick(row,["birthday","birthDate","תאריך לידה","יום הולדת","תאריך_לידה"])),age:parseNumber(pick(row,["age","גיל"])),city:String(pick(row,["city","עיר","ישוב","מקום מגורים","address","כתובת"])||"").trim(),budgetMin:parseNumber(pick(row,["budgetMin","תקציב מינימום","budget_min"])),budgetMax:parseNumber(pick(row,["budgetMax","תקציב מקסימום","budget_max","budget","תקציב"])),preferredCategory:String(pick(row,["preferredCategory","קטגוריה","category","סוג"])||"טבע").trim(),walkingLevel:String(pick(row,["walkingLevel","רמת הליכה","walking_level","רמה"])||"בינוני").trim(),religiousNeeds:parseBoolean(pick(row,["religiousNeeds","דתי","religious"])),kashrutRequired:parseBoolean(pick(row,["kashrutRequired","כשרות","kashrut"])),shabbatFriendly:parseBoolean(pick(row,["shabbatFriendly","שבת","shabbat"])),segments:parseSegments(pick(row,["segments","קבוצות","קבוצה","group","tag","תגית"])),notes:String(pick(row,["notes","הערות","הערה","remarks"])||"").trim(),active:true,conversationHistory:[]});
+          created.push({id:uid(),fullName:String(fullName||phone).trim(),phone:normalizePhone(phone),whatsapp:normalizePhone(pick(row,["whatsapp","ווטסאפ","וואטסאפ"])||phone),email:String(pick(row,["email","אימייל","דואל","mail","e-mail"])||"").trim(),birthday:normalizeBirthday(pick(row,["birthday","birthDate","תאריך לידה","יום הולדת","תאריך_לידה"])),age:parseNumber(pick(row,["age","גיל"])),city:String(pick(row,["city","עיר","ישוב","מקום מגורים","address","כתובת"])||"").trim(),gender:String(pick(row,["gender","מין","sex"])||"").trim(),budgetMin:parseNumber(pick(row,["budgetMin","תקציב מינימום","budget_min"])),budgetMax:parseNumber(pick(row,["budgetMax","תקציב מקסימום","budget_max","budget","תקציב"])),preferredCategory:String(pick(row,["preferredCategory","קטגוריה","category","סוג"])||"טבע").trim(),preferredCategories:parseSegments(pick(row,["preferredCategories","קטגוריות טיול","trip_categories"])),walkingLevel:String(pick(row,["walkingLevel","רמת הליכה","walking_level","רמה"])||"בינוני").trim(),interestGroups:parseSegments(pick(row,["interestGroups","קבוצות עניין","interest_groups"])),religiousNeeds:parseBoolean(pick(row,["religiousNeeds","דתי","religious"])),kashrutRequired:parseBoolean(pick(row,["kashrutRequired","כשרות","kashrut"])),shabbatFriendly:parseBoolean(pick(row,["shabbatFriendly","שבת","shabbat"])),leadSource:String(pick(row,["leadSource","מקור הגעה","lead_source","מקור"])||"").trim(),returningCustomer:parseBoolean(pick(row,["returningCustomer","לקוח חוזר","returning"])),pastTrips:String(pick(row,["pastTrips","טיולים קודמים","past_trips"])||"").trim(),segments:parseSegments(pick(row,["segments","קבוצות","קבוצה","group","tag","תגית"])),notes:String(pick(row,["notes","הערות","הערה","remarks"])||"").trim(),active:true,conversationHistory:[],callDocs:[]});
         });
         S.travelers.unshift(...created); setState({travelers:S.travelers,travelerImportMsg:"יובאו "+created.length+" מטיילים מתוך "+rows.length+" שורות"});
       } catch(err) { alert("שגיאה בייבוא קובץ: "+(err.message||err)); throw err; }
@@ -1508,12 +1595,12 @@
           + '</div></div>':"")
         // מודולים
         + '<div class="card"><div class="section-title">🗂 מודולים</div><div class="module-grid">'
-        + [["👥 לקוחות",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["📋 תיקי טיולים",S.trips.length,"trips"],["💳 כספים",S.finances.length,"finances"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🗺️ מפות","","maps"],["🥾 מסלולי הליכה",S.hikingTrails.length,"hiking"],["🌐 רשתות חברתיות",S.socialPosts.length,"social"],["🧭 מדריכים",S.guides.length,"guidesManage"],["🌍 מזג אוויר","","weather"],["🤖 GoAI","","matching"],["📖 מדריך","","guide"],["🚀 שדרוגים","","upgrades"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
+        + [["👥 לקוחות",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["📋 תיקי טיולים",S.trips.length,"trips"],["💳 כספים",S.finances.length,"finances"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🗺️ מפות","","maps"],["🥾 מסלולי הליכה",S.hikingTrails.length,"hiking"],["🌐 רשתות חברתיות",S.socialPosts.length,"social"],["🧭 מדריכים",S.guides.length,"guidesManage"],["🌍 מזג אוויר","","weather"],["🤖 לילה (AI)","","matching"],["📖 מדריך","","guide"],["🚀 שדרוגים","","upgrades"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
         + '</div></div>'
         // שדרוגים אחרונים
         + '<div class="card"><div class="section-title">🚀 שדרוגים אחרונים</div><div class="sub-title">כל היכולות המתקדמות שנוספו למערכת</div>'
         + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">'
-        + '<div class="module" onclick="setState({tab:\'matching\'},false)" style="cursor:pointer;background:#edf5fc">🤖 GoAI חכם</div>'
+        + '<div class="module" onclick="setState({tab:\'matching\'},false)" style="cursor:pointer;background:#edf5fc">🤖 לילה AI חכם</div>'
         + '<div class="module" onclick="setState({tab:\'finances\'},false)" style="cursor:pointer;background:#edf5fc">💳 כספים וגבייה</div>'
         + '<div class="module" onclick="setState({tab:\'hiking\'},false)" style="cursor:pointer;background:#edf5fc">🥾 מסלולי הליכה</div>'
         + '<div class="module" onclick="setState({tab:\'social\'},false)" style="cursor:pointer;background:#edf5fc">🌐 רשתות חברתיות</div>'
@@ -1578,38 +1665,65 @@
       const folder=S.activeFolder||"all";
       const q=String(S.search||"").toLowerCase();
       const rows=(folder==="all"?S.travelers:S.travelers.filter(t=>(t.segments||[]).includes(folder))).filter(t=>!q||(t.fullName||"").toLowerCase().includes(q)||(t.phone||"").includes(q)||(t.city||"").toLowerCase().includes(q));
+      const editingTraveler = f.id ? travelerById(f.id) : null;
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת מטייל":"הוספת מטייל")+'</div>'
-        + '<div class="autocomplete-wrap"><label>שם מלא</label><input value="'+escapeHtml(f.fullName)+'" oninput="S.travelerForm.fullName=this.value;showAutocomplete(\'trav_name\',this.value,\'traveler\')" placeholder="הקלד שם..."><div class="autocomplete-list" style="display:'+(S.autocompleteField==="trav_name"&&S.autocompleteResults.length?"block":"none")+'">'+(S.autocompleteField==="trav_name"?S.autocompleteResults.map((r,i)=>'<div class="autocomplete-item" onclick="applyAutocomplete('+i+')">'+escapeHtml(r.label)+'</div>').join(""):"")+'</div></div>'
+        + '<div class="autocomplete-wrap">'+tip("שם מלא","הזינו שם פרטי ומשפחה. המערכת תשלים אוטומטית שמות קיימים.")+'<input value="'+escapeHtml(f.fullName)+'" oninput="S.travelerForm.fullName=this.value;showAutocomplete(\'trav_name\',this.value,\'traveler\')" placeholder="הקלד שם..."><div class="autocomplete-list" style="display:'+(S.autocompleteField==="trav_name"&&S.autocompleteResults.length?"block":"none")+'">'+(S.autocompleteField==="trav_name"?S.autocompleteResults.map((r,i)=>'<div class="autocomplete-item" onclick="applyAutocomplete('+i+')">'+escapeHtml(r.label)+'</div>').join(""):"")+'</div></div>'
         + '<div class="grid">'
-        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.travelerForm.phone=this.value"></div>'
-        + '<div><label>וואטסאפ</label><input value="'+escapeHtml(f.whatsapp)+'" oninput="S.travelerForm.whatsapp=this.value"></div>'
-        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.travelerForm.email=this.value"></div>'
-        + '<div><label>תאריך לידה</label><input type="date" value="'+escapeHtml(f.birthday)+'" oninput="S.travelerForm.birthday=this.value"></div>'
-        + '<div><label>עיר</label><input value="'+escapeHtml(f.city)+'" oninput="S.travelerForm.city=this.value" list="city_list"><datalist id="city_list">'+ISRAEL_CITIES.map(c=>'<option value="'+escapeHtml(c)+'">').join("")+'</datalist></div>'
-        + '<div><label>תקציב מינ׳ ₪</label><input type="number" value="'+escapeHtml(f.budgetMin)+'" oninput="S.travelerForm.budgetMin=this.value"></div>'
-        + '<div><label>תקציב מקס׳ ₪</label><input type="number" value="'+escapeHtml(f.budgetMax)+'" oninput="S.travelerForm.budgetMax=this.value"></div>'
-        + '<div><label>קטגוריה</label><select onchange="S.travelerForm.preferredCategory=this.value">'+TRIP_CATEGORIES.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.preferredCategory===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
-        + '<div><label>רמת הליכה</label><select onchange="S.travelerForm.walkingLevel=this.value">'+LEVELS.map(l=>'<option value="'+escapeHtml(l)+'" '+(f.walkingLevel===l?"selected":"")+'>'+escapeHtml(l)+'</option>').join("")+'</select></div>'
+        + '<div>'+tip("טלפון","מספר טלפון ראשי ליצירת קשר")+'<input value="'+escapeHtml(f.phone)+'" oninput="S.travelerForm.phone=this.value"></div>'
+        + '<div>'+tip("וואטסאפ","מספר וואטסאפ לשליחת הודעות. אם זהה לטלפון, השאירו ריק.")+'<input value="'+escapeHtml(f.whatsapp)+'" oninput="S.travelerForm.whatsapp=this.value"></div>'
+        + '<div>'+tip("אימייל","כתובת דואר אלקטרוני לשליחת הצעות מחיר ועדכונים")+'<input value="'+escapeHtml(f.email)+'" oninput="S.travelerForm.email=this.value"></div>'
+        + '<div>'+tip("תאריך לידה","תאריך לידה לחישוב גיל וברכות יום הולדת אוטומטיות")+'<input type="date" value="'+escapeHtml(f.birthday)+'" oninput="S.travelerForm.birthday=this.value"></div>'
+        + '<div>'+tip("עיר","עיר מגורים לתכנון איסוף והסעות")+'<input value="'+escapeHtml(f.city)+'" oninput="S.travelerForm.city=this.value" list="city_list"><datalist id="city_list">'+ISRAEL_CITIES.map(c=>'<option value="'+escapeHtml(c)+'">').join("")+'</datalist></div>'
+        + '<div>'+tip("מין","מין המטייל לצורך שיבוץ חדרים והתאמת שירותים")+'<select onchange="S.travelerForm.gender=this.value"><option value="">-- בחר --</option>'+GENDERS.map(g=>'<option value="'+escapeHtml(g)+'" '+(f.gender===g?"selected":"")+'>'+escapeHtml(g)+'</option>').join("")+'</select></div>'
+        + '<div>'+tip("תקציב מינ׳ ₪","תקציב מינימלי שהלקוח מוכן להשקיע בטיול")+'<input type="number" value="'+escapeHtml(f.budgetMin)+'" oninput="S.travelerForm.budgetMin=this.value"></div>'
+        + '<div>'+tip("תקציב מקס׳ ₪","תקציב מקסימלי – המערכת תתאים טיולים בטווח זה")+'<input type="number" value="'+escapeHtml(f.budgetMax)+'" oninput="S.travelerForm.budgetMax=this.value"></div>'
+        + '<div>'+tip("רמת הליכה","רמת הכושר הגופני: קל (סיורים עירוניים), בינוני, מיטיבי לכת (טרקים)")+'<select onchange="S.travelerForm.walkingLevel=this.value">'+LEVELS.map(l=>'<option value="'+escapeHtml(l)+'" '+(f.walkingLevel===l?"selected":"")+'>'+escapeHtml(l)+'</option>').join("")+'</select></div>'
+        + '<div>'+tip("מקור הגעה","איך הלקוח הגיע אלינו? אתר, פייסבוק, המלצה וכו׳")+'<select onchange="S.travelerForm.leadSource=this.value"><option value="">-- בחר --</option>'+LEAD_SOURCE_OPTIONS.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.leadSource===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
         + '</div>'
-        + '<div style="margin-top:8px"><label>קבוצות</label><div class="chips" style="margin-top:4px">'+SEGMENTS.map(s=>'<span class="chip '+(( f.segments||[]).includes(s)?"active-chip":"")+'" onclick="toggleSegment(\''+escapeHtml(s)+'\')" style="cursor:pointer">'+escapeHtml(s)+'</span>').join("")+'</div></div>'
+        + '<div style="margin-top:8px">'+tip("קטגוריית טיול (בחירה מרובה)","סוגי הטיולים שהלקוח מעוניין בהם. לחצו על מספר קטגוריות.")+'<div class="chips" style="margin-top:4px">'+TRIP_CATEGORIES.map(c=>'<span class="chip '+((f.preferredCategories||[]).includes(c)?"active-chip":"")+'" onclick="toggleTravelerCategory(\''+escapeHtml(c)+'\')" style="cursor:pointer">'+escapeHtml(c)+'</span>').join("")+'</div></div>'
+        + '<div style="margin-top:8px">'+tip("קבוצות עניין (בחירה מרובה)","שייכו את הלקוח לקבוצות עניין לצורך שיווק וסגמנטציה")+'<div class="chips" style="margin-top:4px">'+INTEREST_GROUPS.map(g=>'<span class="chip '+((f.interestGroups||[]).includes(g)?"active-chip":"")+'" onclick="toggleInterestGroup(\''+escapeHtml(g)+'\')" style="cursor:pointer">'+escapeHtml(g)+'</span>').join("")+'</div></div>'
+        + '<div style="margin-top:8px">'+tip("קבוצות (סגמנטים)","תיוג כללי לסינון מהיר ברשימת הלקוחות")+'<div class="chips" style="margin-top:4px">'+SEGMENTS.map(s=>'<span class="chip '+(( f.segments||[]).includes(s)?"active-chip":"")+'" onclick="toggleSegment(\''+escapeHtml(s)+'\')" style="cursor:pointer">'+escapeHtml(s)+'</span>').join("")+'</div></div>'
         + '<div class="row" style="margin-top:8px">'
-        + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.religiousNeeds?"checked":"")+" onchange=\"S.travelerForm.religiousNeeds=this.checked\" style=\"width:auto\"> דתי/ה</label>"
-        + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.kashrutRequired?"checked":"")+" onchange=\"S.travelerForm.kashrutRequired=this.checked\" style=\"width:auto\"> כשרות</label>"
-        + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.shabbatFriendly?"checked":"")+" onchange=\"S.travelerForm.shabbatFriendly=this.checked\" style=\"width:auto\"> שבת</label>"
+        + '<label style="width:auto;flex:0;white-space:nowrap">'+tip("דתי/ה","סמנו אם הלקוח דתי ודורש התאמות בטיול")+'<input type="checkbox" '+(f.religiousNeeds?"checked":"")+" onchange=\"S.travelerForm.religiousNeeds=this.checked\" style=\"width:auto\"> דתי/ה</label>"
+        + '<label style="width:auto;flex:0;white-space:nowrap">'+tip("כשרות","סמנו אם הלקוח דורש כשרות מלאה באוכל")+'<input type="checkbox" '+(f.kashrutRequired?"checked":"")+" onchange=\"S.travelerForm.kashrutRequired=this.checked\" style=\"width:auto\"> כשרות</label>"
+        + '<label style="width:auto;flex:0;white-space:nowrap">'+tip("שמירת שבת","סמנו אם הלקוח שומר שבת ודורש התאמת לו\"ז")+'<input type="checkbox" '+(f.shabbatFriendly?"checked":"")+" onchange=\"S.travelerForm.shabbatFriendly=this.checked\" style=\"width:auto\"> שבת</label>"
+        + '<label style="width:auto;flex:0;white-space:nowrap">'+tip("לקוח חוזר","סמנו אם הלקוח היה אצלנו בעבר")+'<input type="checkbox" '+(f.returningCustomer?"checked":"")+" onchange=\"S.travelerForm.returningCustomer=this.checked\" style=\"width:auto\"> לקוח חוזר</label>"
         + '</div>'
-        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.travelerForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div style="margin-top:8px">'+tip("טיולים קודמים","פרטו באילו טיולים הלקוח השתתף בעבר")+'<input value="'+escapeHtml(f.pastTrips||"")+'" oninput="S.travelerForm.pastTrips=this.value" placeholder="לדוגמה: איטליה 2024, גאורגיה 2025"></div>'
+        + '<div style="margin-top:8px">'+tip("הערות","הערות חופשיות – העדפות, בקשות מיוחדות, מידע חשוב")+'<textarea oninput="S.travelerForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveTraveler()">'+escapeHtml(f.id?"עדכון":"שמירה")+'</button>'+(f.id?'<button class="btn-soft" onclick="resetTravelerForm();render()">ביטול</button>':'')+'</div>'
         + (S.travelerImportMsg?'<div class="small b-ok" style="margin-top:8px;padding:6px;border-radius:8px">'+escapeHtml(S.travelerImportMsg)+'</div>':"")
+        // Call Documentation Module
+        + (f.id ? '<div style="margin-top:16px;border-top:2px solid var(--line);padding-top:12px">'
+          + '<div class="section-title" style="font-size:16px">📞 תיעוד שיחות והקלטות</div>'
+          + '<div>'+tip("תוכן השיחה","רשמו את עיקרי השיחה – מה נאמר, מה הלקוח ביקש")+'<textarea placeholder="מה נאמר בשיחה..." oninput="S.newCallDocContent=this.value">'+escapeHtml(S.newCallDocContent||"")+'</textarea></div>'
+          + '<div class="row" style="margin-top:6px">'
+          + '<div style="flex:1">'+tip("הקלטת שיחה","העלו קובץ אודיו של ההקלטה או הדביקו קישור")+'<input type="file" accept="audio/*" onchange="handleCallDocFileUpload(this)" style="font-size:12px"></div>'
+          + '<div style="flex:1">'+tip("קישור הקלטה","הדביקו כאן קישור להקלטה חיצונית")+'<input placeholder="קישור להקלטה..." value="'+escapeHtml(S.newCallDocAudio||"")+'" oninput="S.newCallDocAudio=this.value"></div>'
+          + '</div>'
+          + (S.newCallDocFileName?'<div class="small muted" style="margin-top:4px">📁 '+escapeHtml(S.newCallDocFileName)+'</div>':"")
+          + '<button class="btn-primary" style="margin-top:8px" onclick="addCallDoc('+f.id+')">💾 שמור תיעוד שיחה</button>'
+          + ((editingTraveler&&editingTraveler.callDocs&&editingTraveler.callDocs.length) ? '<div style="margin-top:10px">'+editingTraveler.callDocs.slice(0,10).map(function(cd){
+              return '<div class="call-doc-item">'
+                + '<div class="call-doc-time">🕐 '+escapeHtml(new Date(cd.at).toLocaleString("he-IL"))+(cd.user?' | 👤 '+escapeHtml(cd.user):'')+'</div>'
+                + (cd.content?'<div class="call-doc-content">📝 '+escapeHtml(cd.content)+'</div>':'')
+                + (cd.audioUrl?'<div class="call-doc-audio">'+(cd.audioUrl.startsWith("data:")? '<audio controls style="width:100%;max-width:300px"><source src="'+cd.audioUrl+'"></audio>' : '<a href="'+escapeHtml(cd.audioUrl)+'" target="_blank" class="btn-soft" style="display:inline-block;width:auto;font-size:12px;padding:4px 10px">🔗 פתח הקלטה</a>')+'</div>':'')
+                + (cd.audioFile&&!cd.audioUrl.startsWith("data:")?'<div class="small muted">📁 '+escapeHtml(cd.audioFile)+'</div>':'')
+                + '</div>';
+            }).join("")+'</div>' : '<div class="small muted" style="margin-top:8px">אין תיעודי שיחה עדיין</div>')
+          + '</div>' : '')
         + '</div>'
         + '<div><div class="folder-tabs"><div class="folder-tab '+(folder==="all"?"active":"")+'" onclick="setState({activeFolder:\'all\'},false)">כולם ('+S.travelers.length+')</div>'+SEGMENTS.map(s=>'<div class="folder-tab '+(folder===s?"active":"")+'" onclick="setState({activeFolder:\''+escapeHtml(s)+'\'},false)">'+escapeHtml(s)+' ('+S.travelers.filter(t=>(t.segments||[]).includes(s)).length+')</div>').join("")+'</div>'
         + '<div class="list">'+(rows.length?rows.map(t=>{
           const trip=tripById(t.currentTripId);
           return '<div class="item '+(( t.segments||[]).includes("VIP")?"priority":"")+'">'
-            + '<div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><div class="chips">'+((t.segments||[]).map(s=>'<span class="chip">'+escapeHtml(s)+'</span>').join(""))+'</div></div>'
-            + '<div class="small">📞 '+escapeHtml(t.phone||"")+(t.city?" | "+escapeHtml(t.city):"")+(t.birthday?" | יום הולדת: "+escapeHtml(fmtDateShort(t.birthday)):"")+'</div>'
+            + '<div class="item-head"><strong>'+escapeHtml(t.fullName)+'</strong><div class="chips">'+((t.segments||[]).map(s=>'<span class="chip">'+escapeHtml(s)+'</span>').join(""))+(t.gender?'<span class="chip">'+escapeHtml(t.gender)+'</span>':"")+(t.returningCustomer?'<span class="chip active-chip">🔁 חוזר</span>':"")+'</div></div>'
+            + '<div class="small">📞 '+escapeHtml(t.phone||"")+(t.city?" | "+escapeHtml(t.city):"")+(t.birthday?" | יום הולדת: "+escapeHtml(fmtDateShort(t.birthday)):"")+(t.leadSource?" | מקור: "+escapeHtml(t.leadSource):"")+'</div>'
+            + ((t.preferredCategories&&t.preferredCategories.length)?'<div class="chips" style="margin-top:4px;gap:3px">'+t.preferredCategories.map(c=>'<span class="chip" style="font-size:11px">'+escapeHtml(c)+'</span>').join("")+'</div>':"")
             + (trip?'<div class="small b-ok" style="padding:3px 8px;border-radius:6px;display:inline-block;margin-top:4px">✈ '+escapeHtml(trip.title)+'</div>':"")
             + (t.lastConversation?'<div class="small muted" style="margin-top:4px">שיחה אחרונה: '+escapeHtml(t.lastConversation.channel)+" – "+escapeHtml(fmtDateShort(t.lastConversation.at))+'</div>':"")
+            + ((t.callDocs&&t.callDocs.length)?'<div class="small muted" style="margin-top:2px">📞 '+t.callDocs.length+' תיעודי שיחה</div>':"")
             + '<div class="row" style="margin-top:8px;gap:4px">'
             + '<button class="btn-wa" style="width:auto;font-size:12px" onclick="messageTraveler('+t.id+')">💬 WA</button>'
             + '<button class="btn-soft" style="width:auto;font-size:12px" onclick="callTraveler('+t.id+')">📞</button>'
@@ -2312,12 +2426,13 @@
           + '<button class="btn-wa" style="margin-top:8px" onclick="previewWhatsAppImport()">🔍 סרוק וזהה אנשי קשר</button>';
       }
 
-      // Target selection
-      waSection+='<div style="margin-top:12px"><label style="font-weight:600">🎯 ייבוא לאן?</label>'
+      waSection+='<div style="margin-top:12px">'+tip("🎯 ייבוא לאן?","בחרו את הקטגוריה שאליה ייובאו אנשי הקשר מוואטסאפ")
         + '<div class="wa-tabs" style="margin-top:6px">'
-        + '<div class="wa-tab'+(waTarget==='contacts'?' active':'')+'" onclick="S.waImportTarget=\'contacts\';render()">👔 אנשי קשר</div>'
+        + '<div class="wa-tab'+(waTarget==='contacts'?' active':'')+'" onclick="S.waImportTarget=\'contacts\';render()">📇 אנשי קשר</div>'
         + '<div class="wa-tab'+(waTarget==='travelers'?' active':'')+'" onclick="S.waImportTarget=\'travelers\';render()">👥 מטיילים</div>'
         + '<div class="wa-tab'+(waTarget==='leads'?' active':'')+'" onclick="S.waImportTarget=\'leads\';render()">🎯 לידים</div>'
+        + '<div class="wa-tab'+(waTarget==='hr'?' active':'')+'" onclick="S.waImportTarget=\'hr\';render()">👔 כוח אדם</div>'
+        + '<div class="wa-tab'+(waTarget==='agencies'?' active':'')+'" onclick="S.waImportTarget=\'agencies\';render()">🏢 ארגונים</div>'
         + '</div></div>';
 
       // Group name
@@ -2372,9 +2487,9 @@
 
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">📥 ייבוא מאקסל</div>'
-        + '<div class="sub-title">גררו קובץ Excel/CSV לתוך האזור או לחצו לבחירה. הנתונים מסווגים אוטומטית.</div>'
+        + '<div class="sub-title">גררו קובץ Excel/CSV לתוך האזור או לחצו לבחירה. בחרו קטגוריית יעד לפני הייבוא.</div>'
         + '<div class="import-grid">'
-        + makeImportCard('👥','ic-trav','ייבוא מטיילים','שם, טלפון, עיר, תקציב, קטגוריה, רמת הליכה','imp_trav','zone_trav',importTravelersFromExcel,undefined,'travelerImportMsg')
+        + makeImportCard('👥','ic-trav','ייבוא מטיילים','שם, טלפון, עיר, תקציב, קטגוריה, רמת הליכה, מין, קבוצות עניין','imp_trav','zone_trav',importTravelersFromExcel,undefined,'travelerImportMsg')
         + makeImportCard('🎯','ic-lead','ייבוא לידים','שם, טלפון, מקור, יעד, תקציב','imp_lead','zone_lead',importLeadsFromExcel,undefined,'leadImportMsg')
         + contactCatSection
         + makeImportCard('💼','ic-hr','ייבוא מנהלי/ות כ"א','שם, תפקיד, טלפון, חברה, צוות','imp_hr','zone_hr',importHrFromExcel,undefined,'hrImportMsg')
@@ -2390,12 +2505,21 @@
         + '</div></div>';
     }
 
-    // ===== RENDER MATCHING (GoAI) =====
+    // ===== RENDER MATCHING (לילה AI) =====
     function renderMatchingTab() {
       const trips=S.trips;
-      return '<div class="layout-2">'
-        + '<div class="card"><div class="section-title">🤖 GoAI – התאמת מטיילים לטיולים</div>'
-        + '<div class="sub-title">מנוע ההתאמה החכם מנתח העדפות, תקציב, רמת הליכה ודרישות דתיות.</div>'
+      // Lila AI Chat Interface
+      const lilaChat='<div class="card"><div class="lila-chat-wrap">'
+        + '<div class="lila-header"><div style="display:flex;align-items:center;justify-content:center;gap:10px"><span class="lila-avatar">🤖</span><div><h3>לילה (AI) – שותפה אסטרטגית</h3><div class="lila-sub">GoTours Group | עוזרת למדריכים למנוע טעויות ולנהל טיולים</div></div></div></div>'
+        + '<div class="lila-messages" id="lila_messages">'
+        + (S.lilaHistory||[]).map(m=>'<div class="lila-msg '+(m.role==="user"?"user":"bot")+'">'+escapeHtml(m.text)+'</div>').join("")
+        + '</div>'
+        + '<div class="lila-input-row"><input placeholder="כתבו הודעה ללילה..." value="'+escapeHtml(S.lilaInput||"")+'" oninput="S.lilaInput=this.value" onkeydown="if(event.key===\'Enter\'){sendLilaMessage()}"><button class="btn-purple" onclick="sendLilaMessage()">שלח</button></div>'
+        + '</div></div>';
+
+      // Keep existing matching engine below the chat
+      const matching='<div class="card" style="margin-top:12px"><div class="section-title">🎯 מנוע התאמה חכם – מטיילים לטיולים</div>'
+        + '<div class="sub-title">מנוע ההתאמה מנתח העדפות, תקציב, רמת הליכה ודרישות דתיות.</div>'
         + '<div class="list">'
         + S.travelers.slice(0,10).map(t=>{
           const matches=trips.filter(trip=>{
@@ -2410,7 +2534,10 @@
             + (matches.length?'<div class="chips" style="margin-top:6px">'+matches.map(m=>'<span class="chip">✈ '+escapeHtml(m.title)+'</span>').join("")+'</div>':"")
             + '</div>';
         }).join("")
-        + '</div></div>'
+        + '</div></div>';
+
+      return lilaChat + '<div class="layout-2">'
+        + matching
         + '<div class="card"><div class="section-title">📋 טיולים זמינים</div>'
         + '<div class="list">'+trips.map(t=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(t.title)+'</strong><span class="badge b-ok">'+escapeHtml(t.destination)+'</span></div>'
           + '<div class="small">'+escapeHtml(t.difficulty||"")+" | ₪"+t.price+" | "+t.durationDays+" ימים"+(t.religiousFriendly?" | ✡ דתי":"")+(t.kashrutAvailable?" | 🥩 כשר":"")+'</div>'
@@ -2965,13 +3092,14 @@
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-import\').scrollIntoView({behavior:\'smooth\'})">🧠 ייבוא חכם</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-agencies\').scrollIntoView({behavior:\'smooth\'})">🏢 ארגונים</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-hr\').scrollIntoView({behavior:\'smooth\'})">👔 כוח אדם</div>'
-        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-goai\').scrollIntoView({behavior:\'smooth\'})">🤖 GoAI</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-goai\').scrollIntoView({behavior:\'smooth\'})">🤖 לילה AI</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-calendar\').scrollIntoView({behavior:\'smooth\'})">📅 לוח שנה</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-hiking\').scrollIntoView({behavior:\'smooth\'})">🥾 מסלולי הליכה</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-social\').scrollIntoView({behavior:\'smooth\'})">🌐 רשתות חברתיות</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-guidesmanage\').scrollIntoView({behavior:\'smooth\'})">🧭 ניהול מדריכים</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-tips\').scrollIntoView({behavior:\'smooth\'})">💡 טיפים מתקדמים</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-shortcuts\').scrollIntoView({behavior:\'smooth\'})">⌨ קיצורים שימושיים</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-newfeatures\').scrollIntoView({behavior:\'smooth\'})">🆕 תוספות חדשות</div>'
         + '</div></div>'
 
         // 1. Dashboard
@@ -3147,12 +3275,12 @@
         + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>רישום שיחות</strong> – עברו לטאב "תקשורת" כדי לרשום שיחות עם מנהלי/ות כ"א.</div></div>'
         + '</div>'
 
-        // 18. GoAI
-        + '<div class="guide-section" id="guide-goai"><h3>🤖 GoAI – מנוע התאמה חכם</h3>'
-        + '<p>מנוע AI שמתאים מטיילים לטיולים לפי העדפות אישיות.</p>'
-        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>התאמה אוטומטית</strong> – GoAI מנתח: רמת הליכה, דרישות דתיות, כשרות ותקציב.</div></div>'
-        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>תוצאות</strong> – לכל מטייל מוצגים הטיולים המתאימים עם מספר ההתאמות.</div></div>'
-        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>בוט GoAI</strong> – לחצו על 🤖 בפינה השמאלית התחתונה לפתיחת צ\'אט עם הבוט.</div></div>'
+        // 18. Lila AI
+        + '<div class="guide-section" id="guide-goai"><h3>🤖 לילה AI – שותפה אסטרטגית</h3>'
+        + '<p>לילה היא השותפה האסטרטגית של איציק ב-GoTours Group. היא עוזרת למדריכים למנוע טעויות ולנהל טיולים בצורה חכמה.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>ממשק צ\'אט</strong> – לחצו על לשונית "לילה (AI)" בתפריט. ממשק צ\'אט מקצועי מאפשר לשלוח הודעות ולקבל תשובות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>הודעת פתיחה</strong> – לילה מקבלת את פניכם עם הודעה אישית ומזמינה אתכם לשאול שאלות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>מנוע התאמה</strong> – מתחת לצ\'אט, מנוע ההתאמה החכם מנתח: רמת הליכה, דרישות דתיות, כשרות ותקציב.</div></div>'
         + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>נטלי</strong> – לחצו על 💬 בפינה הימנית התחתונה לפתיחת השותפה הדיגיטלית.</div></div>'
         + '</div>'
 
@@ -3223,8 +3351,40 @@
         + '<div class="guide-step"><div class="step-num">🗑</div><div class="step-text">כפתור מחיקה – מוחק רשומה (בלתי הפיך!)</div></div>'
         + '<div class="guide-step"><div class="step-num">✅</div><div class="step-text">סימון שולם – עדכון סטטוס תשלום בכספים וגבייה</div></div>'
         + '<div class="guide-step"><div class="step-num">🚀</div><div class="step-text">פרסום – קידום פוסט מטיוטה למתוזמן לפורסם ברשתות חברתיות</div></div>'
-        + '<div class="guide-step"><div class="step-num">🤖</div><div class="step-text">GoAI – פתיחת צ\'אט AI בפינה השמאלית</div></div>'
+        + '<div class="guide-step"><div class="step-num">🤖</div><div class="step-text">לילה AI – פתיחת צ\'אט AI בפינה השמאלית</div></div>'
         + '<div class="guide-step"><div class="step-num">💬</div><div class="step-text">נטלי – פתיחת בוט נטלי בפינה הימנית</div></div>'
+        + '</div>'
+
+        // 25. New Features Guide
+        + '<div class="guide-section" id="guide-newfeatures"><h3>🆕 תוספות חדשות – גרסה אחרונה</h3>'
+        + '<p>סיכום כל השדרוגים והתוספות שנוספו למערכת בגרסה האחרונה.</p>'
+
+        + '<h4 style="color:var(--brand);margin-top:12px">1. ייבוא חכם משודרג</h4>'
+        + '<div class="guide-step"><div class="step-num">📥</div><div class="step-text"><strong>ייבוא לפי קטגוריה</strong> – בייבוא מוואטסאפ ניתן כעת לבחור גם "👔 כוח אדם" ו-"🏢 ארגונים" כיעד ייבוא, בנוסף לאנשי קשר, מטיילים ולידים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">🔄</div><div class="step-text"><strong>התאמת שדות אוטומטית</strong> – בייבוא מאקסל, כל השדות החדשים (מין, קטגוריות טיול, קבוצות עניין, מקור הגעה ועוד) מזוהים ומיובאים אוטומטית.</div></div>'
+
+        + '<h4 style="color:var(--brand);margin-top:12px">2. שדות חדשים בכרטיס מטייל</h4>'
+        + '<div class="guide-step"><div class="step-num">👤</div><div class="step-text"><strong>מין (זכר/נקבה)</strong> – לשיבוץ חדרים והתאמת שירותים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">💰</div><div class="step-text"><strong>תקציב מינימום ומקסימום</strong> – טווח תקציב בשקלים להתאמת טיולים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">✈</div><div class="step-text"><strong>קטגוריית טיול (בחירה מרובה)</strong> – סמנו מספר קטגוריות: טבע, עירוני, תרבות, משפחתי, אקסטרים, יוקרה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">🥾</div><div class="step-text"><strong>רמת הליכה</strong> – קל, בינוני, או מיטיבי לכת.</div></div>'
+        + '<div class="guide-step"><div class="step-num">👥</div><div class="step-text"><strong>קבוצות עניין (בחירה מרובה)</strong> – מיטיבי לכת, אוהבי לכת, דתיים, משפחות, גיל שלישי, VIP.</div></div>'
+        + '<div class="guide-step"><div class="step-num">✡</div><div class="step-text"><strong>דרישות דת</strong> – דתי/ה, כשרות, שמירת שבת – כל אחד כתיבת סימון נפרדת.</div></div>'
+        + '<div class="guide-step"><div class="step-num">📊</div><div class="step-text"><strong>מידע שיווקי</strong> – מקור הגעה (Lead Source), לקוח חוזר (כן/לא), טיולים קודמים, הערות.</div></div>'
+
+        + '<h4 style="color:var(--brand);margin-top:12px">3. סימני שאלה (Tooltips)</h4>'
+        + '<div class="guide-step"><div class="step-num">❓</div><div class="step-text"><strong>עזרה בכל שדה</strong> – ליד כל שדה בטופס מופיע סימן שאלה (?) קטן. רחפו מעליו עם העכבר כדי לקרוא הסבר קצר בעברית על מטרת השדה ואיך למלא אותו.</div></div>'
+
+        + '<h4 style="color:var(--brand);margin-top:12px">4. תיעוד שיחות והקלטות</h4>'
+        + '<div class="guide-step"><div class="step-num">📞</div><div class="step-text"><strong>תיעוד שיחה</strong> – בעריכת כרטיס מטייל, גללו מטה לאזור "תיעוד שיחות". כתבו סיכום השיחה ולחצו "שמור תיעוד שיחה".</div></div>'
+        + '<div class="guide-step"><div class="step-num">🕐</div><div class="step-text"><strong>חותמת זמן אוטומטית</strong> – כל תיעוד מקבל אוטומטית תאריך, שעה ושם המשתמש שתיעד.</div></div>'
+        + '<div class="guide-step"><div class="step-num">🎤</div><div class="step-text"><strong>הקלטת שיחה</strong> – ניתן להעלות קובץ אודיו (MP3, WAV וכו\') או להדביק קישור להקלטה חיצונית. ההקלטה נשמרת בתיק הלקוח.</div></div>'
+        + '<div class="guide-step"><div class="step-num">📋</div><div class="step-text"><strong>היסטוריית תיעודים</strong> – כל התיעודים מוצגים בסדר כרונולוגי עם אפשרות האזנה ישירה.</div></div>'
+
+        + '<h4 style="color:var(--brand);margin-top:12px">5. לילה AI – שותפה אסטרטגית</h4>'
+        + '<div class="guide-step"><div class="step-num">🤖</div><div class="step-text"><strong>שם חדש</strong> – הלשונית "GoAI" שודרגה ל-"לילה (AI) – שותפה אסטרטגית".</div></div>'
+        + '<div class="guide-step"><div class="step-num">💬</div><div class="step-text"><strong>ממשק צ\'אט</strong> – ממשק צ\'אט מקצועי ונקי מאפשר לשלוח הודעות ולקבל מענה. לילה מקבלת את פניכם עם הודעת פתיחה אישית.</div></div>'
+        + '<div class="guide-step"><div class="step-num">🔮</div><div class="step-text"><strong>חיבור עתידי</strong> – הממשק מוכן לחיבור API של AI בעתיד הקרוב לתשובות חכמות ואוטומטיות.</div></div>'
         + '</div>';
     }
 
@@ -3245,7 +3405,7 @@
         + '<div class="upgrade-card"><h4>📲 שליחה קבוצתית</h4><p>Broadcast ל-WhatsApp עם סינון קהל יעד, סגמנטציה, ותצוגת נמענים.</p><div class="upgrade-badge" onclick="setState({tab:\'broadcast\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         + '<div class="upgrade-card"><h4>🎂 אוטומציית ימי הולדת</h4><p>זיהוי אוטומטי, תבנית הודעה מותאמת, קופוני הנחה, שליחה אוטומטית בWhatsApp/מייל.</p><div class="upgrade-badge" onclick="setState({tab:\'birthdays\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         // Intelligence
-        + '<div class="upgrade-card"><h4>🤖 GoAI – מנוע התאמה חכם</h4><p>AI שמתאים מטיילים לטיולים לפי רמת הליכה, דרישות דתיות, כשרות ותקציב.</p><div class="upgrade-badge" onclick="setState({tab:\'matching\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>🤖 לילה AI – שותפה אסטרטגית</h4><p>ממשק צ\'אט חכם עם לילה, השותפה האסטרטגית של איציק. מנוע התאמה חכם שמתאים מטיילים לטיולים.</p><div class="upgrade-badge" onclick="setState({tab:\'matching\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         + '<div class="upgrade-card"><h4>💬 נטלי – שותפה דיגיטלית</h4><p>בוט צ\'אט חכם בסגנון WhatsApp. שואל ועונה בזמן אמת.</p><div class="upgrade-badge">פעיל תמיד 💬</div></div>'
         + '<div class="upgrade-card"><h4>🔔 מרכז התראות</h4><p>משימות באיחור, ימי הולדת היום, לידים חמים, אירועים קרובים – הכל בלוח אחד.</p><div class="upgrade-badge" onclick="setState({tab:\'alerts\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         // Global
@@ -3298,7 +3458,7 @@
         {id:"imports",label:"🧠 ייבוא חכם"},
         {id:"agencies",label:"🏢 ארגונים"},
         {id:"hr",label:"👔 כוח אדם"},
-        {id:"matching",label:"🤖 GoAI"},
+        {id:"matching",label:"🤖 לילה (AI)"},
         {id:"calendar",label:"📅 לוח שנה"},
         {id:"hiking",label:"🥾 מסלולי הליכה"},
         {id:"social",label:"🌐 רשתות חברתיות"},
