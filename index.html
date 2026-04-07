@@ -5267,5 +5267,172 @@
         btn.style.background = '#00c6ff';
     }
 </script>
+<style>
+    .pro-overlay-live { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); z-index: 99999; display: none; backdrop-filter: blur(5px); }
+    .pro-card-live { width: 95%; max-width: 800px; height: 85vh; margin: 5vh auto; background: var(--s2, #121f12); border-radius: 15px; border: 1px solid var(--border2, #2a4a2a); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 40px rgba(0,255,65,0.15); color: #fff; }
+    .pro-head-live { background: linear-gradient(135deg, #00ff41 0%, #008f11 100%); padding: 20px; display: flex; align-items: center; gap: 15px; }
+    .pro-avatar { width: 60px; height: 60px; background: #fff; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; }
+    .pro-tabs { display: flex; background: #0c160c; border-bottom: 2px solid #1e321e; }
+    .pro-tab-btn { flex: 1; padding: 15px; background: none; border: none; color: #888; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    .pro-tab-btn.active { color: #00ff41; border-bottom: 3px solid #00ff41; }
+    .pro-body-live { padding: 20px; overflow-y: auto; flex: 1; }
+    
+    .trip-entry { background: #182618; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-right: 4px solid #00c6ff; display: flex; justify-content: space-between; align-items: center; }
+    .trip-form { background: #0c160c; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #2a4a2a; }
+    .trip-input { background: #121f12; border: 1px solid #1e321e; color: #fff; padding: 10px; border-radius: 5px; width: 48%; margin-bottom: 10px; }
+    
+    #smart-call-alert { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #00ff41, #008f11); color:#000; padding: 20px; border-radius: 15px; display: none; z-index: 100000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 300px; }
+</style>
+
+<div id="smart-call-alert">
+    <h3 style="margin-bottom:5px">📞 שיחה נכנסת...</h3>
+    <div id="smart-caller-name" style="font-size:22px; font-weight:900"></div>
+    <div id="smart-caller-phone"></div>
+    <button id="smart-open-btn" style="margin-top:15px; width:100%; padding:10px; border-radius:8px; border:none; background:#000; color:#00ff41; font-weight:900; cursor:pointer">פתח כרטיס PRO</button>
+</div>
+
+<div id="proLiveOverlay" class="pro-overlay-live" onclick="if(event.target==this) this.style.display='none'">
+    <div class="pro-card-live" onclick="event.stopPropagation()">
+        <div class="pro-head-live" id="proLiveHeader"></div>
+        <div class="pro-tabs">
+            <button class="pro-tab-btn active" onclick="switchProTab('comms')" id="tab-comms">🎙️ תקשורת והקלטות</button>
+            <button class="pro-tab-btn" onclick="switchProTab('trips')" id="tab-trips">🎒 תיק טיולים</button>
+        </div>
+        <div class="pro-body-live" id="proLiveBody"></div>
+    </div>
+</div>
+
+<script>
+    // --- מערכת שמירה אוטומטית גלובלית (Zero Data Loss) ---
+    // מאזינה לכל הקלדה בכל שדה באתר ושומרת מיד
+    document.addEventListener('input', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+            if (typeof saveState === 'function') {
+                saveState(); // שימוש בפונקציית השמירה הקיימת שלך
+            }
+        }
+    });
+
+    // --- מערכת זיהוי שיחה ---
+    function onIncomingCall(phoneNumber) {
+        if (!phoneNumber) return;
+        const cleanPhone = phoneNumber.replace(/\D/g, '');
+        const traveler = S.travelers ? S.travelers.find(t => (t.phone||'').replace(/\D/g, '') === cleanPhone) : null;
+        
+        const alertBox = document.getElementById('smart-call-alert');
+        document.getElementById('smart-caller-name').textContent = traveler ? traveler.name : "מספר לא מוכר";
+        document.getElementById('smart-caller-phone').textContent = phoneNumber;
+        
+        const openBtn = document.getElementById('smart-open-btn');
+        if (traveler) {
+            openBtn.style.display = 'block';
+            openBtn.onclick = () => { alertBox.style.display = 'none'; openProLiveCard(traveler.id); };
+        } else {
+            openBtn.style.display = 'none';
+        }
+        alertBox.style.display = 'block';
+    }
+
+    let currentProTravelerId = null;
+    let currentActiveTab = 'comms';
+
+    function openProLiveCard(id) {
+        const t = S.travelers.find(x => x.id === id);
+        if (!t) return;
+        currentProTravelerId = id;
+        document.getElementById('proLiveOverlay').style.display = 'block';
+        
+        const initials = t.name.split(' ').map(n=>n[0]).join('').substring(0,2);
+        document.getElementById('proLiveHeader').innerHTML = `
+            <div class="pro-avatar">${initials}</div>
+            <div><h2 style="color:#000; margin:0;">${t.name}</h2><div style="color:#121f12; font-weight:bold;">${t.phone}</div></div>
+        `;
+        switchProTab('comms');
+    }
+
+    function switchProTab(tabName) {
+        currentActiveTab = tabName;
+        document.getElementById('tab-comms').classList.toggle('active', tabName === 'comms');
+        document.getElementById('tab-trips').classList.toggle('active', tabName === 'trips');
+        renderProLiveBody();
+    }
+
+    function renderProLiveBody() {
+        const t = S.travelers.find(x => x.id === currentProTravelerId);
+        const bodyEl = document.getElementById('proLiveBody');
+        
+        if (currentActiveTab === 'comms') {
+            const logHtml = (t.comLog || []).map(entry => `
+                <div style="background:#182618; padding:10px; margin-bottom:10px; border-radius:8px; border-right:4px solid #00ff41;">
+                    <div style="font-size:12px; color:#888;">${entry.date}</div><div>${entry.text}</div>
+                </div>
+            `).join('') || '<div style="color:#888; margin-top:15px;">אין הקלטות קודמות</div>';
+
+            bodyEl.innerHTML = `
+                <button onclick="proLiveRecord()" id="proLiveRecBtn" style="width:100%; padding:15px; margin-bottom:20px; background:#ff4b2b; color:#fff; border:none; border-radius:8px; font-weight:bold; cursor:pointer; font-size:16px;">🎙️ הקלט שיחה לכרטיס</button>
+                <h3 style="color:#00ff41;">היסטוריית שיחות</h3>
+                ${logHtml}
+            `;
+        } else if (currentActiveTab === 'trips') {
+            const tripsHtml = (t.pastTrips || []).map(trip => `
+                <div class="trip-entry">
+                    <div>
+                        <div style="font-weight:bold; font-size:16px; color:#fff;">${trip.name}</div>
+                        <div style="color:#888; font-size:14px;">📅 ${trip.date}</div>
+                    </div>
+                </div>
+            `).join('') || '<div style="color:#888; margin-bottom:15px;">עדיין לא הוזנו טיולי עבר</div>';
+
+            bodyEl.innerHTML = `
+                <div class="trip-form">
+                    <h4 style="margin-bottom:10px; color:#00c6ff;">➕ הוסף טיול לתיק</h4>
+                    <input type="text" id="newTripName" class="trip-input" placeholder="שם הטיול (לדוגמה: ארמניה ג'יפים)">
+                    <input type="date" id="newTripDate" class="trip-input">
+                    <button onclick="addProLiveTrip()" style="width:100%; padding:10px; background:#00c6ff; color:#000; font-weight:bold; border:none; border-radius:5px; cursor:pointer;">שמור טיול בתיק</button>
+                </div>
+                <h3 style="color:#00ff41; margin-bottom:15px;">🎒 היסטוריית טיולים</h3>
+                ${tripsHtml}
+            `;
+        }
+    }
+
+    function addProLiveTrip() {
+        const name = document.getElementById('newTripName').value;
+        const date = document.getElementById('newTripDate').value;
+        if (!name) return alert("נא להזין את שם הטיול");
+        
+        const t = S.travelers.find(x => x.id === currentProTravelerId);
+        if (t) {
+            if (!t.pastTrips) t.pastTrips = [];
+            t.pastTrips.unshift({ name, date: date || new Date().toLocaleDateString('he-IL') });
+            if(typeof saveState === 'function') saveState();
+            renderProLiveBody();
+        }
+    }
+
+    let proRecObj = null;
+    function proLiveRecord() {
+        const btn = document.getElementById('proLiveRecBtn');
+        if (btn.textContent.includes('עצור')) {
+            if (proRecObj) proRecObj.stop();
+            btn.textContent = '🎙️ הקלט שיחה לכרטיס'; btn.style.background = '#ff4b2b'; return;
+        }
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!window.SpeechRecognition) { alert("הדפדפן לא תומך בהקלטה"); return; }
+        proRecObj = new SpeechRecognition(); proRecObj.lang = 'he-IL';
+        proRecObj.onresult = (e) => {
+            const text = e.results[0][0].transcript;
+            const t = S.travelers.find(x => x.id === currentProTravelerId);
+            if (t) {
+                if (!t.comLog) t.comLog = [];
+                t.comLog.unshift({ date: new Date().toLocaleString('he-IL'), text: "🎙️ הקלטה: " + text });
+                if(typeof saveState === 'function') saveState(); 
+                renderProLiveBody(); 
+            }
+        };
+        proRecObj.start();
+        btn.textContent = '⏹️ עוצר ושומר...'; btn.style.background = '#00c6ff';
+    }
+</script>
 </body>
 </html>
