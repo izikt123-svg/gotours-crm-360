@@ -327,6 +327,40 @@
     const STORAGE_KEY = "travel_crm_360_v3";
     const USERS_STORAGE_KEY = "travel_crm_users_v1";
     const ONLINE_STORAGE_KEY = "travel_crm_online_v1";
+    const SESSION_KEY = "travel_crm_session_v1";
+
+    // ===== TIME-BASED GREETING =====
+    function getTimeGreeting() {
+      const h = new Date().getHours();
+      if (h >= 6 && h < 12) return "בוקר טוב";
+      if (h >= 12 && h < 18) return "צהריים טובים";
+      return "ערב טוב";
+    }
+
+    // ===== SESSION PERSISTENCE (Stay Logged In) =====
+    function saveSession(user) {
+      try { localStorage.setItem(SESSION_KEY, JSON.stringify({ username: user.username, role: user.role, ts: Date.now() })); } catch(_) {}
+    }
+    function loadSession() {
+      try {
+        const raw = localStorage.getItem(SESSION_KEY);
+        if (!raw) return null;
+        const sess = JSON.parse(raw);
+        // Session valid for 30 days
+        if (Date.now() - sess.ts > 30 * 24 * 3600 * 1000) { clearSession(); return null; }
+        return sess;
+      } catch(_) { return null; }
+    }
+    function clearSession() {
+      try { localStorage.removeItem(SESSION_KEY); } catch(_) {}
+    }
+
+    // ===== ROLE-BASED ACCESS =====
+    const CEO_ONLY_TABS = ["finances","reports","integrations","settings"];
+    function isTabAllowed(tabId) {
+      if (S.currentUserRole === "מנכ\"ל") return true;
+      return !CEO_ONLY_TABS.includes(tabId);
+    }
     const ACTIVITY_LOG_KEY = "travel_crm_activity_log_v1";
     const API_URL = "/.netlify/functions/crm-data";
 
@@ -645,7 +679,7 @@
       hrConversationForm:{hrManagerId:"",channel:"מייל",summary:"",nextStep:""},
       aiWidgetOpen:false, aiPrompt:"", aiLoading:false, aiError:"",
       aiHistory:[{role:"assistant",text:"שלום! GoAI זמין לענות בעברית על שאלות עבור tiyoolim.com, GoTours ושטח הפקות."}],
-      lilaHistory:[{role:"assistant",text:"שלום, אני לילה, השותפה האסטרטגית של איציק ב-GoTours Group. תפקידי הוא לעזור לכם, המדריכים, למנוע טעויות ולנהל את הטיולים. איך אוכל לעזור לכם היום?"}],
+      lilaHistory:[{role:"assistant",text:"שלום, אני לילה, השותפה האסטרטגית של איציק ב-GoTours Group. תפקידי הוא לעזור לכם, המדריכים, למנוע טעויות ולנהל את הטיולים בצורה מקצועית. אני מכירה את כל המערכת לעומק – שאלו אותי כל שאלה! 🧠 איך אוכל לעזור לכם היום?"}],
       lilaInput:"",
       lilaApiKey:"", lilaAiProvider:"",
       agencies:[
@@ -718,6 +752,8 @@
       }
     }
     let _offlineMode = false;
+    let _saveRetryCount = 0;
+    const MAX_SAVE_RETRIES = 3;
     async function saveToCloud() {
       if (_isSaving) return;
       _isSaving = true;
@@ -733,14 +769,17 @@
           S.cloudVersion = json.version;
           S.syncOkAt = new Date().toLocaleTimeString("he-IL");
           S.syncError = "";
+          _saveRetryCount = 0;
           if (_offlineMode) { _offlineMode = false; }
         } else {
-          _offlineMode = true;
-          S.syncError = "";
+          _saveRetryCount++;
+          if (_saveRetryCount >= MAX_SAVE_RETRIES) { _offlineMode = true; S.syncError = "שגיאת סנכרון – עובר למצב לא מקוון"; }
+          else { S.syncError = ""; }
         }
       } catch(e) {
-        _offlineMode = true;
-        S.syncError = "";
+        _saveRetryCount++;
+        if (_saveRetryCount >= MAX_SAVE_RETRIES) { _offlineMode = true; S.syncError = "שגיאת חיבור – עובר למצב לא מקוון"; }
+        else { S.syncError = ""; }
       }
       _isSaving = false;
       renderSyncMeta();
@@ -755,12 +794,14 @@
           S.cloudVersion = json.version || "0";
           S.syncOkAt = new Date().toLocaleTimeString("he-IL");
           S.syncError = "";
+          _saveRetryCount = 0;
           if (_offlineMode) { _offlineMode = false; }
           normalizeStateShape();
           saveLocal();
           render();
           renderSyncMeta();
         } else if (json.ok && json.unchanged) {
+          _saveRetryCount = 0;
           if (_offlineMode) { _offlineMode = false; renderSyncMeta(); }
         }
       } catch(e) {
@@ -868,6 +909,7 @@
       if (found) {
         markOnline(found.username);
         logActivity("כניסה למערכת", found.username + " (" + found.role + ")");
+        saveSession(found);
         setState({ isAuthenticated:true, authError:"", loginUser:"", loginPass:"", currentUser:found.username, currentUserRole:found.role });
         loadFromCloud().then(()=>startCloudSync());
       } else {
@@ -877,6 +919,7 @@
     function logout() {
       logActivity("יציאה מהמערכת", S.currentUser);
       stopCloudSync();
+      clearSession();
       try { const data=JSON.parse(localStorage.getItem(ONLINE_STORAGE_KEY)||"{}"); delete data[S.currentUser]; localStorage.setItem(ONLINE_STORAGE_KEY, JSON.stringify(data)); } catch(_) {}
       setState({ isAuthenticated:false, currentUser:"", currentUserRole:"" });
     }
@@ -954,7 +997,11 @@
         {topic:"סנכרון,ענן,cloud,גיבוי", answer:"הנתונים נשמרים אוטומטית ב-localStorage ובענן (Netlify Blobs). הסנכרון מתבצע כל 3 שניות. שינויים מכל מחשב מתעדכנים בזמן אמת."},
         {topic:"התראות,alerts", answer:"מרכז ההתראות מציג: משימות באיחור, ימי הולדת היום, ולידים חמים שדורשים תשומת לב. מונה ההתראות מוצג בסרגל העליון."},
         {topic:"דוחות,reports,סטטיסטיקות", answer:"בלשונית 'דוחות': יחס המרה, הכנסות, לידים לפי מקור וסטטוס, פילוח מטיילים לפי סגמנטים."},
-        {topic:"הגדרות,סיסמה,settings", answer:"בלשונית 'הגדרות': שנו סיסמה, צפו במשתמשים במערכת וסטטוס חיבור שלהם."}
+        {topic:"הגדרות,סיסמה,settings", answer:"בלשונית 'הגדרות': שנו סיסמה, צפו במשתמשים במערכת וסטטוס חיבור שלהם. הגדרות מתקדמות (חיבור API, ספקי AI) זמינות למנכ\"ל בלבד."},
+        {topic:"התחברות,כניסה,login,אבטחה,אימות,סיסמה,משתמש", answer:"המערכת כוללת מסך התחברות מאובטח. יש 2 סוגי משתמשים: מנכ\"ל (איציק) עם גישה מלאה לכל המודולים כולל כספים, דוחות והגדרות API, ומדריכים (5 משתמשים) עם גישה לתיקי מטיילים, מסלולים ותקשורת ללא חשיפת נתוני גבייה. המערכת זוכרת את המשתמש המחובר כך שלא צריך להקליד סיסמה בכל פעם (Stay Logged In). הסיסמה הראשונית היא 1234 וניתן לשנות אותה בהגדרות."},
+        {topic:"הרשאות,תפקיד,role,מנכל,מדריך,גישה", answer:"במערכת יש 2 רמות הרשאה: 1) מנכ\"ל (איציק) – גישה מלאה לכל הנתונים כולל כספים וגבייה, דוחות, אינטגרציות והגדרות API. 2) מדריכים – גישה מלאה לתיקי מטיילים, מסלולי הליכה, תקשורת, לוח שנה, ימי הולדת ומודולים תפעוליים. מדריכים לא רואים את הכספים, דוחות כספיים, אינטגרציות והגדרות מערכת."},
+        {topic:"סנכרון,יציבות,offline,אינטרנט,חיבור,שגיאה", answer:"המערכת משתמשת בסנכרון ענן יציב עם Netlify Blobs (strong consistency). נתונים נשמרים מקומית ובענן במקביל. אם אין חיבור אינטרנט, המערכת עוברת למצב לא מקוון אוטומטית ושומרת מקומית. כשהחיבור חוזר, הנתונים מסתנכרנים מחדש. הסנכרון כולל מנגנון retry אוטומטי ונעילה למניעת התנגשויות בכתיבה."},
+        {topic:"ברכה,שעה,בוקר,צהריים,ערב,greeting", answer:"המערכת מציגה ברכה אוטומטית לפי השעה: בוקר טוב (06:00-12:00), צהריים טובים (12:00-18:00), ערב טוב (18:00-06:00). הברכה מופיעה במסך ההתחברות ובסרגל העליון של המערכת."}
       ];
       return sections;
     }
@@ -988,17 +1035,29 @@
       S.lilaHistory.push({role:"user",text:msg});
       S.lilaInput="";
 
-      // Search the operation guide for relevant answers
-      var results = searchGuide(msg);
+      // Check if user is greeting - respond with time-based greeting
+      var greetWords = ["שלום","היי","הי","בוקר טוב","ערב טוב","צהריים טובים","מה נשמע","מה קורה","hello","hi"];
+      var isGreet = greetWords.some(function(w){ return msg.toLowerCase().includes(w); });
+
       var response;
-      if(results.length > 0 && results[0].score >= 2) {
-        response = results[0].answer;
-        if(results.length > 1 && results[1].score >= 3) {
-          response += "\n\n💡 מידע נוסף: " + results[1].answer;
-        }
-        response = "📖 " + response;
+      if (isGreet) {
+        var greeting = getTimeGreeting();
+        response = greeting + "! 😊 אני לילה, כאן לעזור לכם עם כל שאלה על המערכת. שאלו אותי על כל מודול, תהליך או פרמטר – ואסביר לעומק!";
       } else {
-        response = "לא מצאתי תשובה מדויקת במדריך ההפעלה. נסו לנסח אחרת, או פנו לאיציק לעזרה. 💡 טיפ: שאלו על מודול ספציפי, למשל: \"איך מוסיפים ליד?\" או \"איך לייבא מאקסל?\"";
+        // Search the operation guide for relevant answers
+        var results = searchGuide(msg);
+        if(results.length > 0 && results[0].score >= 2) {
+          response = results[0].answer;
+          if(results.length > 1 && results[1].score >= 3) {
+            response += "\n\n💡 מידע נוסף: " + results[1].answer;
+          }
+          if(results.length > 2 && results[2].score >= 2) {
+            response += "\n\n🔍 ראו גם: " + results[2].answer;
+          }
+          response = "📖 " + response;
+        } else {
+          response = "לא מצאתי תשובה מדויקת במדריך ההפעלה. נסו לנסח אחרת, או פנו לאיציק לעזרה. 💡 טיפ: שאלו על מודול ספציפי, למשל: \"איך מוסיפים ליד?\" או \"מה ההרשאות של מדריך?\" או \"איך עובד הסנכרון?\"";
+        }
       }
 
       S.lilaHistory.push({role:"assistant",text:response});
@@ -1719,15 +1778,18 @@
     // ===== RENDER AUTH =====
     function renderAuth() {
       const users=loadUsers();
+      const greeting = getTimeGreeting();
       return '<div class="auth-wrap"><div class="card auth">'
         + '<h1>✈ GoTours CRM 360</h1>'
+        + '<div style="font-size:22px;font-weight:700;color:var(--brand);margin-bottom:6px">'+greeting+' 👋</div>'
         + '<div class="muted" style="margin-bottom:20px">מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div>'
         + '<div><label>שם משתמש</label><select oninput="S.loginUser=this.value"><option value="">-- בחר משתמש --</option>'+users.map(u=>'<option value="'+escapeHtml(u.username)+'" '+(S.loginUser===u.username?"selected":"")+'>'+escapeHtml(u.username)+' ('+escapeHtml(u.role)+')</option>').join("")+'</select></div>'
         + '<div style="margin-top:10px"><label>סיסמה</label><input type="password" value="'+escapeHtml(S.loginPass||"")+'" oninput="S.loginPass=this.value" onkeydown="if(event.key===\'Enter\')login()" placeholder="••••"></div>'
         + (S.authError?'<div style="color:var(--danger);margin-top:8px;font-size:13px">'+escapeHtml(S.authError)+'</div>':"")
         + '<button class="btn-primary" style="margin-top:16px" onclick="login()">כניסה למערכת</button>'
-        + '<div class="small muted" style="margin-top:12px;text-align:center">סיסמה ראשונית: 1234 | ניתן לשנות לאחר כניסה</div>'
-        + '<div class="small muted" style="margin-top:6px;text-align:center">גרסה 3.0 | מהדורה מקצועית</div>'
+        + '<div class="small muted" style="margin-top:12px;text-align:center">🔒 המערכת זוכרת אותך – לא תצטרכו להקליד סיסמה בכל פעם</div>'
+        + '<div class="small muted" style="margin-top:6px;text-align:center">סיסמה ראשונית: 1234 | ניתן לשנות לאחר כניסה</div>'
+        + '<div class="small muted" style="margin-top:6px;text-align:center">גרסה 4.0 | מהדורה מקצועית + אבטחה</div>'
         + '</div></div>';
     }
 
@@ -1747,7 +1809,7 @@
         + '<div class="kpi"><div class="small muted">לידים</div><strong>'+d.leads+'</strong><div class="kpi-note"><span class="kpi-trend-up">+'+d.leadsToday+'</span> היום</div></div>'
         + '<div class="kpi"><div class="small muted">המרה</div><strong>'+d.conversion+'%</strong><div class="kpi-note">לידים שנסגרו</div></div>'
         + '<div class="kpi"><div class="small muted">ספקים</div><strong>'+d.suppliers+'</strong><div class="kpi-note">פעילים</div></div>'
-        + '<div class="kpi"><div class="small muted">הכנסות</div><strong>₪'+d.revenue.toLocaleString("he-IL")+'</strong><div class="kpi-note">מטיולים פעילים</div></div>'
+        + (S.currentUserRole==="מנכ\"ל"?'<div class="kpi"><div class="small muted">הכנסות</div><strong>₪'+d.revenue.toLocaleString("he-IL")+'</strong><div class="kpi-note">מטיולים פעילים</div></div>':'')
         + '<div class="kpi" style="border-color:'+(d.overdueTasks>0?"var(--danger)":"var(--line)")+'"><div class="small muted">משימות דחופות</div><strong style="color:'+(d.overdueTasks>0?"var(--danger)":"var(--ok)")+'">'+d.overdueTasks+'</strong><div class="kpi-note">באיחור</div></div>'
         + '</div>'
         // מונים בזמן אמת - קטגוריות מטיילים
@@ -2718,7 +2780,7 @@
       const trips=S.trips;
       // Lila AI Chat Interface
       const lilaChat='<div class="card"><div class="lila-chat-wrap">'
-        + '<div class="lila-header"><div style="display:flex;align-items:center;justify-content:center;gap:10px"><span class="lila-avatar">🤖</span><div><h3>לילה (AI) – שותפה אסטרטגית</h3><div class="lila-sub">GoTours Group | עוזרת למדריכים למנוע טעויות ולנהל טיולים</div></div></div></div>'
+        + '<div class="lila-header"><div style="display:flex;align-items:center;justify-content:center;gap:10px"><span class="lila-avatar">🤖</span><div><h3>לילה (AI) – המוח של המערכת</h3><div class="lila-sub">GoTours Group | יודעת לענות על כל שאלה שיש במערכת – שאלו אותי!</div></div></div></div>'
         + '<div class="lila-messages" id="lila_messages">'
         + (S.lilaHistory||[]).map(m=>'<div class="lila-msg '+(m.role==="user"?"user":"bot")+'">'+escapeHtml(m.text)+'</div>').join("")
         + '</div>'
@@ -3668,7 +3730,7 @@
 
     // ===== RENDER MAIN =====
     function renderMain() {
-      const tabs=[
+      const allTabs=[
         {id:"dashboard",label:"📊 לוח בקרה"},
         {id:"travelers",label:"👥 מטיילים"},
         {id:"contacts",label:"📇 אנשי קשר"},
@@ -3698,6 +3760,10 @@
         {id:"guide",label:"📖 מדריך הפעלה"},
         {id:"upgrades",label:"🚀 שדרוגים"}
       ];
+      // Filter tabs based on role
+      const tabs = allTabs.filter(t => isTabAllowed(t.id));
+      // If current tab is not allowed, redirect to dashboard
+      if (!isTabAllowed(S.tab)) { S.tab = "dashboard"; }
       let content="";
       if(S.tab==="dashboard") content=renderDashboard();
       else if(S.tab==="leads") content=renderLeadsTab();
@@ -3731,8 +3797,11 @@
 
       const d=dashboardData();
       const onlineUsersHtml = function(){var ou=getOnlineUsers();var us=loadUsers();return ou.length?ou.map(function(u){var usr=us.find(function(x){return x.username===u;});return '<span class="meta-pill" style="background:rgba(31,200,100,0.3);border-color:rgba(31,200,100,0.5)">🟢 '+escapeHtml(u)+(usr?' ('+escapeHtml(usr.role)+')':'')+'</span>';}).join(''):'<span class="meta-pill" style="opacity:0.5">אין מחוברים</span>';}();
+      const isCeo = S.currentUserRole==="מנכ\"ל";
+      const revenuePill = isCeo ? '<span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span>' : '';
+      const greetingText = getTimeGreeting() + ', ' + escapeHtml(S.currentUser) + '!';
       return '<div class="shell">'
-        + '<div class="header"><div style="text-align:center;padding:8px 0 4px"><div id="hero_clock" style="font-size:20px;font-weight:800;letter-spacing:0.5px">'+new Date().toLocaleDateString("he-IL",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+" | "+new Date().toLocaleTimeString("he-IL")+'</div></div><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><span class="small" style="color:#fff;opacity:0.8">👥 מחוברים כרגע:</span>'+onlineUsersHtml+'</div><div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">'+ (_offlineMode?'📴 לא מקוון':'☁️ מחובר') +'</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span><span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span></div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center"><div class="call-sim-input"><input placeholder="📞 סמלץ שיחה נכנסת..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall()" style="width:180px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:8px 12px;font-size:12px" onclick="simulateIncomingCall()">📞</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
+        + '<div class="header"><div style="text-align:center;padding:8px 0 4px"><div id="hero_clock" style="font-size:20px;font-weight:800;letter-spacing:0.5px">'+escapeHtml(greetingText)+' | '+new Date().toLocaleDateString("he-IL",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+" | "+new Date().toLocaleTimeString("he-IL")+'</div></div><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><span class="small" style="color:#fff;opacity:0.8">👥 מחוברים כרגע:</span>'+onlineUsersHtml+'</div><div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">'+ (_offlineMode?'📴 לא מקוון':'☁️ מחובר') +'</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span>'+revenuePill+'</div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center"><div class="call-sim-input"><input placeholder="📞 סמלץ שיחה נכנסת..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall()" style="width:180px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:8px 12px;font-size:12px" onclick="simulateIncomingCall()">📞</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
         + '<div class="tabs">'+tabs.map(t=>'<button class="'+(S.tab===t.id?"active":"")+'" onclick="setState({tab:\''+t.id+'\'},false)">'+t.label+'</button>').join("")+'</div>'
         + content
         + renderAiWidget()
@@ -3787,6 +3856,21 @@
     // ===== INIT =====
     loadFallback();
     normalizeStateShape();
+    // Auto-restore session (Stay Logged In)
+    (function restoreSession() {
+      const sess = loadSession();
+      if (sess) {
+        const users = loadUsers();
+        const found = users.find(x => x.username === sess.username);
+        if (found) {
+          S.isAuthenticated = true;
+          S.currentUser = found.username;
+          S.currentUserRole = found.role;
+          markOnline(found.username);
+          logActivity("חיבור אוטומטי", found.username + " (" + found.role + ")");
+        }
+      }
+    })();
     render();
     loadRemote();
     refreshIntegrationsStatus();
@@ -3811,7 +3895,8 @@
       const el = document.getElementById("hero_clock");
       if (!el) return;
       const now = new Date();
-      el.textContent = now.toLocaleDateString("he-IL", {weekday:"long",year:"numeric",month:"long",day:"numeric"}) + " | " + now.toLocaleTimeString("he-IL");
+      const greeting = S.isAuthenticated ? getTimeGreeting() + ', ' + S.currentUser + '! | ' : '';
+      el.textContent = greeting + now.toLocaleDateString("he-IL", {weekday:"long",year:"numeric",month:"long",day:"numeric"}) + " | " + now.toLocaleTimeString("he-IL");
     }
     setInterval(updateHeroClock, 1000);
   </script>
