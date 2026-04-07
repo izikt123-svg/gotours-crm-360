@@ -584,6 +584,7 @@
       aiHistory:[{role:"assistant",text:"שלום! GoAI זמין לענות בעברית על שאלות עבור tiyoolim.com, GoTours ושטח הפקות."}],
       lilaHistory:[{role:"assistant",text:"שלום, אני לילה, השותפה האסטרטגית של איציק ב-GoTours Group. תפקידי הוא לעזור לכם, המדריכים, למנוע טעויות ולנהל את הטיולים. איך אוכל לעזור לכם היום?"}],
       lilaInput:"",
+      lilaApiKey:"", lilaAiProvider:"",
       agencies:[
         {id:uid(),name:"גלובל טריפס תל אביב",city:"תל אביב",managerName:"שרון עמית",phone:"035551122",email:"office@globaltrips.co.il",specialization:"יוקרה וטיולי תרבות",active:true,notes:"שותפה אסטרטגית לקבוצות פרימיום"},
         {id:uid()+1,name:"דרך עולם חיפה",city:"חיפה",managerName:"עופר לוין",phone:"048881133",email:"sales@derech-olam.co.il",specialization:"טבע ומשפחות",active:true,notes:"חזקה בצפון ובקבוצות משפחתיות"},
@@ -839,13 +840,84 @@
       reader.onload=function(e){ S.newCallDocAudio=e.target.result; render(); };
       reader.readAsDataURL(file);
     }
-    // Lila AI
+    // Lila AI - connected to operation guide
+    function getGuideContent() {
+      // Build a searchable knowledge base from the operation guide sections
+      var sections = [
+        {topic:"לוח בקרה,dashboard,KPI,מדדים,פעולות מהירות", answer:"לוח הבקרה הוא העמוד הראשי. בחלק העליון מוצגים KPIs: מטיילים פעילים, לידים, יחס המרה, ספקים, הכנסות ומשימות דחופות. כפתורים מהירים מאפשרים מעבר לידים, הוספת מטייל, כספים ותיקי טיולים. למטה מוצגים לידים חמים, משימות דחופות, ימי הולדת קרובים ומודולים."},
+        {topic:"מטייל,מטיילים,הוספת מטייל,טופס מטייל,כרטיס מטייל", answer:"להוספת מטייל: לחצו על לשונית 'מטיילים', מלאו שם, טלפון, וואטסאפ, אימייל, תאריך לידה, עיר, מין, תקציב, קטגוריית טיול, רמת הליכה, קבוצות עניין, דרישות דתיות ומקור הגעה. סמנו סגמנטים (מיטיבי לכת, VIP וכו') ולחצו שמירה. לעריכה: לחצו ✏️ ליד שם המטייל."},
+        {topic:"ליד,לידים,הוספת ליד,קנבן,צינור מכירות", answer:"להוספת ליד: לשונית 'לידים', מלאו שם, טלפון, אימייל, מקור, סטטוס, יעד, תקציב וכמות מטיילים. הלוח הקנבן מציג 6 שלבים: חדש → בטיפול → הצעה נשלחה → ממתין לאישור → נסגר → אבוד. גררו כרטיסים בין עמודות לעדכון סטטוס."},
+        {topic:"ספק,ספקים,הוספת ספק", answer:"להוספת ספק: לשונית 'ספקים', מלאו שם, סוג (מלון/הסעות/מדריך/ביטוח/מסעדה/אטרקציה/טיסות/ספינה/פעילות/ויזה/צלם), עיר, איש קשר, טלפון, אימייל, ח\"פ, תנאי תשלום ודירוג."},
+        {topic:"תיק טיול,תיקי מטיילים,טיול,שיוך מטיילים", answer:"ליצירת תיק טיול: לשונית 'תיקי מטיילים', מלאו כותרת, יעד, תאריכי יציאה וחזרה, קטגוריה, רמת קושי, מחיר, ימים, עונה וקיבולת. שייכו מדריך. לחצו 'פתח תיק' לניהול מטיילים בתוך הטיול."},
+        {topic:"איש קשר,אנשי קשר,B2B,ארגוני", answer:"להוספת איש קשר: לשונית 'אנשי קשר', מלאו שם, תפקיד, טלפון, אימייל, חברה (tiyoolim.com/GoTours/שטח הפקות), ארגון, תחום ושם קבוצה. סננו לפי חברה בטאבים."},
+        {topic:"כוח אדם,HR,משאבי אנוש,מנהל כ\"א", answer:"להוספת מנהל/ת כ\"א: לשונית 'כוח אדם', מלאו שם, תפקיד, טלפון, אימייל, חברה, צוות, כמות עובדים וצרכים."},
+        {topic:"ארגון,ארגונים,סוכנות", answer:"להוספת ארגון: לשונית 'ארגונים', מלאו שם, עיר, מנהל, טלפון, אימייל והתמחות."},
+        {topic:"כספים,גבייה,חשבונית,תשלום,קבלה", answer:"להוספת רשומה כספית: לשונית 'כספים וגבייה', בחרו סוג (חשבונית/קבלה/זיכוי/הצעת מחיר), שם לקוח, סכום, מטבע, סטטוס (ממתין/שולם/באיחור/בוטל), אמצעי תשלום, תאריכים ומספר חשבונית. לסימון 'שולם' לחצו ✅."},
+        {topic:"ייבוא,אקסל,Excel,CSV,ייבוא חכם", answer:"לייבוא נתונים: לשונית 'ייבוא חכם'. גררו קובץ Excel/CSV לאזור הייבוא או לחצו לבחירת קובץ. בחרו קטגוריית יעד (מטיילים/לידים/אנשי קשר/כ\"א/ארגונים). ניתן גם לייבא מוואטסאפ – הדביקו טקסט מקבוצה או העלו קובץ."},
+        {topic:"לוח שנה,משימה,משימות,calendar", answer:"בלוח השנה: תצוגה חודשית, הוספת משימה עם כותרת, תאריך יעד, אחראי ועדיפות. משימות באיחור מוצגות באדום. ימי הולדת של מטיילים מופיעים אוטומטית."},
+        {topic:"הודעות קבוצתיות,broadcast,שליחה קבוצתית", answer:"להודעות קבוצתיות: לשונית 'הודעות קבוצתיות', בחרו קהל יעד (כולם/מטיילים/לידים/אנשי קשר/כוח אדם), סננו לפי סגמנטים, כתבו הודעה ולחצו שלח."},
+        {topic:"יום הולדת,ברכה,ימי הולדת", answer:"מערכת ימי הולדת: זיהוי אוטומטי, תבנית הודעה מותאמת עם משתנים ({{firstName}}, {{discountLine}}), קוד קופון. לחצו 'שלח ברכות' לשליחה אוטומטית."},
+        {topic:"מזג אוויר,תחזית,weather", answer:"בלשונית 'מזג אוויר': תחזית ל-30+ ערים בישראל ומדינות בעולם. בחרו עיר ונושא בדיקה. מוצגים טמפרטורה, משקעים ותנאי מזג אוויר."},
+        {topic:"מדריך,מדריכים,ניהול מדריכים", answer:"להוספת מדריך: לשונית 'ניהול מדריכים', מלאו שם, התמחות, טלפון, אימייל, שנת לידה, זמינות (פנוי/תפוס/חופשה), מחיר ליום, שכר חודשי, דירוג, שפות, אזורים והסמכות."},
+        {topic:"רשתות חברתיות,פוסט,פייסבוק,אינסטגרם,social", answer:"ליצירת פוסט: לשונית 'רשתות חברתיות', בחרו פלטפורמה (7 רשתות), כתבו תוכן, בחרו סטטוס ותאריך. סטטוסים: טיוטה → מתוזמן → פורסם → ארכיון."},
+        {topic:"מסלול,הליכה,טרק,hiking", answer:"להוספת מסלול: לשונית 'מסלולי הליכה', מלאו שם, אזור, רמת קושי, מרחק, משך זמן, הפרש גובה, עונה מומלצת ודירוג."},
+        {topic:"שיחה,תיעוד שיחה,הקלטה", answer:"לתיעוד שיחה: ערכו כרטיס מטייל, גללו מטה ל'תיעוד שיחות'. כתבו סיכום, העלו קובץ אודיו או הדביקו קישור. חותמת זמן נרשמת אוטומטית."},
+        {topic:"tooltip,סימן שאלה,עזרה", answer:"ליד כל שדה בטפסי המערכת מופיע סימן שאלה (?). רחפו מעליו כדי לקרוא הסבר קצר על מטרת השדה."},
+        {topic:"חיפוש,search", answer:"שדה החיפוש בראש העמוד עובד על כל המודולים. הקלידו שם, טלפון או מילת מפתח."},
+        {topic:"סנכרון,ענן,cloud,גיבוי", answer:"הנתונים נשמרים אוטומטית ב-localStorage ובענן (Netlify Blobs). הסנכרון מתבצע כל 3 שניות. שינויים מכל מחשב מתעדכנים בזמן אמת."},
+        {topic:"התראות,alerts", answer:"מרכז ההתראות מציג: משימות באיחור, ימי הולדת היום, ולידים חמים שדורשים תשומת לב. מונה ההתראות מוצג בסרגל העליון."},
+        {topic:"דוחות,reports,סטטיסטיקות", answer:"בלשונית 'דוחות': יחס המרה, הכנסות, לידים לפי מקור וסטטוס, פילוח מטיילים לפי סגמנטים."},
+        {topic:"הגדרות,סיסמה,settings", answer:"בלשונית 'הגדרות': שנו סיסמה, צפו במשתמשים במערכת וסטטוס חיבור שלהם."}
+      ];
+      return sections;
+    }
+
+    function searchGuide(query) {
+      var q = query.toLowerCase();
+      var sections = getGuideContent();
+      var results = [];
+      for(var i=0; i<sections.length; i++) {
+        var s = sections[i];
+        var topicWords = s.topic.toLowerCase().split(",");
+        var score = 0;
+        for(var j=0; j<topicWords.length; j++) {
+          if(q.includes(topicWords[j].trim())) score += 3;
+          else if(topicWords[j].trim().includes(q)) score += 2;
+        }
+        var qWords = q.split(/\s+/);
+        for(var k=0; k<qWords.length; k++) {
+          if(qWords[k].length < 2) continue;
+          if(s.topic.toLowerCase().includes(qWords[k])) score += 2;
+          if(s.answer.toLowerCase().includes(qWords[k])) score += 1;
+        }
+        if(score > 0) results.push({score:score, answer:s.answer});
+      }
+      results.sort(function(a,b){return b.score - a.score;});
+      return results.slice(0, 3);
+    }
+
     function sendLilaMessage() {
       const msg=(S.lilaInput||"").trim(); if(!msg) return;
       S.lilaHistory.push({role:"user",text:msg});
       S.lilaInput="";
-      S.lilaHistory.push({role:"assistant",text:"תודה על השאלה! לילה כרגע בשלב הטמעה ראשוני. בקרוב תתחבר למנוע AI מלא ואוכל לעזור לכם בצורה חכמה יותר. בינתיים, פנו לאיציק לכל שאלה דחופה."});
+
+      // Search the operation guide for relevant answers
+      var results = searchGuide(msg);
+      var response;
+      if(results.length > 0 && results[0].score >= 2) {
+        response = results[0].answer;
+        if(results.length > 1 && results[1].score >= 3) {
+          response += "\n\n💡 מידע נוסף: " + results[1].answer;
+        }
+        response = "📖 " + response;
+      } else {
+        response = "לא מצאתי תשובה מדויקת במדריך ההפעלה. נסו לנסח אחרת, או פנו לאיציק לעזרה. 💡 טיפ: שאלו על מודול ספציפי, למשל: \"איך מוסיפים ליד?\" או \"איך לייבא מאקסל?\"";
+      }
+
+      S.lilaHistory.push({role:"assistant",text:response});
       render();
+      // Scroll chat to bottom
+      setTimeout(function(){ var el=document.getElementById('lila_messages'); if(el) el.scrollTop=el.scrollHeight; }, 50);
     }
     function travelerBirthdayRows() {
       const today=new Date(); const todayMD=String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
@@ -1217,9 +1289,36 @@
       const file=input.files&&input.files[0]; if(!file) return;
       var nameEl=document.getElementById(zoneId+'_fname');
       if(nameEl) nameEl.textContent='⏳ טוען: '+file.name;
-      if(nameEl) nameEl.textContent='⏳ טוען: '+file.name;
+      // Show preview if available
+      previewExcelFile(file, zoneId);
       // Reset the input value so re-selecting the same file triggers onchange
       setTimeout(function(){ input.value=''; },100);
+    }
+
+    // Excel Preview
+    async function previewExcelFile(file, zoneId) {
+      try {
+        const rows = await getWorkbookRows(file);
+        if(rows.length === 0) return;
+        const previewEl = document.getElementById(zoneId+'_preview');
+        if(!previewEl) return;
+        const headers = Object.keys(rows[0]);
+        const previewRows = rows.slice(0, 5);
+        let html = '<div style="margin-top:8px;font-size:12px;color:var(--brand);font-weight:700">📊 תצוגה מקדימה ('+rows.length+' שורות):</div>';
+        html += '<div style="max-height:180px;overflow:auto;border-radius:8px;border:1px solid var(--line);margin-top:4px"><table class="wa-preview-table"><thead><tr>';
+        headers.slice(0,6).forEach(function(h){html+='<th>'+escapeHtml(h)+'</th>';});
+        if(headers.length>6) html+='<th>...</th>';
+        html+='</tr></thead><tbody>';
+        previewRows.forEach(function(row){
+          html+='<tr>';
+          headers.slice(0,6).forEach(function(h){html+='<td>'+escapeHtml(String(row[h]||""))+'</td>';});
+          if(headers.length>6) html+='<td>...</td>';
+          html+='</tr>';
+        });
+        if(rows.length>5) html+='<tr><td colspan="'+(Math.min(headers.length,6)+1)+'" style="text-align:center;color:#888">...ועוד '+(rows.length-5)+' שורות</td></tr>';
+        html+='</tbody></table></div>';
+        previewEl.innerHTML=html;
+      } catch(e) { /* silent */ }
     }
 
     // WhatsApp smart import state
@@ -1549,6 +1648,8 @@
       const upcomingTasks=S.tasks.filter(t=>!t.done&&t.dueDate&&new Date(t.dueDate)>=new Date()).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)).slice(0,3);
       const hotLeads=S.leads.filter(l=>l.status==="חדש"||l.status==="בטיפול").slice(0,3);
       return '<div class="dashboard-flow">'
+        // Online Users
+        + '<div class="card" style="padding:10px 14px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-weight:700;color:var(--brand)">🟢 מחוברים כרגע:</span>'+function(){var ou=getOnlineUsers();var us=loadUsers();return ou.length?ou.map(function(u){var usr=us.find(function(x){return x.username===u;});return '<span class="chip active-chip">🟢 '+escapeHtml(u)+(usr?' ('+escapeHtml(usr.role)+')':'')+'</span>';}).join(''):'<span class="chip">אין משתמשים מחוברים</span>';}()+'</div></div>'
         // KPIs
         + '<div class="kpis">'
         + '<div class="kpi"><div class="small muted">מטיילים</div><strong>'+d.travelers+'</strong><div class="kpi-note">פעילים במערכת</div></div>'
@@ -1595,7 +1696,7 @@
           + '</div></div>':"")
         // מודולים
         + '<div class="card"><div class="section-title">🗂 מודולים</div><div class="module-grid">'
-        + [["👥 לקוחות",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["📋 תיקי טיולים",S.trips.length,"trips"],["💳 כספים",S.finances.length,"finances"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🗺️ מפות","","maps"],["🥾 מסלולי הליכה",S.hikingTrails.length,"hiking"],["🌐 רשתות חברתיות",S.socialPosts.length,"social"],["🧭 מדריכים",S.guides.length,"guidesManage"],["🌍 מזג אוויר","","weather"],["🤖 לילה (AI)","","matching"],["📖 מדריך","","guide"],["🚀 שדרוגים","","upgrades"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
+        + [["👥 מטיילים",S.travelers.length,"travelers"],["🎯 לידים",S.leads.length,"leads"],["🏪 ספקים",S.suppliers.length,"suppliers"],["📋 תיקי טיולים",S.trips.length,"trips"],["💳 כספים",S.finances.length,"finances"],["🏢 ארגונים",S.agencies.length,"agencies"],["📇 אנשי קשר",S.contacts.length,"contacts"],["👔 כוח אדם",S.hrManagers.length,"hr"],["📅 לוח שנה",S.tasks.length,"calendar"],["🗺️ מפות","","maps"],["🥾 מסלולי הליכה",S.hikingTrails.length,"hiking"],["🌐 רשתות חברתיות",S.socialPosts.length,"social"],["🧭 מדריכים",S.guides.length,"guidesManage"],["🌍 מזג אוויר","","weather"],["🤖 לילה (AI)","","matching"],["📖 מדריך","","guide"],["🚀 שדרוגים","","upgrades"]].map(([label,count,tab])=>'<div class="module" onclick="setState({tab:\''+tab+'\'},false)" style="cursor:pointer">'+escapeHtml(label)+(count!==""?'<span class="count">'+count+'</span>':"")+'</div>').join('')
         + '</div></div>'
         // שדרוגים אחרונים
         + '<div class="card"><div class="section-title">🚀 שדרוגים אחרונים</div><div class="sub-title">כל היכולות המתקדמות שנוספו למערכת</div>'
@@ -1623,18 +1724,18 @@
       return '<div class="layout-2">'
         // טופס הוספה
         + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת ליד":"הוספת ליד")+'</div>'
-        + '<div class="autocomplete-wrap"><label>שם מלא</label><input value="'+escapeHtml(f.fullName)+'" oninput="S.leadForm.fullName=this.value;showAutocomplete(\'lead_name\',this.value,\'lead\')" placeholder="הקלד שם..."><div class="autocomplete-list" style="display:'+(S.autocompleteField==="lead_name"&&S.autocompleteResults.length?"block":"none")+'">'+(S.autocompleteField==="lead_name"?S.autocompleteResults.map((r,i)=>'<div class="autocomplete-item" onclick="applyAutocomplete('+i+')">'+escapeHtml(r.label)+'</div>').join(""):"")+'</div></div>'
+        + '<div class="autocomplete-wrap">'+tip("שם מלא","הזינו שם מלא של הליד. המערכת תציע שמות קיימים.")+'<input value="'+escapeHtml(f.fullName)+'" oninput="S.leadForm.fullName=this.value;showAutocomplete(\'lead_name\',this.value,\'lead\')" placeholder="הקלד שם..."><div class="autocomplete-list" style="display:'+(S.autocompleteField==="lead_name"&&S.autocompleteResults.length?"block":"none")+'">'+(S.autocompleteField==="lead_name"?S.autocompleteResults.map((r,i)=>'<div class="autocomplete-item" onclick="applyAutocomplete('+i+')">'+escapeHtml(r.label)+'</div>').join(""):"")+'</div></div>'
         + '<div class="grid">'
-        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.leadForm.phone=this.value" placeholder="05X-XXXXXXX"></div>'
-        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.leadForm.email=this.value"></div>'
-        + '<div><label>מקור</label><select onchange="S.leadForm.source=this.value">'+LEAD_SOURCES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.source===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
-        + '<div><label>סטטוס</label><select onchange="S.leadForm.status=this.value">'+LEAD_STATUSES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.status===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
-        + '<div><label>יעד מועדף</label><input value="'+escapeHtml(f.destinationInterest)+'" oninput="S.leadForm.destinationInterest=this.value" placeholder="איטליה, יוון..."></div>'
-        + '<div><label>תקציב ₪</label><input type="number" value="'+escapeHtml(f.budget)+'" oninput="S.leadForm.budget=this.value"></div>'
-        + '<div><label>כמות מטיילים</label><input type="number" value="'+escapeHtml(f.travelersCount)+'" oninput="S.leadForm.travelersCount=this.value"></div>'
-        + '<div><label>אחראי</label><input value="'+escapeHtml(f.assignedTo)+'" oninput="S.leadForm.assignedTo=this.value" placeholder="איציק"></div>'
+        + '<div>'+tip("טלפון","מספר טלפון ראשי של הליד ליצירת קשר")+'<input value="'+escapeHtml(f.phone)+'" oninput="S.leadForm.phone=this.value" placeholder="05X-XXXXXXX"></div>'
+        + '<div>'+tip("אימייל","כתובת דואר אלקטרוני לשליחת הצעות מחיר")+'<input value="'+escapeHtml(f.email)+'" oninput="S.leadForm.email=this.value"></div>'
+        + '<div>'+tip("מקור","איך הליד הגיע אלינו? אתר, פייסבוק, וואטסאפ וכו׳")+'<select onchange="S.leadForm.source=this.value">'+LEAD_SOURCES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.source===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
+        + '<div>'+tip("סטטוס","שלב הליד בצינור המכירות – מחדש ועד נסגר")+'<select onchange="S.leadForm.status=this.value">'+LEAD_STATUSES.map(s=>'<option value="'+escapeHtml(s)+'" '+(f.status===s?"selected":"")+'>'+escapeHtml(s)+'</option>').join("")+'</select></div>'
+        + '<div>'+tip("יעד מועדף","היעד שהליד מתעניין בו – הקלידו שם מדינה או עיר")+'<input value="'+escapeHtml(f.destinationInterest)+'" oninput="S.leadForm.destinationInterest=this.value" placeholder="איטליה, יוון..."></div>'
+        + '<div>'+tip("תקציב ₪","תקציב הליד בשקלים – עוזר לבחור הצעה מתאימה")+'<input type="number" value="'+escapeHtml(f.budget)+'" oninput="S.leadForm.budget=this.value"></div>'
+        + '<div>'+tip("כמות מטיילים","מספר האנשים שהליד מתכנן לטייל איתם")+'<input type="number" value="'+escapeHtml(f.travelersCount)+'" oninput="S.leadForm.travelersCount=this.value"></div>'
+        + '<div>'+tip("אחראי","שם האדם שאחראי על טיפול בליד")+'<input value="'+escapeHtml(f.assignedTo)+'" oninput="S.leadForm.assignedTo=this.value" placeholder="איציק"></div>'
         + '</div>'
-        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.leadForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div style="margin-top:8px">'+tip("הערות","מידע נוסף – פרטים ייחודיים, דרישות מיוחדות, הערות")+'<textarea oninput="S.leadForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveLead()">'+escapeHtml(f.id?"עדכון":"שמירה")+'</button>'+(f.id?'<button class="btn-soft" onclick="resetLeadForm();render()">ביטול</button>':'')+'</div>'
         + (S.leadImportMsg?'<div class="small b-ok" style="margin-top:8px;padding:6px;border-radius:8px">'+escapeHtml(S.leadImportMsg)+'</div>':"")
         + '</div>'
@@ -1683,7 +1784,7 @@
         + '</div>'
         + '<div style="margin-top:8px">'+tip("קטגוריית טיול (בחירה מרובה)","סוגי הטיולים שהלקוח מעוניין בהם. לחצו על מספר קטגוריות.")+'<div class="chips" style="margin-top:4px">'+TRIP_CATEGORIES.map(c=>'<span class="chip '+((f.preferredCategories||[]).includes(c)?"active-chip":"")+'" onclick="toggleTravelerCategory(\''+escapeHtml(c)+'\')" style="cursor:pointer">'+escapeHtml(c)+'</span>').join("")+'</div></div>'
         + '<div style="margin-top:8px">'+tip("קבוצות עניין (בחירה מרובה)","שייכו את הלקוח לקבוצות עניין לצורך שיווק וסגמנטציה")+'<div class="chips" style="margin-top:4px">'+INTEREST_GROUPS.map(g=>'<span class="chip '+((f.interestGroups||[]).includes(g)?"active-chip":"")+'" onclick="toggleInterestGroup(\''+escapeHtml(g)+'\')" style="cursor:pointer">'+escapeHtml(g)+'</span>').join("")+'</div></div>'
-        + '<div style="margin-top:8px">'+tip("קבוצות (סגמנטים)","תיוג כללי לסינון מהיר ברשימת הלקוחות")+'<div class="chips" style="margin-top:4px">'+SEGMENTS.map(s=>'<span class="chip '+(( f.segments||[]).includes(s)?"active-chip":"")+'" onclick="toggleSegment(\''+escapeHtml(s)+'\')" style="cursor:pointer">'+escapeHtml(s)+'</span>').join("")+'</div></div>'
+        + '<div style="margin-top:8px">'+tip("קבוצות (סגמנטים)","תיוג כללי לסינון מהיר ברשימת המטיילים")+'<div class="chips" style="margin-top:4px">'+SEGMENTS.map(s=>'<span class="chip '+(( f.segments||[]).includes(s)?"active-chip":"")+'" onclick="toggleSegment(\''+escapeHtml(s)+'\')" style="cursor:pointer">'+escapeHtml(s)+'</span>').join("")+'</div></div>'
         + '<div class="row" style="margin-top:8px">'
         + '<label style="width:auto;flex:0;white-space:nowrap">'+tip("דתי/ה","סמנו אם הלקוח דתי ודורש התאמות בטיול")+'<input type="checkbox" '+(f.religiousNeeds?"checked":"")+" onchange=\"S.travelerForm.religiousNeeds=this.checked\" style=\"width:auto\"> דתי/ה</label>"
         + '<label style="width:auto;flex:0;white-space:nowrap">'+tip("כשרות","סמנו אם הלקוח דורש כשרות מלאה באוכל")+'<input type="checkbox" '+(f.kashrutRequired?"checked":"")+" onchange=\"S.travelerForm.kashrutRequired=this.checked\" style=\"width:auto\"> כשרות</label>"
@@ -1806,18 +1907,18 @@
       const rows=S.suppliers.filter(s=>!q||(s.name||"").toLowerCase().includes(q)||(s.type||"").includes(q));
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת ספק":"הוספת ספק")+'</div>'
-        + '<div class="autocomplete-wrap"><label>שם ספק</label><input value="'+escapeHtml(f.name)+'" oninput="S.supplierForm.name=this.value;showAutocomplete(\'sup_name\',this.value,\'supplier\')" placeholder="הקלד שם ספק..."><div class="autocomplete-list" style="display:'+(S.autocompleteField==="sup_name"&&S.autocompleteResults.length?"block":"none")+'">'+(S.autocompleteField==="sup_name"?S.autocompleteResults.map((r,i)=>'<div class="autocomplete-item" onclick="applyAutocomplete('+i+')">'+escapeHtml(r.label)+'</div>').join(""):"")+'</div></div>'
+        + '<div class="autocomplete-wrap">'+tip("שם ספק","הזינו שם הספק. המערכת תציע שמות קיימים.")+'<input value="'+escapeHtml(f.name)+'" oninput="S.supplierForm.name=this.value;showAutocomplete(\'sup_name\',this.value,\'supplier\')" placeholder="הקלד שם ספק..."><div class="autocomplete-list" style="display:'+(S.autocompleteField==="sup_name"&&S.autocompleteResults.length?"block":"none")+'">'+(S.autocompleteField==="sup_name"?S.autocompleteResults.map((r,i)=>'<div class="autocomplete-item" onclick="applyAutocomplete('+i+')">'+escapeHtml(r.label)+'</div>').join(""):"")+'</div></div>'
         + '<div class="grid">'
-        + '<div><label>סוג</label><select onchange="S.supplierForm.type=this.value">'+SUPPLIER_TYPES.map(t=>'<option value="'+escapeHtml(t)+'" '+(f.type===t?"selected":"")+'>'+escapeHtml(t)+'</option>').join("")+'</select></div>'
-        + '<div><label>עיר</label><input value="'+escapeHtml(f.city)+'" oninput="S.supplierForm.city=this.value"></div>'
-        + '<div><label>איש קשר</label><input value="'+escapeHtml(f.contactName)+'" oninput="S.supplierForm.contactName=this.value"></div>'
-        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.supplierForm.phone=this.value"></div>'
-        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.supplierForm.email=this.value"></div>'
-        + '<div><label>ח"פ / ע"מ</label><input value="'+escapeHtml(f.taxId||"")+'" oninput="S.supplierForm.taxId=this.value"></div>'
-        + '<div><label>תנאי תשלום</label><input value="'+escapeHtml(f.paymentTerms||"")+'" oninput="S.supplierForm.paymentTerms=this.value" placeholder="שוטף+30"></div>'
-        + '<div><label>דירוג (1-5)</label><input type="number" min="1" max="5" step="0.1" value="'+escapeHtml(f.rating)+'" oninput="S.supplierForm.rating=this.value"></div>'
+        + '<div>'+tip("סוג","קטגוריית הספק – מלון, הסעות, מדריך, ביטוח וכו׳")+'<select onchange="S.supplierForm.type=this.value">'+SUPPLIER_TYPES.map(t=>'<option value="'+escapeHtml(t)+'" '+(f.type===t?"selected":"")+'>'+escapeHtml(t)+'</option>').join("")+'</select></div>'
+        + '<div>'+tip("עיר","עיר מושב הספק")+'<input value="'+escapeHtml(f.city)+'" oninput="S.supplierForm.city=this.value"></div>'
+        + '<div>'+tip("איש קשר","שם איש הקשר אצל הספק")+'<input value="'+escapeHtml(f.contactName)+'" oninput="S.supplierForm.contactName=this.value"></div>'
+        + '<div>'+tip("טלפון","מספר טלפון ראשי של הספק")+'<input value="'+escapeHtml(f.phone)+'" oninput="S.supplierForm.phone=this.value"></div>'
+        + '<div>'+tip("אימייל","כתובת דואר אלקטרוני של הספק")+'<input value="'+escapeHtml(f.email)+'" oninput="S.supplierForm.email=this.value"></div>'
+        + '<div>'+tip("ח\"פ / ע\"מ","מספר חברה פרטית או עוסק מורשה לצרכי חשבוניות")+'<input value="'+escapeHtml(f.taxId||"")+'" oninput="S.supplierForm.taxId=this.value"></div>'
+        + '<div>'+tip("תנאי תשלום","תנאי תשלום מוסכמים, לדוגמה: שוטף+30")+'<input value="'+escapeHtml(f.paymentTerms||"")+'" oninput="S.supplierForm.paymentTerms=this.value" placeholder="שוטף+30"></div>'
+        + '<div>'+tip("דירוג (1-5)","דירוג איכות הספק מ-1 (נמוך) עד 5 (מצוין)")+'<input type="number" min="1" max="5" step="0.1" value="'+escapeHtml(f.rating)+'" oninput="S.supplierForm.rating=this.value"></div>'
         + '</div>'
-        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.supplierForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div style="margin-top:8px">'+tip("הערות","מידע נוסף על הספק – זמינות, הנחות, התמחות")+'<textarea oninput="S.supplierForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveSupplier()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetSupplierForm();render()">ביטול</button>':"")+'</div>'
         + '</div>'
         + '<div><div class="section-title">ספקים ('+rows.length+')</div><div class="list">'
@@ -1843,17 +1944,20 @@
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת איש קשר":"הוספת איש קשר")+'</div>'
         + '<div class="grid">'
-        + '<div><label>שם מלא</label><input value="'+escapeHtml(f.fullName)+'" oninput="S.contactForm.fullName=this.value"></div>'
-        + '<div><label>תפקיד</label><input value="'+escapeHtml(f.role)+'" oninput="S.contactForm.role=this.value" placeholder="אחראית רווחה..."></div>'
-        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.contactForm.phone=this.value"></div>'
-        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.contactForm.email=this.value"></div>'
-        + '<div><label>חברה</label><select onchange="S.contactForm.company=this.value">'+COMPANY_OPTIONS.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.company===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
-        + '<div><label>ארגון</label><input value="'+escapeHtml(f.organization)+'" oninput="S.contactForm.organization=this.value" placeholder="AlphaHR..."></div>'
-        + '<div><label>תחום</label><select onchange="S.contactForm.orgField=this.value">'+ORG_FIELDS.map(o=>'<option value="'+escapeHtml(o)+'" '+(f.orgField===o?"selected":"")+'>'+escapeHtml(o)+'</option>').join("")+'</select></div>'
-        + '<div><label>שם קבוצה</label><input value="'+escapeHtml(f.groupName)+'" oninput="S.contactForm.groupName=this.value"></div>'
+        + '<div>'+tip("שם מלא","שם מלא של איש הקשר")+'<input value="'+escapeHtml(f.fullName)+'" oninput="S.contactForm.fullName=this.value"></div>'
+        + '<div>'+tip("תפקיד","תפקיד איש הקשר בארגון שלו")+'<input value="'+escapeHtml(f.role)+'" oninput="S.contactForm.role=this.value" placeholder="אחראית רווחה..."></div>'
+        + '<div>'+tip("טלפון","מספר טלפון ראשי של איש הקשר")+'<input value="'+escapeHtml(f.phone)+'" oninput="S.contactForm.phone=this.value"></div>'
+        + '<div>'+tip("אימייל","כתובת דואר אלקטרוני של איש הקשר")+'<input value="'+escapeHtml(f.email)+'" oninput="S.contactForm.email=this.value"></div>'
+        + '<div>'+tip("חברה","לאיזו חברה שייך: tiyoolim.com, GoTours או שטח הפקות")+'<select onchange="S.contactForm.company=this.value">'+COMPANY_OPTIONS.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.company===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
+        + '<div>'+tip("ארגון","שם הארגון / חברה שאיש הקשר מייצג")+'<input value="'+escapeHtml(f.organization)+'" oninput="S.contactForm.organization=this.value" placeholder="AlphaHR..."></div>'
+        + '<div>'+tip("תחום","תחום פעילות הארגון – הייטק, תעשייה, חינוך וכו׳")+'<select onchange="S.contactForm.orgField=this.value">'+ORG_FIELDS.map(o=>'<option value="'+escapeHtml(o)+'" '+(f.orgField===o?"selected":"")+'>'+escapeHtml(o)+'</option>').join("")+'</select></div>'
+        + '<div>'+tip("שם קבוצה","שם קבוצה/צוות שאיש הקשר שייך אליו")+'<input value="'+escapeHtml(f.groupName)+'" oninput="S.contactForm.groupName=this.value"></div>'
         + '</div>'
-        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.contactForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div style="margin-top:8px">'+tip("הערות","מידע נוסף – תחומי עניין, היסטוריית שיתוף פעולה")+'<textarea oninput="S.contactForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveContact()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetContactForm();render()">ביטול</button>':"")+'</div>'
+        + '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-weight:700;color:var(--brand);font-size:13px">📥 ייבוא מאקסל</span><button class="btn-soft" style="width:auto;font-size:12px;padding:5px 10px" onclick="document.getElementById(\'imp_contacts_tab\').click()">📂 בחר קובץ</button><input id="imp_contacts_tab" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importContactsFromExcel(this)"></div>'
+        + (S.contactImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:8px;margin-top:6px">✅ '+escapeHtml(S.contactImportMsg)+'</div>':"")
+        + '</div>'
         + '</div>'
         + '<div><div class="folder-tabs">'+["all",...COMPANY_OPTIONS].map(c=>'<div class="folder-tab '+(filter===c?"active":"")+'" onclick="setState({contactCompanyFilter:\''+escapeHtml(c)+'\'},false)">'+(c==="all"?"כולם ("+S.contacts.length+")":escapeHtml(c)+" ("+S.contacts.filter(x=>x.company===c).length+")")+'</div>').join("")+'</div>'
         + '<div class="list">'+(rows.length?rows.map(c=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(c.fullName)+'</strong><span class="badge b-ok">'+escapeHtml(c.company)+'</span></div>'
@@ -1876,17 +1980,20 @@
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכה":"הוספת מנהל/ת כ\"א")+'</div>'
         + '<div class="grid">'
-        + '<div><label>שם מלא</label><input value="'+escapeHtml(f.fullName)+'" oninput="S.hrForm.fullName=this.value"></div>'
-        + '<div><label>תפקיד</label><input value="'+escapeHtml(f.role)+'" oninput="S.hrForm.role=this.value"></div>'
-        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.hrForm.phone=this.value"></div>'
-        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.hrForm.email=this.value"></div>'
-        + '<div><label>חברה</label><select onchange="S.hrForm.site=this.value">'+COMPANY_OPTIONS.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.site===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
-        + '<div><label>צוות</label><input value="'+escapeHtml(f.team)+'" oninput="S.hrForm.team=this.value"></div>'
-        + '<div><label>כמות עובדים</label><input type="number" value="'+escapeHtml(f.employeesCount)+'" oninput="S.hrForm.employeesCount=this.value"></div>'
-        + '<div><label>צרכים</label><input value="'+escapeHtml(f.needs)+'" oninput="S.hrForm.needs=this.value" placeholder="דרושים מדריכים..."></div>'
+        + '<div>'+tip("שם מלא","שם מלא של מנהל/ת כוח האדם")+'<input value="'+escapeHtml(f.fullName)+'" oninput="S.hrForm.fullName=this.value"></div>'
+        + '<div>'+tip("תפקיד","תפקיד באירגון – מנהלת גיוס, משאבי אנוש וכו׳")+'<input value="'+escapeHtml(f.role)+'" oninput="S.hrForm.role=this.value"></div>'
+        + '<div>'+tip("טלפון","מספר טלפון ליצירת קשר")+'<input value="'+escapeHtml(f.phone)+'" oninput="S.hrForm.phone=this.value"></div>'
+        + '<div>'+tip("אימייל","כתובת דואר אלקטרוני")+'<input value="'+escapeHtml(f.email)+'" oninput="S.hrForm.email=this.value"></div>'
+        + '<div>'+tip("חברה","לאיזו חברה בקבוצה שייך/ת")+'<select onchange="S.hrForm.site=this.value">'+COMPANY_OPTIONS.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.site===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
+        + '<div>'+tip("צוות","שם הצוות או המחלקה")+'<input value="'+escapeHtml(f.team)+'" oninput="S.hrForm.team=this.value"></div>'
+        + '<div>'+tip("כמות עובדים","מספר העובדים שתחת ניהולו/ה")+'<input type="number" value="'+escapeHtml(f.employeesCount)+'" oninput="S.hrForm.employeesCount=this.value"></div>'
+        + '<div>'+tip("צרכים","צרכי גיוס או דרישות כוח אדם נוכחיות")+'<input value="'+escapeHtml(f.needs)+'" oninput="S.hrForm.needs=this.value" placeholder="דרושים מדריכים..."></div>'
         + '</div>'
-        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.hrForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div style="margin-top:8px">'+tip("הערות","מידע נוסף – היסטוריית קשר, עדכונים")+'<textarea oninput="S.hrForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveHrManager()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetHrForm();render()">ביטול</button>':"")+'</div>'
+        + '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-weight:700;color:var(--brand);font-size:13px">📥 ייבוא מאקסל</span><button class="btn-soft" style="width:auto;font-size:12px;padding:5px 10px" onclick="document.getElementById(\'imp_hr_tab\').click()">📂 בחר קובץ</button><input id="imp_hr_tab" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importHrFromExcel(this)"></div>'
+        + (S.hrImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:8px;margin-top:6px">✅ '+escapeHtml(S.hrImportMsg)+'</div>':"")
+        + '</div>'
         + '</div>'
         + '<div><div class="folder-tabs">'+["all",...COMPANY_OPTIONS].map(c=>'<div class="folder-tab '+(filter===c?"active":"")+'" onclick="setState({hrCompanyFilter:\''+escapeHtml(c)+'\'},false)">'+(c==="all"?"כולם ("+S.hrManagers.length+")":escapeHtml(c)+" ("+S.hrManagers.filter(h=>h.site===c).length+")")+'</div>').join("")+'</div>'
         + '<div class="list">'+(rows.length?rows.map(h=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(h.fullName)+'</strong><span class="badge b-ok">'+escapeHtml(h.site)+'</span></div>'
@@ -1913,24 +2020,24 @@
       // Trip form with departure/return dates
       let html = '<div class="card" style="margin-bottom:12px"><div class="section-title">'+escapeHtml(f.id?"עריכת תיק טיול":"תיק טיול חדש")+'</div>'
         + '<div class="grid">'
-        + '<div class="row"><div><label>שם הטיול</label><input value="'+escapeHtml(f.title)+'" oninput="S.tripForm.title=this.value" placeholder="טרק הרי האלפים..."></div>'
-        + '<div><label>שם המטייל / יעד</label><input value="'+escapeHtml(f.destination)+'" oninput="S.tripForm.destination=this.value" placeholder="הקלד יעד חופשי..."></div></div>'
-        + '<div class="row"><div><label>תאריך יציאה</label><input type="date" value="'+escapeHtml(f.departureDate||"")+'" oninput="S.tripForm.departureDate=this.value"></div>'
-        + '<div><label>תאריך חזרה</label><input type="date" value="'+escapeHtml(f.returnDate||"")+'" oninput="S.tripForm.returnDate=this.value"></div></div>'
-        + '<div class="row"><div><label>קטגוריה</label><select onchange="S.tripForm.category=this.value">'+TRIP_CATEGORIES.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.category===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
-        + '<div><label>רמה</label><select onchange="S.tripForm.difficulty=this.value">'+LEVELS.map(l=>'<option value="'+escapeHtml(l)+'" '+(f.difficulty===l?"selected":"")+'>'+escapeHtml(l)+'</option>').join("")+'</select></div></div>'
-        + '<div class="row"><div><label>מחיר ₪</label><input type="number" value="'+escapeHtml(f.price)+'" oninput="S.tripForm.price=this.value"></div>'
-        + '<div><label>ימים</label><input type="number" value="'+escapeHtml(f.durationDays)+'" oninput="S.tripForm.durationDays=this.value"></div></div>'
-        + '<div class="row"><div><label>עונה</label><input value="'+escapeHtml(f.season)+'" oninput="S.tripForm.season=this.value" placeholder="קיץ, אביב..."></div>'
-        + '<div><label>קיבולת</label><input type="number" value="'+escapeHtml(f.capacity)+'" oninput="S.tripForm.capacity=this.value"></div></div>'
-        + '<div class="row"><div><label>רשומים</label><input type="number" value="'+escapeHtml(f.enrolled)+'" oninput="S.tripForm.enrolled=this.value"></div>'
-        + '<div><label>מדריך אחראי</label><select onchange="S.tripForm.assignedGuide=this.value"><option value="">-- בחר מדריך --</option>'+S.guides.map(g=>'<option value="'+escapeHtml(g.fullName)+'" '+(f.assignedGuide===g.fullName?"selected":"")+'>'+escapeHtml(g.fullName)+'</option>').join('')+'</select></div></div>'
+        + '<div class="row"><div>'+tip("שם הטיול","שם מזהה לתיק הטיול, למשל: טרק הרי האלפים")+'<input value="'+escapeHtml(f.title)+'" oninput="S.tripForm.title=this.value" placeholder="טרק הרי האלפים..."></div>'
+        + '<div>'+tip("שם המטייל / יעד","יעד הטיול – הקלידו שם מדינה, עיר או אזור")+'<input value="'+escapeHtml(f.destination)+'" oninput="S.tripForm.destination=this.value" placeholder="הקלד יעד חופשי..."></div></div>'
+        + '<div class="row"><div>'+tip("תאריך יציאה","תאריך טיסה / יציאה לטיול")+'<input type="date" value="'+escapeHtml(f.departureDate||"")+'" oninput="S.tripForm.departureDate=this.value"></div>'
+        + '<div>'+tip("תאריך חזרה","תאריך חזרה מהטיול")+'<input type="date" value="'+escapeHtml(f.returnDate||"")+'" oninput="S.tripForm.returnDate=this.value"></div></div>'
+        + '<div class="row"><div>'+tip("קטגוריה","סוג הטיול – טבע, עירוני, תרבות, משפחתי, אקסטרים או יוקרה")+'<select onchange="S.tripForm.category=this.value">'+TRIP_CATEGORIES.map(c=>'<option value="'+escapeHtml(c)+'" '+(f.category===c?"selected":"")+'>'+escapeHtml(c)+'</option>').join("")+'</select></div>'
+        + '<div>'+tip("רמה","רמת קושי – קל, בינוני, או מיטיבי לכת")+'<select onchange="S.tripForm.difficulty=this.value">'+LEVELS.map(l=>'<option value="'+escapeHtml(l)+'" '+(f.difficulty===l?"selected":"")+'>'+escapeHtml(l)+'</option>').join("")+'</select></div></div>'
+        + '<div class="row"><div>'+tip("מחיר ₪","מחיר הטיול לאדם בשקלים")+'<input type="number" value="'+escapeHtml(f.price)+'" oninput="S.tripForm.price=this.value"></div>'
+        + '<div>'+tip("ימים","מספר ימי הטיול")+'<input type="number" value="'+escapeHtml(f.durationDays)+'" oninput="S.tripForm.durationDays=this.value"></div></div>'
+        + '<div class="row"><div>'+tip("עונה","עונה מומלצת לטיול – קיץ, אביב, חורף, סתיו")+'<input value="'+escapeHtml(f.season)+'" oninput="S.tripForm.season=this.value" placeholder="קיץ, אביב..."></div>'
+        + '<div>'+tip("קיבולת","מספר מקומות מקסימלי בטיול")+'<input type="number" value="'+escapeHtml(f.capacity)+'" oninput="S.tripForm.capacity=this.value"></div></div>'
+        + '<div class="row"><div>'+tip("רשומים","מספר מטיילים שכבר רשומים לטיול")+'<input type="number" value="'+escapeHtml(f.enrolled)+'" oninput="S.tripForm.enrolled=this.value"></div>'
+        + '<div>'+tip("מדריך אחראי","בחרו מדריך מרשימת המדריכים שישובץ לטיול")+'<select onchange="S.tripForm.assignedGuide=this.value"><option value="">-- בחר מדריך --</option>'+S.guides.map(g=>'<option value="'+escapeHtml(g.fullName)+'" '+(f.assignedGuide===g.fullName?"selected":"")+'>'+escapeHtml(g.fullName)+'</option>').join('')+'</select></div></div>'
         + '<div class="row" style="margin-top:4px">'
         + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.religiousFriendly?"checked":"")+" onchange=\"S.tripForm.religiousFriendly=this.checked\" style=\"width:auto\"> מתאים לדתיים</label>"
         + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.kashrutAvailable?"checked":"")+" onchange=\"S.tripForm.kashrutAvailable=this.checked\" style=\"width:auto\"> כשרות</label>"
         + '<label style="width:auto;flex:0;white-space:nowrap"><input type="checkbox" '+(f.shabbatOptions?"checked":"")+" onchange=\"S.tripForm.shabbatOptions=this.checked\" style=\"width:auto\"> שבת</label>"
         + '</div>'
-        + '<div><label>הערות</label><textarea oninput="S.tripForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div>'+tip("הערות","מידע נוסף על הטיול – לינה, ציוד נדרש, דגשים")+'<textarea oninput="S.tripForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:8px"><button class="btn-ok" onclick="saveTrip()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetTripForm();render()">ביטול</button>':"")+'</div>'
         + '</div></div>';
 
@@ -2104,15 +2211,18 @@
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">'+escapeHtml(f.id?"עריכת ארגון":"הוספת ארגון")+'</div>'
         + '<div class="grid">'
-        + '<div><label>שם ארגון</label><input value="'+escapeHtml(f.name)+'" oninput="S.agencyForm.name=this.value"></div>'
-        + '<div><label>עיר</label><input value="'+escapeHtml(f.city)+'" oninput="S.agencyForm.city=this.value"></div>'
-        + '<div><label>מנהל/ת</label><input value="'+escapeHtml(f.managerName)+'" oninput="S.agencyForm.managerName=this.value"></div>'
-        + '<div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.agencyForm.phone=this.value"></div>'
-        + '<div><label>אימייל</label><input value="'+escapeHtml(f.email)+'" oninput="S.agencyForm.email=this.value"></div>'
-        + '<div><label>התמחות</label><input value="'+escapeHtml(f.specialization)+'" oninput="S.agencyForm.specialization=this.value"></div>'
+        + '<div>'+tip("שם ארגון","שם הארגון או סוכנות הנסיעות")+'<input value="'+escapeHtml(f.name)+'" oninput="S.agencyForm.name=this.value"></div>'
+        + '<div>'+tip("עיר","עיר מושב הארגון")+'<input value="'+escapeHtml(f.city)+'" oninput="S.agencyForm.city=this.value"></div>'
+        + '<div>'+tip("מנהל/ת","שם איש הקשר הראשי בארגון")+'<input value="'+escapeHtml(f.managerName)+'" oninput="S.agencyForm.managerName=this.value"></div>'
+        + '<div>'+tip("טלפון","מספר טלפון של הארגון")+'<input value="'+escapeHtml(f.phone)+'" oninput="S.agencyForm.phone=this.value"></div>'
+        + '<div>'+tip("אימייל","כתובת דואר אלקטרוני של הארגון")+'<input value="'+escapeHtml(f.email)+'" oninput="S.agencyForm.email=this.value"></div>'
+        + '<div>'+tip("התמחות","תחום ההתמחות של הארגון – יוקרה, משפחות, טבע וכו׳")+'<input value="'+escapeHtml(f.specialization)+'" oninput="S.agencyForm.specialization=this.value"></div>'
         + '</div>'
-        + '<div style="margin-top:8px"><label>הערות</label><textarea oninput="S.agencyForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div style="margin-top:8px">'+tip("הערות","מידע נוסף על הארגון – סוג שיתוף פעולה, מיוחדויות")+'<textarea oninput="S.agencyForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:10px"><button class="btn-ok" onclick="saveAgency()">שמירה</button>'+(f.id?'<button class="btn-soft" onclick="resetAgencyForm();render()">ביטול</button>':"")+'</div>'
+        + '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-weight:700;color:var(--brand);font-size:13px">📥 ייבוא מאקסל</span><button class="btn-soft" style="width:auto;font-size:12px;padding:5px 10px" onclick="document.getElementById(\'imp_org_tab\').click()">📂 בחר קובץ</button><input id="imp_org_tab" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importOrganizationsFromExcel(this)"></div>'
+        + (S.orgImportMsg?'<div class="small b-ok" style="padding:4px 8px;border-radius:8px;margin-top:6px">✅ '+escapeHtml(S.orgImportMsg)+'</div>':"")
+        + '</div>'
         + '</div>'
         + '<div><div class="section-title">ארגונים ('+rows.length+')</div><div class="list">'
         + (rows.length?rows.map(a=>'<div class="item"><div class="item-head"><strong>'+escapeHtml(a.name)+'</strong><span class="badge '+(a.active?"b-ok":"b-warn")+'">'+(a.active?"פעיל":"לא פעיל")+'</span></div>'
@@ -2394,6 +2504,7 @@
           + '<div class="iz-file-name" id="'+zoneId+'_fname"></div>'
           + '<input id="'+inputId+'" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFileSelect(this,&quot;'+zoneId+'&quot;);'+fnCall+'">'
           + '</div>'
+          + '<div id="'+zoneId+'_preview"></div>'
           + (msg?'<div class="small b-ok" style="padding:6px 10px;border-radius:8px;margin-top:6px;display:flex;align-items:center;gap:6px">✅ '+escapeHtml(msg)+'</div>':"")
           + '</div>';
       };
@@ -2482,6 +2593,7 @@
         + '<div class="iz-file-name" id="zone_cont_fname"></div>'
         + '<input id="imp_cont" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFileSelect(this,&quot;zone_cont&quot;);importContactsFromExcel(this,S.contactImportCategory||undefined)">'
         + '</div>'
+        + '<div id="zone_cont_preview"></div>'
         + (S.contactImportMsg?'<div class="small b-ok" style="padding:6px 10px;border-radius:8px;margin-top:6px;display:flex;align-items:center;gap:6px">✅ '+escapeHtml(S.contactImportMsg)+'</div>':"")
         + '</div>';
 
@@ -2598,17 +2710,17 @@
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">💳 '+(f.id?"עריכת":"הוספת")+' רשומה כספית</div>'
         + '<div class="grid">'
-        + '<div class="row"><div><label>סוג</label><select value="'+escapeHtml(f.type)+'" onchange="S.financeForm.type=this.value;render()">'+FINANCE_TYPES.map(t=>'<option'+(t===f.type?' selected':'')+'>'+t+'</option>').join('')+'</select></div>'
-        + '<div><label>שם לקוח</label><input value="'+escapeHtml(f.travelerName)+'" oninput="S.financeForm.travelerName=this.value"></div></div>'
-        + '<div><label>תיאור</label><input value="'+escapeHtml(f.description)+'" oninput="S.financeForm.description=this.value"></div>'
-        + '<div class="row"><div><label>סכום</label><input type="number" value="'+escapeHtml(f.amount)+'" oninput="S.financeForm.amount=this.value"></div>'
-        + '<div><label>מטבע</label><select onchange="S.financeForm.currency=this.value">'+["ILS","USD","EUR","GBP"].map(c=>'<option'+(c===f.currency?' selected':'')+'>'+c+'</option>').join('')+'</select></div></div>'
-        + '<div class="row"><div><label>סטטוס</label><select onchange="S.financeForm.status=this.value">'+FINANCE_STATUSES.map(s=>'<option'+(s===f.status?' selected':'')+'>'+s+'</option>').join('')+'</select></div>'
-        + '<div><label>אמצעי תשלום</label><select onchange="S.financeForm.method=this.value">'+PAYMENT_METHODS.map(m=>'<option'+(m===f.method?' selected':'')+'>'+m+'</option>').join('')+'</select></div></div>'
-        + '<div class="row"><div><label>תאריך יעד</label><input type="date" value="'+escapeHtml(f.dueDate)+'" oninput="S.financeForm.dueDate=this.value"></div>'
-        + '<div><label>תאריך תשלום</label><input type="date" value="'+escapeHtml(f.paidDate)+'" oninput="S.financeForm.paidDate=this.value"></div></div>'
-        + '<div><label>מספר חשבונית</label><input value="'+escapeHtml(f.invoiceNumber)+'" oninput="S.financeForm.invoiceNumber=this.value"></div>'
-        + '<div><label>הערות</label><textarea oninput="S.financeForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row"><div>'+tip("סוג","סוג הרשומה הכספית – חשבונית, קבלה, זיכוי או הצעת מחיר")+'<select value="'+escapeHtml(f.type)+'" onchange="S.financeForm.type=this.value;render()">'+FINANCE_TYPES.map(t=>'<option'+(t===f.type?' selected':'')+'>'+t+'</option>').join('')+'</select></div>'
+        + '<div>'+tip("שם לקוח","שם המטייל או הלקוח שהרשומה שייכת אליו")+'<input value="'+escapeHtml(f.travelerName)+'" oninput="S.financeForm.travelerName=this.value"></div></div>'
+        + '<div>'+tip("תיאור","תיאור קצר של הרשומה – למשל: טיול איטליה תשלום ראשון")+'<input value="'+escapeHtml(f.description)+'" oninput="S.financeForm.description=this.value"></div>'
+        + '<div class="row"><div>'+tip("סכום","סכום הרשומה במספרים")+'<input type="number" value="'+escapeHtml(f.amount)+'" oninput="S.financeForm.amount=this.value"></div>'
+        + '<div>'+tip("מטבע","מטבע הרשומה – שקלים, דולר, אירו וכו׳")+'<select onchange="S.financeForm.currency=this.value">'+["ILS","USD","EUR","GBP"].map(c=>'<option'+(c===f.currency?' selected':'')+'>'+c+'</option>').join('')+'</select></div></div>'
+        + '<div class="row"><div>'+tip("סטטוס","סטטוס התשלום – ממתין, שולם, באיחור, בוטל")+'<select onchange="S.financeForm.status=this.value">'+FINANCE_STATUSES.map(s=>'<option'+(s===f.status?' selected':'')+'>'+s+'</option>').join('')+'</select></div>'
+        + '<div>'+tip("אמצעי תשלום","אמצעי תשלום – כרטיס אשראי, העברה, מזומן וכו׳")+'<select onchange="S.financeForm.method=this.value">'+PAYMENT_METHODS.map(m=>'<option'+(m===f.method?' selected':'')+'>'+m+'</option>').join('')+'</select></div></div>'
+        + '<div class="row"><div>'+tip("תאריך יעד","תאריך יעד לתשלום")+'<input type="date" value="'+escapeHtml(f.dueDate)+'" oninput="S.financeForm.dueDate=this.value"></div>'
+        + '<div>'+tip("תאריך תשלום","תאריך בו בוצע התשלום בפועל")+'<input type="date" value="'+escapeHtml(f.paidDate)+'" oninput="S.financeForm.paidDate=this.value"></div></div>'
+        + '<div>'+tip("מספר חשבונית","מספר חשבונית/קבלה לזיהוי ומעקב")+'<input value="'+escapeHtml(f.invoiceNumber)+'" oninput="S.financeForm.invoiceNumber=this.value"></div>'
+        + '<div>'+tip("הערות","הערות נוספות לרשומה הכספית")+'<textarea oninput="S.financeForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<button class="btn-primary" onclick="saveFinance()">'+(f.id?"עדכן":"הוסף")+' רשומה</button>'
         + (f.id?'<button class="btn-soft" onclick="setState({financeForm:structuredClone(seed.financeForm)},false)">ביטול</button>':'')
         + '</div></div>'
@@ -2650,15 +2762,15 @@
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">🥾 '+(f.id?"עריכת":"הוספת")+' מסלול הליכה</div>'
         + '<div class="grid">'
-        + '<div><label>שם מסלול</label><input value="'+escapeHtml(f.name)+'" oninput="S.hikingForm.name=this.value"></div>'
-        + '<div class="row"><div><label>אזור</label><select onchange="S.hikingForm.region=this.value">'+HIKING_REGIONS.map(r=>'<option'+(r===f.region?' selected':'')+'>'+r+'</option>').join('')+'</select></div>'
-        + '<div><label>רמת קושי</label><select onchange="S.hikingForm.difficulty=this.value">'+LEVELS.map(l=>'<option'+(l===f.difficulty?' selected':'')+'>'+l+'</option>').join('')+'</select></div></div>'
-        + '<div class="row"><div><label>מרחק</label><input value="'+escapeHtml(f.distance)+'" oninput="S.hikingForm.distance=this.value" placeholder="לדוגמה: 12 ק&quot;מ"></div>'
-        + '<div><label>משך זמן</label><input value="'+escapeHtml(f.duration)+'" oninput="S.hikingForm.duration=this.value" placeholder="לדוגמה: 5 שעות"></div></div>'
-        + '<div class="row"><div><label>הפרש גובה</label><input value="'+escapeHtml(f.elevation)+'" oninput="S.hikingForm.elevation=this.value" placeholder="לדוגמה: 400 מטר"></div>'
-        + '<div><label>עונה מומלצת</label><input value="'+escapeHtml(f.season)+'" oninput="S.hikingForm.season=this.value" placeholder="לדוגמה: סתיו-אביב"></div></div>'
-        + '<div><label>דירוג (1-5)</label><input type="number" min="1" max="5" step="0.1" value="'+escapeHtml(f.rating)+'" oninput="S.hikingForm.rating=this.value"></div>'
-        + '<div><label>תיאור</label><textarea oninput="S.hikingForm.description=this.value">'+escapeHtml(f.description)+'</textarea></div>'
+        + '<div>'+tip("שם מסלול","שם מזהה של מסלול ההליכה")+'<input value="'+escapeHtml(f.name)+'" oninput="S.hikingForm.name=this.value"></div>'
+        + '<div class="row"><div>'+tip("אזור","אזור גיאוגרפי של המסלול – צפון, מרכז, דרום וכו׳")+'<select onchange="S.hikingForm.region=this.value">'+HIKING_REGIONS.map(r=>'<option'+(r===f.region?' selected':'')+'>'+r+'</option>').join('')+'</select></div>'
+        + '<div>'+tip("רמת קושי","רמת הקושי הפיזי – קל, בינוני, מיטיבי לכת")+'<select onchange="S.hikingForm.difficulty=this.value">'+LEVELS.map(l=>'<option'+(l===f.difficulty?' selected':'')+'>'+l+'</option>').join('')+'</select></div></div>'
+        + '<div class="row"><div>'+tip("מרחק","אורך המסלול, לדוגמה: 12 ק\"מ")+'<input value="'+escapeHtml(f.distance)+'" oninput="S.hikingForm.distance=this.value" placeholder="לדוגמה: 12 ק&quot;מ"></div>'
+        + '<div>'+tip("משך זמן","זמן הליכה משוער, לדוגמה: 5 שעות")+'<input value="'+escapeHtml(f.duration)+'" oninput="S.hikingForm.duration=this.value" placeholder="לדוגמה: 5 שעות"></div></div>'
+        + '<div class="row"><div>'+tip("הפרש גובה","הפרש גובה מצטבר, לדוגמה: 400 מטר")+'<input value="'+escapeHtml(f.elevation)+'" oninput="S.hikingForm.elevation=this.value" placeholder="לדוגמה: 400 מטר"></div>'
+        + '<div>'+tip("עונה מומלצת","העונה הטובה ביותר למסלול")+'<input value="'+escapeHtml(f.season)+'" oninput="S.hikingForm.season=this.value" placeholder="לדוגמה: סתיו-אביב"></div></div>'
+        + '<div>'+tip("דירוג (1-5)","דירוג המסלול לפי חוויית מטיילים")+'<input type="number" min="1" max="5" step="0.1" value="'+escapeHtml(f.rating)+'" oninput="S.hikingForm.rating=this.value"></div>'
+        + '<div>'+tip("תיאור","תיאור כללי של המסלול ונקודות עניין")+'<textarea oninput="S.hikingForm.description=this.value">'+escapeHtml(f.description)+'</textarea></div>'
         + '<button class="btn-primary" onclick="saveHiking()">'+(f.id?"עדכן":"הוסף")+' מסלול</button>'
         + (f.id?'<button class="btn-soft" onclick="setState({hikingForm:structuredClone(seed.hikingForm)},false)">ביטול</button>':'')
         + '</div></div>'
@@ -2697,12 +2809,12 @@
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">🌐 '+(f.id?"עריכת":"יצירת")+' פוסט</div>'
         + '<div class="grid">'
-        + '<div class="row"><div><label>פלטפורמה</label><select onchange="S.socialForm.platform=this.value">'+SOCIAL_PLATFORMS.map(p=>'<option'+(p===f.platform?' selected':'')+'>'+p+'</option>').join('')+'</select></div>'
-        + '<div><label>סטטוס</label><select onchange="S.socialForm.status=this.value">'+SOCIAL_STATUSES.map(s=>'<option'+(s===f.status?' selected':'')+'>'+s+'</option>').join('')+'</select></div></div>'
-        + '<div><label>תוכן הפוסט</label><textarea oninput="S.socialForm.content=this.value" style="min-height:100px">'+escapeHtml(f.content)+'</textarea></div>'
-        + '<div class="row"><div><label>תאריך פרסום</label><input type="date" value="'+escapeHtml(f.scheduledDate)+'" oninput="S.socialForm.scheduledDate=this.value"></div>'
-        + '<div><label>קמפיין</label><input value="'+escapeHtml(f.campaign)+'" oninput="S.socialForm.campaign=this.value"></div></div>'
-        + '<div><label>הערות</label><textarea oninput="S.socialForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row"><div>'+tip("פלטפורמה","הרשת החברתית – פייסבוק, אינסטגרם, טיקטוק וכו׳")+'<select onchange="S.socialForm.platform=this.value">'+SOCIAL_PLATFORMS.map(p=>'<option'+(p===f.platform?' selected':'')+'>'+p+'</option>').join('')+'</select></div>'
+        + '<div>'+tip("סטטוס","שלב הפוסט – טיוטה, מתוזמן, פורסם, ארכיון")+'<select onchange="S.socialForm.status=this.value">'+SOCIAL_STATUSES.map(s=>'<option'+(s===f.status?' selected':'')+'>'+s+'</option>').join('')+'</select></div></div>'
+        + '<div>'+tip("תוכן הפוסט","כתבו את תוכן הפוסט כולל אימוג׳ים והאשטגים")+'<textarea oninput="S.socialForm.content=this.value" style="min-height:100px">'+escapeHtml(f.content)+'</textarea></div>'
+        + '<div class="row"><div>'+tip("תאריך פרסום","תאריך מתוכנן לפרסום הפוסט")+'<input type="date" value="'+escapeHtml(f.scheduledDate)+'" oninput="S.socialForm.scheduledDate=this.value"></div>'
+        + '<div>'+tip("קמפיין","שם הקמפיין השיווקי שהפוסט שייך אליו")+'<input value="'+escapeHtml(f.campaign)+'" oninput="S.socialForm.campaign=this.value"></div></div>'
+        + '<div>'+tip("הערות","הערות פנימיות – לא יפורסמו")+'<textarea oninput="S.socialForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<button class="btn-primary" onclick="saveSocial()">'+(f.id?"עדכן":"צור")+' פוסט</button>'
         + (f.id?'<button class="btn-soft" onclick="setState({socialForm:structuredClone(seed.socialForm)},false)">ביטול</button>':'')
         + '</div></div>'
@@ -3018,7 +3130,17 @@
           return '<div class="item"><div class="item-head"><strong>'+(online?'🟢 ':'⚪ ')+escapeHtml(u.username)+'</strong><span class="badge '+(online?"b-ok":"b-warn")+'">'+escapeHtml(u.role)+'</span></div>'
             + '<div class="small muted">'+(online?'מחובר כעת':'לא מחובר')+'</div></div>';
         }).join('')+'</div>'
-        + '</div></div>';
+        + '</div></div>'
+        // API Key field - visible only to מנכ"ל
+        + (S.currentUserRole==="מנכ\"ל"?'<div class="card" style="margin-top:12px"><div class="section-title">🤖 הגדרות לילה AI – מנכ\"ל בלבד</div>'
+          + '<div class="sub-title">הגדרות מתקדמות לחיבור מנוע בינה מלאכותית חיצוני. שדה זה נסתר ממשתמשים אחרים.</div>'
+          + '<div class="grid">'
+          + '<div>'+tip("מפתח API","הזינו מפתח API של ספק AI חיצוני (OpenAI, Anthropic וכו׳) לחיבור עתידי של לילה למנוע בינה מלאכותית מלא")+'<input type="password" value="'+escapeHtml(S.lilaApiKey||"")+'" oninput="S.lilaApiKey=this.value" placeholder="sk-..."></div>'
+          + '<div>'+tip("ספק AI","בחרו את ספק ה-AI שברצונכם לחבר")+'<select onchange="S.lilaAiProvider=this.value"><option value="">-- בחרו ספק --</option><option value="openai"'+(S.lilaAiProvider==="openai"?" selected":"")+'>OpenAI (GPT)</option><option value="anthropic"'+(S.lilaAiProvider==="anthropic"?" selected":"")+'>Anthropic (Claude)</option><option value="google"'+(S.lilaAiProvider==="google"?" selected":"")+'>Google (Gemini)</option></select></div>'
+          + '</div>'
+          + '<button class="btn-primary" style="margin-top:10px" onclick="setState({lilaApiKey:S.lilaApiKey,lilaAiProvider:S.lilaAiProvider});alert(\'הגדרות AI נשמרו בהצלחה\')">💾 שמור הגדרות AI</button>'
+          + '<div class="small muted" style="margin-top:8px">⚠ המפתח נשמר מוצפן בהגדרות המערכת. חיבור AI חיצוני מלא יופעל בגרסה הבאה.</div>'
+          + '</div>':"");
     }
 
     function renderGuidesManageTab() {
@@ -3030,20 +3152,20 @@
       return '<div class="layout-2">'
         + '<div class="card"><div class="section-title">🧭 '+(f.id?"עריכת":"הוספת")+' מדריך</div>'
         + '<div class="grid">'
-        + '<div class="row"><div><label>שם מלא</label><input value="'+escapeHtml(f.fullName)+'" oninput="S.guideForm.fullName=this.value"></div>'
-        + '<div><label>התמחות</label><input value="'+escapeHtml(f.specialization)+'" oninput="S.guideForm.specialization=this.value" placeholder="טרקים, סיורים עירוניים..."></div></div>'
-        + '<div class="row"><div><label>טלפון</label><input value="'+escapeHtml(f.phone)+'" oninput="S.guideForm.phone=this.value"></div>'
-        + '<div><label>אימייל</label><input type="email" value="'+escapeHtml(f.email)+'" oninput="S.guideForm.email=this.value"></div></div>'
-        + '<div class="row"><div><label>שנת לידה</label><input type="number" min="1950" max="2010" value="'+escapeHtml(f.birthYear||"")+'" oninput="S.guideForm.birthYear=this.value" placeholder="1985"></div>'
-        + '<div><label>זמינות</label><select onchange="S.guideForm.availability=this.value">'+GUIDE_AVAILABILITY.map(a=>'<option'+(a===f.availability?' selected':'')+'>'+a+'</option>').join('')+'</select></div></div>'
-        + '<div class="row"><div><label>מחיר ליום (₪)</label><input type="number" value="'+escapeHtml(f.pricePerDay)+'" oninput="S.guideForm.pricePerDay=this.value"></div>'
-        + '<div><label>שכר חודשי (₪)</label><input type="number" value="'+escapeHtml(f.monthlySalary||"")+'" oninput="S.guideForm.monthlySalary=this.value" placeholder=""></div></div>'
-        + '<div class="row"><div><label>דירוג (1-5)</label><input type="number" min="1" max="5" step="0.1" value="'+escapeHtml(f.rating)+'" oninput="S.guideForm.rating=this.value"></div>'
-        + '<div><label>שפות</label><input value="'+escapeHtml((f.languages||[]).join(", "))+'" oninput="S.guideForm.languages=this.value.split(\',\').map(s=>s.trim()).filter(Boolean)" placeholder="עברית, אנגלית..."></div></div>'
-        + '<div class="row"><div><label>אזורי מומחיות</label><input value="'+escapeHtml((f.regions||[]).join(", "))+'" oninput="S.guideForm.regions=this.value.split(\',\').map(s=>s.trim()).filter(Boolean)" placeholder="אירופה, אסיה..."></div>'
-        + '<div><label>הסמכות</label><input value="'+escapeHtml((f.certifications||[]).join(", "))+'" oninput="S.guideForm.certifications=this.value.split(\',\').map(s=>s.trim()).filter(Boolean)" placeholder="מדריך מוסמך, עזרה ראשונה..."></div></div>'
-        + '<div><label>טיול מתוכנן</label><select onchange="S.guideForm.assignedTripId=this.value"><option value="">-- בחר טיול --</option>'+S.trips.map(t=>'<option value="'+t.id+'" '+(f.assignedTripId==t.id?"selected":"")+'>'+escapeHtml(t.title)+' ('+escapeHtml(t.destination)+')</option>').join('')+'</select></div>'
-        + '<div><label>הערות</label><textarea oninput="S.guideForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
+        + '<div class="row"><div>'+tip("שם מלא","שם מלא של המדריך")+'<input value="'+escapeHtml(f.fullName)+'" oninput="S.guideForm.fullName=this.value"></div>'
+        + '<div>'+tip("התמחות","תחום ההתמחות – טרקים, סיורים עירוניים, טבע וכו׳")+'<input value="'+escapeHtml(f.specialization)+'" oninput="S.guideForm.specialization=this.value" placeholder="טרקים, סיורים עירוניים..."></div></div>'
+        + '<div class="row"><div>'+tip("טלפון","מספר טלפון של המדריך")+'<input value="'+escapeHtml(f.phone)+'" oninput="S.guideForm.phone=this.value"></div>'
+        + '<div>'+tip("אימייל","כתובת דואר אלקטרוני של המדריך")+'<input type="email" value="'+escapeHtml(f.email)+'" oninput="S.guideForm.email=this.value"></div></div>'
+        + '<div class="row"><div>'+tip("שנת לידה","שנת הלידה של המדריך לחישוב גיל")+'<input type="number" min="1950" max="2010" value="'+escapeHtml(f.birthYear||"")+'" oninput="S.guideForm.birthYear=this.value" placeholder="1985"></div>'
+        + '<div>'+tip("זמינות","סטטוס הזמינות – פנוי, תפוס, חופשה, לא פעיל")+'<select onchange="S.guideForm.availability=this.value">'+GUIDE_AVAILABILITY.map(a=>'<option'+(a===f.availability?' selected':'')+'>'+a+'</option>').join('')+'</select></div></div>'
+        + '<div class="row"><div>'+tip("מחיר ליום (₪)","עלות המדריך ליום עבודה בשקלים")+'<input type="number" value="'+escapeHtml(f.pricePerDay)+'" oninput="S.guideForm.pricePerDay=this.value"></div>'
+        + '<div>'+tip("שכר חודשי (₪)","שכר חודשי קבוע אם רלוונטי")+'<input type="number" value="'+escapeHtml(f.monthlySalary||"")+'" oninput="S.guideForm.monthlySalary=this.value" placeholder=""></div></div>'
+        + '<div class="row"><div>'+tip("דירוג (1-5)","דירוג ביצועי המדריך מ-1 (נמוך) עד 5 (מצוין)")+'<input type="number" min="1" max="5" step="0.1" value="'+escapeHtml(f.rating)+'" oninput="S.guideForm.rating=this.value"></div>'
+        + '<div>'+tip("שפות","שפות שהמדריך דובר – הפרידו בפסיקים")+'<input value="'+escapeHtml((f.languages||[]).join(", "))+'" oninput="S.guideForm.languages=this.value.split(\',\').map(s=>s.trim()).filter(Boolean)" placeholder="עברית, אנגלית..."></div></div>'
+        + '<div class="row"><div>'+tip("אזורי מומחיות","אזורים גיאוגרפיים – הפרידו בפסיקים")+'<input value="'+escapeHtml((f.regions||[]).join(", "))+'" oninput="S.guideForm.regions=this.value.split(\',\').map(s=>s.trim()).filter(Boolean)" placeholder="אירופה, אסיה..."></div>'
+        + '<div>'+tip("הסמכות","תעודות והסמכות – הפרידו בפסיקים")+'<input value="'+escapeHtml((f.certifications||[]).join(", "))+'" oninput="S.guideForm.certifications=this.value.split(\',\').map(s=>s.trim()).filter(Boolean)" placeholder="מדריך מוסמך, עזרה ראשונה..."></div></div>'
+        + '<div>'+tip("טיול מתוכנן","שייכו מדריך לטיול ספציפי")+'<select onchange="S.guideForm.assignedTripId=this.value"><option value="">-- בחר טיול --</option>'+S.trips.map(t=>'<option value="'+t.id+'" '+(f.assignedTripId==t.id?"selected":"")+'>'+escapeHtml(t.title)+' ('+escapeHtml(t.destination)+')</option>').join('')+'</select></div>'
+        + '<div>'+tip("הערות","מידע נוסף – ניסיון, העדפות, זמינות עונתית")+'<textarea oninput="S.guideForm.notes=this.value">'+escapeHtml(f.notes)+'</textarea></div>'
         + '<div class="row" style="margin-top:8px"><button class="btn-primary" onclick="saveGuide()">'+(f.id?"עדכן":"הוסף")+' מדריך</button>'
         + (f.id?'<button class="btn-soft" onclick="setState({guideForm:structuredClone(seed.guideForm)},false)">ביטול</button>':'')
         + '</div></div></div>'
@@ -3075,7 +3197,7 @@
         + '<div class="sub-title">כל מה שצריך לדעת כדי לעבוד עם המערכת כמו מקצוען. לחצו על נושא כדי לגלול אליו.</div>'
         + '<div class="guide-toc">'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-dashboard\').scrollIntoView({behavior:\'smooth\'})">📊 לוח בקרה</div>'
-        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-travelers\').scrollIntoView({behavior:\'smooth\'})">👥 לקוחות</div>'
+        + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-travelers\').scrollIntoView({behavior:\'smooth\'})">👥 מטיילים</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-contacts\').scrollIntoView({behavior:\'smooth\'})">📇 אנשי קשר</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-leads\').scrollIntoView({behavior:\'smooth\'})">🎯 לידים</div>'
         + '<div class="guide-toc-item" onclick="document.getElementById(\'guide-suppliers\').scrollIntoView({behavior:\'smooth\'})">🏪 ספקים</div>'
@@ -3114,8 +3236,8 @@
         + '</div>'
 
         // 2. Travelers
-        + '<div class="guide-section" id="guide-travelers"><h3>👥 לקוחות (ניהול מטיילים)</h3>'
-        + '<p>מאגר הלקוחות המרכזי של החברה. כאן מנוהלים כל המטיילים עם פרטים מלאים.</p>'
+        + '<div class="guide-section" id="guide-travelers"><h3>👥 מטיילים (ניהול מטיילים)</h3>'
+        + '<p>מאגר המטיילים המרכזי של החברה. כאן מנוהלים כל המטיילים עם פרטים מלאים.</p>'
         + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>הוספת מטייל</strong> – מלאו את הטופס בצד ימין: שם, טלפון, WhatsApp, אימייל, תאריך לידה, עיר, תקציב, קטגוריה ורמת הליכה.</div></div>'
         + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>קבוצות (סגמנטים)</strong> – לחצו על שבבים (Chips) כדי לשייך מטייל לקבוצות: מיטיבי לכת, אוהבי לכת, דתיים, משפחות, גיל שלישי, VIP.</div></div>'
         + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>דרישות דתיות</strong> – סמנו את תיבות הסימון: דתי/ה, כשרות, שבת – לצורך התאמת טיולים.</div></div>'
@@ -3163,7 +3285,7 @@
 
         // 7. Conversations
         + '<div class="guide-section" id="guide-conversations"><h3>💬 תקשורת (רישום שיחות)</h3>'
-        + '<p>מרכז תקשורת לרישום ותיעוד כל האינטראקציות עם לקוחות ומנהלי כ"א.</p>'
+        + '<p>מרכז תקשורת לרישום ותיעוד כל האינטראקציות עם מטיילים ומנהלי כ"א.</p>'
         + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>רישום שיחה עם מטייל</strong> – בחרו מטייל מהרשימה, ערוץ תקשורת (ווטסאפ/טלפון/מייל/פגישה), סיכום השיחה והצעד הבא.</div></div>'
         + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>רישום שיחה עם כ"א</strong> – אותו תהליך עם מנהלי משאבי אנוש. מאפשר מעקב צמוד אחרי התקשרויות.</div></div>'
         + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>ערוצי תקשורת</strong> – 4 ערוצים: ווטסאפ, טלפון, מייל, פגישה – המערכת שומרת היסטוריית שיחות מלאה.</div></div>'
@@ -3277,8 +3399,9 @@
 
         // 18. Lila AI
         + '<div class="guide-section" id="guide-goai"><h3>🤖 לילה AI – שותפה אסטרטגית</h3>'
-        + '<p>לילה היא השותפה האסטרטגית של איציק ב-GoTours Group. היא עוזרת למדריכים למנוע טעויות ולנהל טיולים בצורה חכמה.</p>'
-        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>ממשק צ\'אט</strong> – לחצו על לשונית "לילה (AI)" בתפריט. ממשק צ\'אט מקצועי מאפשר לשלוח הודעות ולקבל תשובות.</div></div>'
+        + '<p>לילה היא השותפה האסטרטגית של איציק ב-GoTours Group. היא עוזרת למדריכים למנוע טעויות ולנהל טיולים בצורה חכמה. לילה מחפשת תשובות במדריך ההפעלה ומספקת מידע מדויק.</p>'
+        + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>ממשק צ\'אט</strong> – לחצו על לשונית "לילה (AI)" בתפריט. ממשק צ\'אט מקצועי מאפשר לשלוח הודעות ולקבל תשובות מתוך מדריך ההפעלה.</div></div>'
+        + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>שאלות תפעול</strong> – שאלו שאלות כמו "איך מוסיפים ליד?", "איך לייבא מאקסל?", "מה זה הקנבן?" – לילה תמצא את התשובה במדריך.</div></div>'
         + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>הודעת פתיחה</strong> – לילה מקבלת את פניכם עם הודעה אישית ומזמינה אתכם לשאול שאלות.</div></div>'
         + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>מנוע התאמה</strong> – מתחת לצ\'אט, מנוע ההתאמה החכם מנתח: רמת הליכה, דרישות דתיות, כשרות ותקציב.</div></div>'
         + '<div class="guide-step"><div class="step-num">4</div><div class="step-text"><strong>נטלי</strong> – לחצו על 💬 בפינה הימנית התחתונה לפתיחת השותפה הדיגיטלית.</div></div>'
@@ -3297,7 +3420,7 @@
 
         // 20. Hiking Trails
         + '<div class="guide-section" id="guide-hiking"><h3>🥾 מסלולי הליכה</h3>'
-        + '<p>מאגר מסלולי הליכה וטרקים בארץ ובעולם לשיוך ללקוחות ולטיולים.</p>'
+        + '<p>מאגר מסלולי הליכה וטרקים בארץ ובעולם לשיוך למטיילים ולטיולים.</p>'
         + '<div class="guide-step"><div class="step-num">1</div><div class="step-text"><strong>הוספת מסלול</strong> – שם מסלול, אזור (צפון/מרכז/דרום/גולן...), רמת קושי, מרחק, משך זמן והפרש גובה.</div></div>'
         + '<div class="guide-step"><div class="step-num">2</div><div class="step-text"><strong>עונה מומלצת</strong> – ציינו את העונה הטובה ביותר למסלול (חורף/אביב/קיץ/סתיו/כל השנה).</div></div>'
         + '<div class="guide-step"><div class="step-num">3</div><div class="step-text"><strong>דירוג</strong> – הזינו דירוג 1-5 לכל מסלול לפי חוות דעת מטיילים.</div></div>'
@@ -3344,7 +3467,7 @@
 
         // 24. Shortcuts
         + '<div class="guide-section" id="guide-shortcuts"><h3>⌨ קיצורים שימושיים</h3>'
-        + '<div class="guide-step"><div class="step-num">🔍</div><div class="step-text">שדה חיפוש – חפשו לקוח, ספק או הזמנה מכל מקום במערכת</div></div>'
+        + '<div class="guide-step"><div class="step-num">🔍</div><div class="step-text">שדה חיפוש – חפשו מטייל, ספק או הזמנה מכל מקום במערכת</div></div>'
         + '<div class="guide-step"><div class="step-num">💬</div><div class="step-text">כפתור WA – שולח הודעת WhatsApp ישירה ללקוח/ליד/ספק/מדריך</div></div>'
         + '<div class="guide-step"><div class="step-num">📞</div><div class="step-text">כפתור טלפון – פותח חייגן ישירות למספר</div></div>'
         + '<div class="guide-step"><div class="step-num">✏️</div><div class="step-text">כפתור עריכה – טוען את הפרטים לטופס לעריכה</div></div>'
@@ -3384,7 +3507,15 @@
         + '<h4 style="color:var(--brand);margin-top:12px">5. לילה AI – שותפה אסטרטגית</h4>'
         + '<div class="guide-step"><div class="step-num">🤖</div><div class="step-text"><strong>שם חדש</strong> – הלשונית "GoAI" שודרגה ל-"לילה (AI) – שותפה אסטרטגית".</div></div>'
         + '<div class="guide-step"><div class="step-num">💬</div><div class="step-text"><strong>ממשק צ\'אט</strong> – ממשק צ\'אט מקצועי ונקי מאפשר לשלוח הודעות ולקבל מענה. לילה מקבלת את פניכם עם הודעת פתיחה אישית.</div></div>'
-        + '<div class="guide-step"><div class="step-num">🔮</div><div class="step-text"><strong>חיבור עתידי</strong> – הממשק מוכן לחיבור API של AI בעתיד הקרוב לתשובות חכמות ואוטומטיות.</div></div>'
+        + '<div class="guide-step"><div class="step-num">📖</div><div class="step-text"><strong>חיפוש במדריך</strong> – לילה מחפשת תשובות בתוך מדריך ההפעלה. שאלו שאלות כמו "איך מוסיפים ליד?" או "איך לייבא מאקסל?" ותקבלו תשובה מפורטת.</div></div>'
+        + '<div class="guide-step"><div class="step-num">🔮</div><div class="step-text"><strong>חיבור עתידי</strong> – הממשק מוכן לחיבור API של AI בעתיד הקרוב לתשובות חכמות ואוטומטיות. שדה הגדרות API זמין למנכ"ל בלבד בלשונית הגדרות.</div></div>'
+
+        + '<h4 style="color:var(--brand);margin-top:12px">6. שדרוגי גרסה 4.0</h4>'
+        + '<div class="guide-step"><div class="step-num">👥</div><div class="step-text"><strong>שינוי מונח</strong> – "לקוחות" שונה ל-"מטיילים" בכל המערכת.</div></div>'
+        + '<div class="guide-step"><div class="step-num">❓</div><div class="step-text"><strong>Tooltips מקיפים</strong> – סימני שאלה (?) הוספו ליד כל שדה בכל הטפסים: לידים, ספקים, אנשי קשר, כ"א, ארגונים, כספים, מסלולי הליכה, רשתות חברתיות, מדריכים ותיקי טיולים.</div></div>'
+        + '<div class="guide-step"><div class="step-num">🟢</div><div class="step-text"><strong>מחוברים כרגע</strong> – בלוח הבקרה ובסרגל העליון מוצגים המשתמשים המחוברים כרגע למערכת בזמן אמת.</div></div>'
+        + '<div class="guide-step"><div class="step-num">📥</div><div class="step-text"><strong>ייבוא ממוקד</strong> – כפתור "ייבוא מאקסל" הוסף בתוך לשוניות אנשי קשר, כוח אדם וארגונים. תצוגה מקדימה של נתונים לפני ייבוא.</div></div>'
+        + '<div class="guide-step"><div class="step-num">🤖</div><div class="step-text"><strong>לילה AI חכמה</strong> – לילה מחוברת כעת למדריך ההפעלה ויודעת לענות על שאלות תפעול. שדה API נסתר למנכ"ל בהגדרות.</div></div>'
         + '</div>';
     }
 
@@ -3396,7 +3527,7 @@
         + '</div>'
         + '<div class="upgrade-grid">'
         // Core CRM
-        + '<div class="upgrade-card"><h4>👥 ניהול מטיילים מתקדם</h4><p>מאגר לקוחות עם סגמנטציה ל-6 קבוצות, דרישות דתיות וכשרות, תקציב, רמת הליכה, ומעקב שיחות.</p><div class="upgrade-badge" onclick="setState({tab:\'travelers\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
+        + '<div class="upgrade-card"><h4>👥 ניהול מטיילים מתקדם</h4><p>מאגר מטיילים עם סגמנטציה ל-6 קבוצות, דרישות דתיות וכשרות, תקציב, רמת הליכה, ומעקב שיחות.</p><div class="upgrade-badge" onclick="setState({tab:\'travelers\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         + '<div class="upgrade-card"><h4>🎯 לוח קנבן לידים</h4><p>לוח Kanban עם 6 שלבי מכירה, Drag & Drop, השלמה אוטומטית, 9 מקורות לידים ומעקב תקציב.</p><div class="upgrade-badge" onclick="setState({tab:\'leads\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         + '<div class="upgrade-card"><h4>📋 קטלוג הצעות מחיר</h4><p>ניהול טיולים עם קטגוריות, רמות קושי, קיבולת, רישום, ותמיכה בדרישות דתיות.</p><div class="upgrade-badge" onclick="setState({tab:\'trips\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
         + '<div class="upgrade-card"><h4>🏪 ניהול ספקים (11 סוגים)</h4><p>מלון, הסעות, מדריך, ביטוח, מסעדה, אטרקציה, טיסות, ספינה, פעילות, ויזה, צלם. דירוג וניהול תשלומים.</p><div class="upgrade-badge" onclick="setState({tab:\'suppliers\'},false)" style="cursor:pointer">פתח מודול →</div></div>'
@@ -3440,7 +3571,7 @@
     function renderMain() {
       const tabs=[
         {id:"dashboard",label:"📊 לוח בקרה"},
-        {id:"travelers",label:"👥 לקוחות"},
+        {id:"travelers",label:"👥 מטיילים"},
         {id:"contacts",label:"📇 אנשי קשר"},
         {id:"leads",label:"🎯 לידים"},
         {id:"suppliers",label:"🏪 ספקים"},
@@ -3501,7 +3632,7 @@
 
       const d=dashboardData();
       return '<div class="shell">'
-        + '<div class="header"><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div>'+renderOnlineUsers()+'<div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">☁️ מחובר</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span><span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span></div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש לקוח, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center"><div class="call-sim-input"><input placeholder="📞 סמלץ שיחה נכנסת..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall()" style="width:180px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:8px 12px;font-size:12px" onclick="simulateIncomingCall()">📞</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
+        + '<div class="header"><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div>'+renderOnlineUsers()+'<div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">☁️ מחובר</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span><span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span></div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center"><div class="call-sim-input"><input placeholder="📞 סמלץ שיחה נכנסת..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall()" style="width:180px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:8px 12px;font-size:12px" onclick="simulateIncomingCall()">📞</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
         + '<div class="tabs">'+tabs.map(t=>'<button class="'+(S.tab===t.id?"active":"")+'" onclick="setState({tab:\''+t.id+'\'},false)">'+t.label+'</button>').join("")+'</div>'
         + content
         + renderAiWidget()
