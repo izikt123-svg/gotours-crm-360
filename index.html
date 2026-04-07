@@ -506,6 +506,8 @@
       const log=loadActivityLog();
       log.unshift({id:uid(),user:S.currentUser||"מערכת",action:action,details:details||"",at:isoNow()});
       saveActivityLog(log);
+      if (!S.activityLog) S.activityLog = [];
+      S.activityLog = log.slice(0,500);
     }
 
     // ===== STATE =====
@@ -537,9 +539,70 @@
       financeForm:{id:null,type:"חשבונית",travelerName:"",description:"",amount:"",currency:"ILS",status:"ממתין",dueDate:"",paidDate:"",method:"כרטיס אשראי",invoiceNumber:"",notes:""},
       // מסלולי הליכה
       hikingTrails:[
-        {id:uid()+70,name:"שביל ישראל – מקטע גולן",region:"צפון",difficulty:"מיטיבי לכת",distance:"18 ק\"מ",duration:"7 שעות",elevation:"650 מטר",season:"סתיו-אביב",description:"מקטע מרהיב בגולן, מבנטל לגמלא",highlights:["נחל גמלא","מפל גמלא","תצפית בנטל"],suitable:["מיטיבי לכת"],rating:4.8,active:true},
-        {id:uid()+71,name:"נחל ערוגות – ים המלח",region:"דרום",difficulty:"בינוני",distance:"8 ק\"מ",duration:"4 שעות",elevation:"320 מטר",season:"חורף",description:"מסלול מדברי עם מפלים ובריכות טבעיות",highlights:["מפל ערוגות","בריכה עליונה","מצוקי ים המלח"],suitable:["אוהבי לכת","משפחות"],rating:4.6,active:true},
-        {id:uid()+72,name:"הר תבור",region:"צפון",difficulty:"קל",distance:"5 ק\"מ",duration:"2.5 שעות",elevation:"200 מטר",season:"כל השנה",description:"מסלול קל עם נוף פנורמי של עמק יזרעאל",highlights:["כנסיית ההשתנות","תצפית 360°","יער אלונים"],suitable:["משפחות","גיל שלישי"],rating:4.4,active:true}
+        // ירושלים (5)
+        {id:uid()+70,name:"שביל הטיילת – ארמון הנציב",region:"ירושלים",difficulty:"קל",distance:"3 ק\"מ",duration:"1.5 שעות",elevation:"80 מטר",season:"כל השנה",description:"טיילת פנורמית עם נוף מרהיב על העיר העתיקה",highlights:["תצפית העיר העתיקה","גן הפעמון","ארמון הנציב"],suitable:["משפחות","גיל שלישי"],rating:4.5,active:true},
+        {id:uid()+71,name:"נחל רפאים",region:"ירושלים",difficulty:"קל",distance:"4 ק\"מ",duration:"2 שעות",elevation:"100 מטר",season:"כל השנה",description:"מסלול ירוק לאורך נחל רפאים",highlights:["גשר הרכבת","עין חנניה","שרידים ארכיאולוגיים"],suitable:["משפחות"],rating:4.2,active:true},
+        {id:uid()+72,name:"הר הצופים ומגדל אוגוסטה ויקטוריה",region:"ירושלים",difficulty:"קל",distance:"3.5 ק\"מ",duration:"2 שעות",elevation:"90 מטר",season:"כל השנה",description:"מסלול היסטורי עם תצפיות על ירושלים",highlights:["תצפית הר הצופים","אוניברסיטה העברית","בית הקברות"],suitable:["משפחות","גיל שלישי"],rating:4.6,active:true},
+        {id:uid()+73,name:"עמק הצבאים (גזלן)",region:"ירושלים",difficulty:"בינוני",distance:"5 ק\"מ",duration:"2.5 שעות",elevation:"150 מטר",season:"סתיו-אביב",description:"מסלול בעמק ירוק ליד העיר",highlights:["מעיינות","צמחיית חורש","נוף פסטורלי"],suitable:["אוהבי לכת","משפחות"],rating:4.3,active:true},
+        {id:uid()+74,name:"שביל סטף – עין כרם",region:"ירושלים",difficulty:"בינוני",distance:"7 ק\"מ",duration:"3.5 שעות",elevation:"250 מטר",season:"סתיו-אביב",description:"מסלול חורש ים-תיכוני מיער סטף לעין כרם",highlights:["יער סטף","עין כרם","חורש אלונים"],suitable:["אוהבי לכת"],rating:4.4,active:true},
+        // צפון (6)
+        {id:uid()+75,name:"שביל ישראל – מקטע גולן",region:"צפון",difficulty:"מיטיבי לכת",distance:"18 ק\"מ",duration:"7 שעות",elevation:"650 מטר",season:"סתיו-אביב",description:"מקטע מרהיב בגולן, מבנטל לגמלא",highlights:["נחל גמלא","מפל גמלא","תצפית בנטל"],suitable:["מיטיבי לכת"],rating:4.8,active:true},
+        {id:uid()+76,name:"הר תבור",region:"צפון",difficulty:"קל",distance:"5 ק\"מ",duration:"2.5 שעות",elevation:"200 מטר",season:"כל השנה",description:"מסלול קל עם נוף פנורמי של עמק יזרעאל",highlights:["כנסיית ההשתנות","תצפית 360°","יער אלונים"],suitable:["משפחות","גיל שלישי"],rating:4.4,active:true},
+        {id:uid()+77,name:"נחל עמוד",region:"צפון",difficulty:"מיטיבי לכת",distance:"14 ק\"מ",duration:"6 שעות",elevation:"500 מטר",season:"חורף-אביב",description:"מסלול מאתגר עם מפלים ובריכות",highlights:["מפל עמוד","בריכות סלע","נקבת הפלא"],suitable:["מיטיבי לכת"],rating:4.9,active:true},
+        {id:uid()+78,name:"נחל כזיב",region:"צפון",difficulty:"קל",distance:"6 ק\"מ",duration:"3 שעות",elevation:"100 מטר",season:"כל השנה",description:"נחל זורם בגליל המערבי",highlights:["גשר כזיב","ברכות מים","אלוני אברם"],suitable:["משפחות","אוהבי לכת"],rating:4.5,active:true},
+        {id:uid()+79,name:"הר מירון",region:"צפון",difficulty:"בינוני",distance:"10 ק\"מ",duration:"5 שעות",elevation:"400 מטר",season:"אביב-סתיו",description:"טיפוס לפסגה הגבוהה ביותר בגליל",highlights:["פסגת מירון","חורש עתיק","כלניות"],suitable:["אוהבי לכת","מיטיבי לכת"],rating:4.7,active:true},
+        {id:uid()+80,name:"יער ביריה",region:"צפון",difficulty:"קל",distance:"4 ק\"מ",duration:"2 שעות",elevation:"120 מטר",season:"כל השנה",description:"טיול ביער הגדול ביותר בגליל",highlights:["אורנים עתיקים","שביל פסלים","תצפיות"],suitable:["משפחות","גיל שלישי"],rating:4.1,active:true},
+        // מרכז (4)
+        {id:uid()+81,name:"פארק הירקון",region:"מרכז",difficulty:"קל",distance:"5 ק\"מ",duration:"2 שעות",elevation:"30 מטר",season:"כל השנה",description:"מסלול הליכה נעים לאורך נחל הירקון",highlights:["שבע טחנות","אגם הירקון","גנים בוטניים"],suitable:["משפחות","גיל שלישי"],rating:4.0,active:true},
+        {id:uid()+82,name:"נחל תנינים",region:"מרכז",difficulty:"קל",distance:"3 ק\"מ",duration:"1.5 שעות",elevation:"40 מטר",season:"כל השנה",description:"שמורת טבע עם סכר עתיק ובריכות",highlights:["סכר רומי","בריכות דגים","צפרות"],suitable:["משפחות","גיל שלישי"],rating:4.3,active:true},
+        {id:uid()+83,name:"נחל השופט",region:"מרכז",difficulty:"בינוני",distance:"8 ק\"מ",duration:"3.5 שעות",elevation:"180 מטר",season:"חורף-אביב",description:"מסלול מים ומפלים בכרמל",highlights:["מפלים","בריכות סלע","יער כרמל"],suitable:["אוהבי לכת"],rating:4.4,active:true},
+        {id:uid()+84,name:"שמורת אירוס הארגמן",region:"מרכז",difficulty:"קל",distance:"2 ק\"מ",duration:"1 שעה",elevation:"50 מטר",season:"חורף",description:"שמורה ייחודית עם פריחת האירוס הנדיר",highlights:["אירוס ארגמן","נוף שרון","פריחות עונתיות"],suitable:["משפחות","גיל שלישי"],rating:4.2,active:true},
+        // דרום (4)
+        {id:uid()+85,name:"מצפה רמון – המכתש הגדול",region:"דרום",difficulty:"מיטיבי לכת",distance:"15 ק\"מ",duration:"6 שעות",elevation:"550 מטר",season:"סתיו-אביב",description:"מסלול מרהיב בתוך המכתש הגדול בעולם",highlights:["מצוקי המכתש","פריזמות","מעלה גבנונים"],suitable:["מיטיבי לכת"],rating:4.9,active:true},
+        {id:uid()+86,name:"הר כרכום",region:"דרום",difficulty:"בינוני",distance:"9 ק\"מ",duration:"4 שעות",elevation:"300 מטר",season:"סתיו-אביב",description:"הר מיתולוגי עם ציורי סלע עתיקים",highlights:["ציורי סלע","מזבחות","תצפיות מדבריות"],suitable:["אוהבי לכת"],rating:4.5,active:true},
+        {id:uid()+87,name:"עין עבדת",region:"דרום",difficulty:"בינוני",distance:"7 ק\"מ",duration:"3 שעות",elevation:"250 מטר",season:"כל השנה",description:"קניון מדברי עם מפלים ובריכות",highlights:["מפל עין עבדת","קניון ציון","יעלים"],suitable:["משפחות","אוהבי לכת"],rating:4.8,active:true},
+        {id:uid()+88,name:"מצדה – שביל הנחש",region:"דרום",difficulty:"מיטיבי לכת",distance:"6 ק\"מ",duration:"3 שעות",elevation:"400 מטר",season:"סתיו-אביב",description:"עלייה לחורבות מצדה דרך שביל הנחש",highlights:["ארמון הורדוס","בית המרחץ","זריחה"],suitable:["מיטיבי לכת"],rating:4.7,active:true},
+        // שפלה (4)
+        {id:uid()+89,name:"פארק אדולם",region:"שפלה",difficulty:"קל",distance:"4 ק\"מ",duration:"2 שעות",elevation:"100 מטר",season:"כל השנה",description:"מערות קבורה ונוף שפלה ירוק",highlights:["מערות קבורה","מבצר צלבני","נוף שפלה"],suitable:["משפחות"],rating:4.1,active:true},
+        {id:uid()+90,name:"נחל גוברין",region:"שפלה",difficulty:"קל",distance:"3 ק\"מ",duration:"1.5 שעות",elevation:"60 מטר",season:"כל השנה",description:"מערות פעמון ייחודיות ושרידים עתיקים",highlights:["מערות פעמון","בית גוברין","קולומבריום"],suitable:["משפחות","גיל שלישי"],rating:4.4,active:true},
+        {id:uid()+91,name:"עמק האלה",region:"שפלה",difficulty:"קל",distance:"5 ק\"מ",duration:"2.5 שעות",elevation:"80 מטר",season:"חורף-אביב",description:"עמק המערכה של דוד וגלית",highlights:["עמק האלה","חרבת קייאפה","אלונים"],suitable:["משפחות"],rating:4.3,active:true},
+        {id:uid()+92,name:"יער חרובית",region:"שפלה",difficulty:"בינוני",distance:"6 ק\"מ",duration:"3 שעות",elevation:"150 מטר",season:"סתיו-אביב",description:"יער מעורב בשפלה עם מגוון צמחיה",highlights:["עצי חרוב","מעין","שרידים ביזנטיים"],suitable:["אוהבי לכת"],rating:4.0,active:true},
+        // נגב (5)
+        {id:uid()+93,name:"נחל צין – עין עקב",region:"נגב",difficulty:"מיטיבי לכת",distance:"16 ק\"מ",duration:"7 שעות",elevation:"500 מטר",season:"סתיו-אביב",description:"מסלול מדברי ארוך עם מעיינות",highlights:["עין עקב","מצוקי צין","מעין נבטי"],suitable:["מיטיבי לכת"],rating:4.8,active:true},
+        {id:uid()+94,name:"הר הנגב – מצפה רמון",region:"נגב",difficulty:"בינוני",distance:"10 ק\"מ",duration:"4.5 שעות",elevation:"350 מטר",season:"סתיו-חורף",description:"מסלול נוף על שפת המכתש",highlights:["שפת המכתש","תצפית חמת גדר","צמחיית מדבר"],suitable:["אוהבי לכת"],rating:4.5,active:true},
+        {id:uid()+95,name:"פארק תמנע",region:"נגב",difficulty:"קל",distance:"4 ק\"מ",duration:"2 שעות",elevation:"80 מטר",season:"סתיו-אביב",description:"עמודי שלמה ומכרות נחושת עתיקים",highlights:["עמודי שלמה","מכרות נחושת","אגם תמנע"],suitable:["משפחות","גיל שלישי"],rating:4.6,active:true},
+        {id:uid()+96,name:"שדה בוקר – עין עבדת (מסלול קצר)",region:"נגב",difficulty:"קל",distance:"3 ק\"מ",duration:"1.5 שעות",elevation:"120 מטר",season:"כל השנה",description:"ירידה לקניון עין עבדת מצד שדה בוקר",highlights:["קבר בן גוריון","תצפית הקניון","יעלים"],suitable:["משפחות","גיל שלישי"],rating:4.7,active:true},
+        {id:uid()+97,name:"נחל לוץ",region:"נגב",difficulty:"מיטיבי לכת",distance:"12 ק\"מ",duration:"5 שעות",elevation:"420 מטר",season:"סתיו-חורף",description:"מסלול מדברי פראי עם ערוצים צרים",highlights:["ערוצים צרים","תצפיות","צמחיית מדבר"],suitable:["מיטיבי לכת"],rating:4.4,active:true},
+        // גולן (5)
+        {id:uid()+98,name:"נחל גמלא",region:"גולן",difficulty:"בינוני",distance:"6 ק\"מ",duration:"3 שעות",elevation:"250 מטר",season:"כל השנה",description:"שמורת טבע עם מפל ונשרים",highlights:["מפל גמלא","נשרים","עתיקות"],suitable:["אוהבי לכת","משפחות"],rating:4.8,active:true},
+        {id:uid()+99,name:"בריכת המשושים (בריכת הקשתות)",region:"גולן",difficulty:"קל",distance:"2 ק\"מ",duration:"1 שעה",elevation:"40 מטר",season:"כל השנה",description:"בריכת בזלת מיוחדת בצורת משושים",highlights:["עמודי בזלת","בריכה טבעית","יער אלונים"],suitable:["משפחות","גיל שלישי"],rating:4.5,active:true},
+        {id:uid()+100,name:"הר בנטל",region:"גולן",difficulty:"קל",distance:"3 ק\"מ",duration:"1.5 שעות",elevation:"120 מטר",season:"כל השנה",description:"תצפית על סוריה ואזור החרמון",highlights:["בונקרים","תצפית","אנדרטה"],suitable:["משפחות"],rating:4.6,active:true},
+        {id:uid()+101,name:"נחל אל על – מפל המשושים",region:"גולן",difficulty:"בינוני",distance:"5 ק\"מ",duration:"2.5 שעות",elevation:"180 מטר",season:"חורף-אביב",description:"מסלול מפלים בבזלת הגולן",highlights:["מפל המשושים","מפל בית זיידא","בריכות"],suitable:["אוהבי לכת"],rating:4.7,active:true},
+        {id:uid()+102,name:"שמורת יהודיה – מסלול יהודיה",region:"גולן",difficulty:"מיטיבי לכת",distance:"9 ק\"מ",duration:"5 שעות",elevation:"350 מטר",season:"אביב-סתיו",description:"מסלול מפלים ובריכות מאתגר",highlights:["מפל יהודיה","בריכות שחיה","ערוץ צר"],suitable:["מיטיבי לכת"],rating:4.9,active:true},
+        // ים המלח (4)
+        {id:uid()+103,name:"נחל ערוגות",region:"ים המלח",difficulty:"בינוני",distance:"8 ק\"מ",duration:"4 שעות",elevation:"320 מטר",season:"חורף",description:"מסלול מדברי עם מפלים ובריכות טבעיות",highlights:["מפל ערוגות","בריכה עליונה","מצוקי ים המלח"],suitable:["אוהבי לכת","משפחות"],rating:4.6,active:true},
+        {id:uid()+104,name:"מצוקי דרגות",region:"ים המלח",difficulty:"מיטיבי לכת",distance:"10 ק\"מ",duration:"5 שעות",elevation:"400 מטר",season:"סתיו-אביב",description:"מסלול ספלאולוגי עם מערות ומצוקים",highlights:["מערות","מצוקי דרגות","תצפית ים המלח"],suitable:["מיטיבי לכת"],rating:4.7,active:true},
+        {id:uid()+105,name:"עין גדי – נחל דוד",region:"ים המלח",difficulty:"קל",distance:"4 ק\"מ",duration:"2 שעות",elevation:"150 מטר",season:"כל השנה",description:"נאת מדבר עם מפלים ובריכות",highlights:["מפל דוד","מערת דודים","יעלים ושפנים"],suitable:["משפחות","גיל שלישי"],rating:4.8,active:true},
+        {id:uid()+106,name:"עין בוקק – נחל בוקק",region:"ים המלח",difficulty:"קל",distance:"3 ק\"מ",duration:"1.5 שעות",elevation:"80 מטר",season:"כל השנה",description:"מסלול קצר וקל ליד מלונות ים המלח",highlights:["מפל עונתי","בריכה","תצפית ים המלח"],suitable:["משפחות","גיל שלישי"],rating:4.0,active:true},
+        // מדבר יהודה (4)
+        {id:uid()+107,name:"נחל פרת (עין פרת)",region:"מדבר יהודה",difficulty:"קל",distance:"4 ק\"מ",duration:"2 שעות",elevation:"100 מטר",season:"כל השנה",description:"מעיין ומנזר בנוף מדברי",highlights:["עין פרת","מנזר סנט ג׳ורג׳","קניון"],suitable:["משפחות"],rating:4.5,active:true},
+        {id:uid()+108,name:"מצוקי הזיתים (ואדי קלט)",region:"מדבר יהודה",difficulty:"מיטיבי לכת",distance:"12 ק\"מ",duration:"5 שעות",elevation:"450 מטר",season:"סתיו-אביב",description:"ירידה מירושלים ליריחו דרך ואדי קלט",highlights:["מנזר סנט ג׳ורג׳","מעיינות","נוף מדברי"],suitable:["מיטיבי לכת"],rating:4.7,active:true},
+        {id:uid()+109,name:"הר מונטר – מרסבא",region:"מדבר יהודה",difficulty:"בינוני",distance:"7 ק\"מ",duration:"3.5 שעות",elevation:"280 מטר",season:"סתיו-אביב",description:"תצפיות על מנזר מרסבא ומדבר יהודה",highlights:["מנזר מרסבא","תצפיות","ערוצים"],suitable:["אוהבי לכת"],rating:4.6,active:true},
+        {id:uid()+110,name:"נחל דרגה – מערת התאומים",region:"מדבר יהודה",difficulty:"מיטיבי לכת",distance:"8 ק\"מ",duration:"4 שעות",elevation:"350 מטר",season:"סתיו-אביב",description:"מסלול עם סולמות וגלישה בחבלים",highlights:["סולמות","מערת התאומים","מצוקים"],suitable:["מיטיבי לכת","אקסטרים"],rating:4.8,active:true},
+        // שומרון (4)
+        {id:uid()+111,name:"נחל קנה",region:"שומרון",difficulty:"בינוני",distance:"8 ק\"מ",duration:"4 שעות",elevation:"200 מטר",season:"חורף-אביב",description:"קניון מרהיב עם צמחיה טרופית",highlights:["סחלבים","בריכות","קניון ירוק"],suitable:["אוהבי לכת"],rating:4.5,active:true},
+        {id:uid()+112,name:"הר עיבל",region:"שומרון",difficulty:"בינוני",distance:"6 ק\"מ",duration:"3 שעות",elevation:"300 מטר",season:"אביב-סתיו",description:"הר מקראי עם ממצאים ארכיאולוגיים",highlights:["מזבח יהושע","תצפית עמק","שרידים"],suitable:["אוהבי לכת"],rating:4.2,active:true},
+        {id:uid()+113,name:"שומרון העתיקה (סבסטיה)",region:"שומרון",difficulty:"קל",distance:"3 ק\"מ",duration:"1.5 שעות",elevation:"80 מטר",season:"כל השנה",description:"שרידי בירת ממלכת ישראל",highlights:["שרידים רומיים","מגדל שומרון","תיאטרון"],suitable:["משפחות"],rating:4.3,active:true},
+        {id:uid()+114,name:"עין בובין ונחל שילה",region:"שומרון",difficulty:"בינוני",distance:"7 ק\"מ",duration:"3 שעות",elevation:"180 מטר",season:"חורף-אביב",description:"מעיינות ובריכות בלב השומרון",highlights:["עין בובין","בריכות טבעיות","נוף ירוק"],suitable:["אוהבי לכת","משפחות"],rating:4.4,active:true},
+        // ערבה (3)
+        {id:uid()+115,name:"שמורת עינות צוקים",region:"ערבה",difficulty:"קל",distance:"3 ק\"מ",duration:"1.5 שעות",elevation:"50 מטר",season:"סתיו-אביב",description:"נאת מדבר קסומה בערבה",highlights:["בריכות מים","צפרות","מסלול נגיש"],suitable:["משפחות","גיל שלישי"],rating:4.4,active:true},
+        {id:uid()+116,name:"הר שלמה",region:"ערבה",difficulty:"מיטיבי לכת",distance:"10 ק\"מ",duration:"5 שעות",elevation:"400 מטר",season:"סתיו-חורף",description:"ההר הגבוה בדרום, תצפית על מפרץ אילת",highlights:["תצפית אילת","סלעי גרניט","מדבר"],suitable:["מיטיבי לכת"],rating:4.6,active:true},
+        {id:uid()+117,name:"עמודי אמרם",region:"ערבה",difficulty:"בינוני",distance:"6 ק\"מ",duration:"3 שעות",elevation:"200 מטר",season:"סתיו-אביב",description:"תצורות סלע מרהיבות באבן חול",highlights:["עמודי אבן חול","צבעי מדבר","נוף ירחי"],suitable:["אוהבי לכת"],rating:4.7,active:true},
+        // אילת (4)
+        {id:uid()+118,name:"שמורת האלמוגים",region:"אילת",difficulty:"קל",distance:"2 ק\"מ",duration:"1 שעה",elevation:"10 מטר",season:"כל השנה",description:"שמורה ימית עם שנורקלינג ואלמוגים",highlights:["אלמוגים","דגים טרופיים","שנורקלינג"],suitable:["משפחות","גיל שלישי"],rating:4.7,active:true},
+        {id:uid()+119,name:"הקניון האדום",region:"אילת",difficulty:"מיטיבי לכת",distance:"5 ק\"מ",duration:"3 שעות",elevation:"250 מטר",season:"סתיו-אביב",description:"קניון אבן חול אדומה מרהיב",highlights:["קניון צר","סלע אדום","טיפוס"],suitable:["מיטיבי לכת","אקסטרים"],rating:4.8,active:true},
+        {id:uid()+120,name:"הר צפחות",region:"אילת",difficulty:"בינוני",distance:"8 ק\"מ",duration:"4 שעות",elevation:"300 מטר",season:"סתיו-חורף",description:"תצפית על מפרץ אילת וארבע מדינות",highlights:["תצפית 4 מדינות","סלעי גרניט","זריחה"],suitable:["אוהבי לכת"],rating:4.5,active:true},
+        {id:uid()+121,name:"שביל אילת – מונטנה",region:"אילת",difficulty:"בינוני",distance:"7 ק\"מ",duration:"3.5 שעות",elevation:"220 מטר",season:"סתיו-אביב",description:"מסלול בהרי אילת עם נופים מדבריים",highlights:["הרי אילת","גרניט","ואדיות"],suitable:["אוהבי לכת"],rating:4.3,active:true}
       ],
       hikingForm:{id:null,name:"",region:"צפון",difficulty:"בינוני",distance:"",duration:"",elevation:"",season:"",description:"",highlights:[],suitable:[],rating:"",active:true},
       // רשתות חברתיות
@@ -624,10 +687,15 @@
     const S = structuredClone(seed);
 
     // ===== STATE MANAGEMENT =====
+    let _autoSaveTimer = null;
     function setState(patch, doSave=true) {
       Object.assign(S, patch);
       render();
       if (doSave) { saveLocal(); saveToCloud(); }
+    }
+    function autoSave() {
+      if (_autoSaveTimer) clearTimeout(_autoSaveTimer);
+      _autoSaveTimer = setTimeout(function() { saveLocal(); saveToCloud(); }, 800);
     }
     function saveLocal() {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch(_) {}
@@ -636,7 +704,7 @@
     // ===== CLOUD SYNC =====
     let _syncTimer = null;
     let _isSaving = false;
-    const DATA_FIELDS = ["travelers","leads","suppliers","trips","agencies","contacts","hrManagers","guides","finances","hikingTrails","socialPosts","tasks","callLog"];
+    const DATA_FIELDS = ["travelers","leads","suppliers","trips","agencies","contacts","hrManagers","guides","finances","hikingTrails","socialPosts","tasks","callLog","activityLog"];
     function extractDataForCloud() {
       const d = {};
       DATA_FIELDS.forEach(k => { d[k] = S[k]; });
@@ -645,7 +713,11 @@
     function applyCloudData(d) {
       if (!d) return;
       DATA_FIELDS.forEach(k => { if (Array.isArray(d[k])) S[k] = d[k]; });
+      if (Array.isArray(d.activityLog) && d.activityLog.length) {
+        saveActivityLog(d.activityLog);
+      }
     }
+    let _offlineMode = false;
     async function saveToCloud() {
       if (_isSaving) return;
       _isSaving = true;
@@ -655,14 +727,20 @@
           headers: {"Content-Type":"application/json"},
           body: JSON.stringify({data: extractDataForCloud()})
         });
-        const json = await resp.json();
+        let json;
+        try { json = await resp.json(); } catch(_) { json = { ok: false }; }
         if (json.ok) {
           S.cloudVersion = json.version;
           S.syncOkAt = new Date().toLocaleTimeString("he-IL");
           S.syncError = "";
+          if (_offlineMode) { _offlineMode = false; }
+        } else {
+          _offlineMode = true;
+          S.syncError = "";
         }
       } catch(e) {
-        S.syncError = "שגיאת סנכרון: " + (e.message||"");
+        _offlineMode = true;
+        S.syncError = "";
       }
       _isSaving = false;
       renderSyncMeta();
@@ -670,32 +748,39 @@
     async function loadFromCloud() {
       try {
         const resp = await fetch(API_URL + "?v=" + (S.cloudVersion||"0"));
-        const json = await resp.json();
+        let json;
+        try { json = await resp.json(); } catch(_) { json = { ok: false }; }
         if (json.ok && !json.unchanged && json.data) {
           applyCloudData(json.data);
           S.cloudVersion = json.version || "0";
           S.syncOkAt = new Date().toLocaleTimeString("he-IL");
           S.syncError = "";
+          if (_offlineMode) { _offlineMode = false; }
           normalizeStateShape();
           saveLocal();
           render();
           renderSyncMeta();
         } else if (json.ok && json.unchanged) {
-          // data unchanged, no update needed
+          if (_offlineMode) { _offlineMode = false; renderSyncMeta(); }
         }
       } catch(e) {
-        // silent fail, use local data
+        _offlineMode = true;
+        renderSyncMeta();
       }
     }
     async function pollCloud() {
       if (_isSaving || !S.isAuthenticated) return;
       try {
         const resp = await fetch(API_URL + "?check=1");
-        const json = await resp.json();
+        let json;
+        try { json = await resp.json(); } catch(_) { json = { ok: false }; }
         if (json.ok && json.version !== S.cloudVersion) {
           await loadFromCloud();
         }
-      } catch(_) {}
+      } catch(_) {
+        _offlineMode = true;
+        renderSyncMeta();
+      }
     }
     function startCloudSync() {
       if (_syncTimer) clearInterval(_syncTimer);
@@ -737,6 +822,7 @@
       if (!Array.isArray(S.finances)) S.finances = seed.finances;
       if (!S.financeForm) S.financeForm = structuredClone(seed.financeForm);
       if (!Array.isArray(S.hikingTrails)) S.hikingTrails = seed.hikingTrails;
+      if (!Array.isArray(S.activityLog)) S.activityLog = loadActivityLog();
       if (!S.hikingForm) S.hikingForm = structuredClone(seed.hikingForm);
       if (!Array.isArray(S.socialPosts)) S.socialPosts = seed.socialPosts;
       if (!S.socialForm) S.socialForm = structuredClone(seed.socialForm);
@@ -768,7 +854,8 @@
     function renderSyncMeta() {
       const el = document.getElementById("sync_meta");
       if (!el) return;
-      if (S.syncError) el.innerHTML = '<span style="color:#ffb3b3">⚠ ' + escapeHtml(S.syncError) + '</span>';
+      if (_offlineMode) el.innerHTML = '<span style="color:#ffb3b3">📴 מצב לא מקוון – נתונים נשמרים מקומית</span>';
+      else if (S.syncError) el.innerHTML = '<span style="color:#ffb3b3">⚠ ' + escapeHtml(S.syncError) + '</span>';
       else if (S.syncOkAt) el.innerHTML = '<span style="opacity:0.7">☁️ סנכרון ענן: ' + escapeHtml(S.syncOkAt) + '</span>';
     }
 
@@ -1555,14 +1642,18 @@
       try {
         const res=await fetch(API_URL);
         if(!res.ok) return;
-        const d=await res.json();
+        let d;
+        try { d=await res.json(); } catch(_) { return; }
         if(d&&d.ok&&d.data){
           applyCloudData(d.data); S.cloudVersion=d.version||"0";
           normalizeStateShape(); render();
           S.syncOkAt=new Date().toLocaleTimeString("he-IL"); renderSyncMeta();
           if(S.isAuthenticated) startCloudSync();
         }
-      } catch(_) {}
+      } catch(_) {
+        _offlineMode = true;
+        renderSyncMeta();
+      }
     }
     async function saveRemote() {
       await saveToCloud();
@@ -1659,6 +1750,11 @@
         + '<div class="kpi"><div class="small muted">הכנסות</div><strong>₪'+d.revenue.toLocaleString("he-IL")+'</strong><div class="kpi-note">מטיולים פעילים</div></div>'
         + '<div class="kpi" style="border-color:'+(d.overdueTasks>0?"var(--danger)":"var(--line)")+'"><div class="small muted">משימות דחופות</div><strong style="color:'+(d.overdueTasks>0?"var(--danger)":"var(--ok)")+'">'+d.overdueTasks+'</strong><div class="kpi-note">באיחור</div></div>'
         + '</div>'
+        // מונים בזמן אמת - קטגוריות מטיילים
+        + '<div class="card" style="padding:12px"><div class="section-title">📊 מטיילים לפי קטגוריה (בזמן אמת)</div>'
+        + '<div class="kpis">'
+        + function(){var cats=[{name:"מיטיבי לכת",icon:"🥾",color:"#c33434"},{name:"אוהבי לכת",icon:"🚶",color:"#b57814"},{name:"דתיים",icon:"✡",color:"#7c3aed"},{name:"משפחות",icon:"👨‍👩‍👧‍👦",color:"#1f8a53"},{name:"אקסטרים",icon:"🧗",color:"#e91e63"},{name:"יוקרה",icon:"💎",color:"#0f567f"}];return cats.map(function(c){var count=S.travelers.filter(function(t){return (t.interestGroups||[]).includes(c.name)||(t.segments||[]).includes(c.name)||(t.preferredCategories||[]).includes(c.name);}).length;return '<div class="kpi" style="border-top:3px solid '+c.color+'"><div class="small muted">'+c.icon+' '+c.name+'</div><strong style="color:'+c.color+'">'+count+'</strong><div class="kpi-note">מטיילים רשומים</div></div>';}).join('');}()
+        + '</div></div>'
         // פעולות מהירות
         + '<div class="card"><div class="section-title">⚡ פעולות מהירות</div>'
         + '<div class="quick-actions">'
@@ -2744,7 +2840,7 @@
     }
 
     // ===== מסלולי הליכה =====
-    const HIKING_REGIONS = ["צפון","מרכז","דרום","ירושלים","שפלה","נגב","גולן","ים המלח","ערבה"];
+    const HIKING_REGIONS = ["ירושלים","צפון","מרכז","דרום","שפלה","נגב","גולן","ים המלח","מדבר יהודה","שומרון","ערבה","אילת"];
 
     function saveHiking() {
       const f=S.hikingForm; if(!f.name) return;
@@ -3083,7 +3179,10 @@
 
     // ===== ACTIVITY LOG TAB =====
     function renderActivityLogTab() {
-      const log = loadActivityLog();
+      const localLog = loadActivityLog();
+      const cloudLog = S.activityLog || [];
+      const merged = localLog.length >= cloudLog.length ? localLog : cloudLog;
+      const log = merged;
       return '<div class="card">'
         + '<div class="section-title">📋 יומן פעילויות</div>'
         + '<div class="sub-title">תיעוד כל הפעולות במערכת – מי תיעד, מתי ומה בוצע</div>'
@@ -3631,8 +3730,9 @@
       else content=renderDashboard();
 
       const d=dashboardData();
+      const onlineUsersHtml = function(){var ou=getOnlineUsers();var us=loadUsers();return ou.length?ou.map(function(u){var usr=us.find(function(x){return x.username===u;});return '<span class="meta-pill" style="background:rgba(31,200,100,0.3);border-color:rgba(31,200,100,0.5)">🟢 '+escapeHtml(u)+(usr?' ('+escapeHtml(usr.role)+')':'')+'</span>';}).join(''):'<span class="meta-pill" style="opacity:0.5">אין מחוברים</span>';}();
       return '<div class="shell">'
-        + '<div class="header"><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div>'+renderOnlineUsers()+'<div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">☁️ מחובר</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span><span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span></div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center"><div class="call-sim-input"><input placeholder="📞 סמלץ שיחה נכנסת..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall()" style="width:180px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:8px 12px;font-size:12px" onclick="simulateIncomingCall()">📞</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
+        + '<div class="header"><div style="text-align:center;padding:8px 0 4px"><div id="hero_clock" style="font-size:20px;font-weight:800;letter-spacing:0.5px">'+new Date().toLocaleDateString("he-IL",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+" | "+new Date().toLocaleTimeString("he-IL")+'</div></div><div class="header-row"><div><h2>✈ GoTours CRM 360</h2><div>מרכז שליטה מאוחד | tiyoolim.com · GoTours · שטח הפקות</div><div id="sync_meta" class="small" style="margin-top:5px"></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px"><span class="small" style="color:#fff;opacity:0.8">👥 מחוברים כרגע:</span>'+onlineUsersHtml+'</div><div class="top-meta"><span class="meta-pill">👤 '+escapeHtml(S.currentUser)+' ('+escapeHtml(S.currentUserRole)+')</span><span class="meta-pill">'+ (_offlineMode?'📴 לא מקוון':'☁️ מחובר') +'</span><span class="meta-pill">🔔 '+(d.overdueTasks+d.birthdaysToday)+' התראות</span><span class="meta-pill">🎯 '+d.leads+' לידים</span><span class="meta-pill">👥 '+d.travelers+' מטיילים</span><span class="meta-pill">💰 ₪'+d.revenue.toLocaleString("he-IL")+'</span></div></div><div class="row" style="max-width:620px"><input placeholder="🔍 חיפוש מטייל, ספק, הזמנה..." value="'+escapeHtml(S.search||"")+'" oninput="setState({search:this.value},false)"></div><div style="display:flex;gap:6px;align-items:center"><div class="call-sim-input"><input placeholder="📞 סמלץ שיחה נכנסת..." value="'+escapeHtml(S.incomingCallNumber||"")+'" oninput="S.incomingCallNumber=this.value" onkeydown="if(event.key===\'Enter\')simulateIncomingCall()" style="width:180px;font-size:12px"></div><button class="btn-ok" style="width:auto;padding:8px 12px;font-size:12px" onclick="simulateIncomingCall()">📞</button></div><div class="row" style="max-width:130px"><button class="btn-soft" onclick="logout()">יציאה</button></div></div></div>'
         + '<div class="tabs">'+tabs.map(t=>'<button class="'+(S.tab===t.id?"active":"")+'" onclick="setState({tab:\''+t.id+'\'},false)">'+t.label+'</button>').join("")+'</div>'
         + content
         + renderAiWidget()
@@ -3691,6 +3791,29 @@
     loadRemote();
     refreshIntegrationsStatus();
     refreshBirthdayAutomationStatus();
+
+    // ===== AUTO-SAVE: global listener for all input changes =====
+    document.addEventListener("input", function(e) {
+      const tag = e.target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+        autoSave();
+      }
+    });
+    document.addEventListener("change", function(e) {
+      const tag = e.target.tagName;
+      if (tag === "INPUT" || tag === "SELECT") {
+        autoSave();
+      }
+    });
+
+    // ===== LIVE CLOCK =====
+    function updateHeroClock() {
+      const el = document.getElementById("hero_clock");
+      if (!el) return;
+      const now = new Date();
+      el.textContent = now.toLocaleDateString("he-IL", {weekday:"long",year:"numeric",month:"long",day:"numeric"}) + " | " + now.toLocaleTimeString("he-IL");
+    }
+    setInterval(updateHeroClock, 1000);
   </script>
 </body>
 </html>
